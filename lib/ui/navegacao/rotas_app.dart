@@ -67,6 +67,11 @@ abstract final class RotasApp {
       ? '/produtos/lancar-estoque'
       : '/produtos/lancar-estoque?produto=$produtoId';
 
+  // Serviços: lista na casca (pelo menu); o resto abre por cima.
+  static const novoServico = '/servicos/novo';
+  static String detalhesServico(String id) => '/servicos/$id';
+  static String editarServico(String id) => '/servicos/$id/editar';
+
   static const modulos = <ModuloApp>[
     ModuloApp(
       rota: inicio,

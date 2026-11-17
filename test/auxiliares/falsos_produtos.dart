@@ -142,6 +142,15 @@ class ServicoCategoriasFalso implements ServicoCategorias {
       CategoriaDto(id: 'c1', nome: 'Perfumaria', tipo: 'produto'),
     ]);
   }
+
+  @override
+  Future<Resultado<List<CategoriaDto>>> listarDeServico() async {
+    leituras++;
+    return const Sucesso([
+      CategoriaDto(id: 's2', nome: 'Maquiagem', tipo: 'servico'),
+      CategoriaDto(id: 's1', nome: 'Unhas', tipo: 'servico'),
+    ]);
+  }
 }
 
 RepositorioProdutos repositorioProdutosDeTeste(

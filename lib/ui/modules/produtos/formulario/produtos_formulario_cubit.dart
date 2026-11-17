@@ -3,6 +3,7 @@ import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/categoria.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
+import 'package:sou_consultora/core/model/mudanca_foto.dart';
 import 'package:sou_consultora/core/model/produto.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';

@@ -7,6 +7,7 @@ import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
+import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/core/service/servico_cep.dart';
 import 'package:sou_consultora/core/service/servico_clientes.dart';
 import 'package:sou_consultora/core/service/servico_consultora.dart';
@@ -14,6 +15,7 @@ import 'package:sou_consultora/core/service/servico_categorias.dart';
 import 'package:sou_consultora/core/service/servico_estoque.dart';
 import 'package:sou_consultora/core/service/servico_fornecedores.dart';
 import 'package:sou_consultora/core/service/servico_produtos.dart';
+import 'package:sou_consultora/core/service/servico_servicos.dart';
 import 'package:sou_consultora/core/service/servico_whatsapp.dart';
 import 'package:sou_consultora/core/service/servico_foto_dispositivo.dart';
 import 'package:sou_consultora/core/service/servico_autenticacao.dart';
@@ -141,6 +143,22 @@ void _registrarProdutos() {
   if (!injetor.isRegistered<RepositorioProdutos>()) {
     injetor.registerLazySingleton<RepositorioProdutos>(
       () => RepositorioProdutos(
+        servico: injetor(),
+        fotos: injetor(),
+        sessaoEncerrada: sessaoEncerrada(),
+      ),
+    );
+  }
+
+  if (!injetor.isRegistered<ServicoServicos>()) {
+    injetor.registerLazySingleton<ServicoServicos>(
+      () => ServicoServicos(api: injetor()),
+    );
+  }
+
+  if (!injetor.isRegistered<RepositorioServicos>()) {
+    injetor.registerLazySingleton<RepositorioServicos>(
+      () => RepositorioServicos(
         servico: injetor(),
         fotos: injetor(),
         sessaoEncerrada: sessaoEncerrada(),

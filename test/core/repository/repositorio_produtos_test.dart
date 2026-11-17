@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
+import 'package:sou_consultora/core/model/mudanca_foto.dart';
 import 'package:sou_consultora/core/model/produto.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';

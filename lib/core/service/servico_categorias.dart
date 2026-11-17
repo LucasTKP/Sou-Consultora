@@ -10,12 +10,17 @@ class ServicoCategorias {
   final ApiSupabase _api;
 
   /// Categorias do tipo produto, em ordem alfabética.
-  Future<Resultado<List<CategoriaDto>>> listarDeProduto() {
+  Future<Resultado<List<CategoriaDto>>> listarDeProduto() => _listar('produto');
+
+  /// Categorias do tipo serviço, em ordem alfabética.
+  Future<Resultado<List<CategoriaDto>>> listarDeServico() => _listar('servico');
+
+  Future<Resultado<List<CategoriaDto>>> _listar(String tipo) {
     return executarComFalha(() async {
       final linhas = await _api.listar(
         'categorias',
         ordenarPor: 'nome',
-        onde: const {'tipo': 'produto'},
+        onde: {'tipo': tipo},
       );
       return linhas.map(CategoriaDto.fromJson).toList();
     }, mensagemPadrao: 'Não foi possível carregar as categorias.');

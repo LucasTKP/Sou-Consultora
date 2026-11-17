@@ -14,6 +14,9 @@ import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_sc
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/lancar_estoque/lancar_estoque_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/lista/produtos_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/servicos/detalhes/servicos_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/servicos/formulario/servicos_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/servicos/lista/servicos_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/perfil/editar/editar_perfil_screen.dart';
 import 'package:sou_consultora/ui/modules/perfil/meu_perfil/meu_perfil_screen.dart';
 import 'package:sou_consultora/ui/navegacao/carregando_screen.dart';
@@ -78,6 +81,7 @@ abstract final class RoteadorApp {
                 RotasApp.clientes => _rotaClientes(),
                 RotasApp.fornecedores => _rotaFornecedores(),
                 RotasApp.produtos => _rotaProdutos(),
+                RotasApp.servicos => _rotaServicos(),
                 _ => _rotaEmConstrucao(modulo),
               },
           ],
@@ -207,6 +211,39 @@ abstract final class RoteadorApp {
               parentNavigatorKey: chaveRaiz,
               builder: (_, estado) => ProdutosFormularioScreen(
                 idProduto: estado.pathParameters['id'],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca; novo, detalhes e edição abrem por cima (sem a barra).
+  static GoRoute _rotaServicos() {
+    return GoRoute(
+      path: RotasApp.servicos,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const ServicosListaScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'novo',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const ServicosFormularioScreen(),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              ServicosDetalhesScreen(idServico: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => ServicosFormularioScreen(
+                idServico: estado.pathParameters['id'],
               ),
             ),
           ],

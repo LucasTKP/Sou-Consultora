@@ -15,6 +15,7 @@ import 'package:sou_consultora/core/model/fornecedor.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
+import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
@@ -704,4 +705,85 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-07'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-08 · Serviços
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-08 Serviços', () {
+    const nomeE2e = 'E2E Serviço';
+
+    final cardE2e = find.descendant(
+      of: find.byType(CartaoListaApp),
+      matching: find.text(nomeE2e),
+    );
+
+    Future<void> abrirServicos(WidgetTester tester) async {
+      await abrirApp(tester);
+      await abrirMenu(tester);
+      await tocarNoMenu(tester, 'Serviços');
+      final listaOuVazia = find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            (w.data == 'Nenhum serviço ainda' ||
+                RegExp(r'^\d+ serviços? cadastrados?').hasMatch(w.data ?? '')),
+      );
+      await esperarAte(tester, listaOuVazia, descricao: 'lista de serviços');
+    }
+
+    /// Cadastra o serviço E2E (sem foto) se ainda não existir.
+    Future<void> garantirServicoE2e(WidgetTester tester) async {
+      final vazia = find.text('Nenhum serviço ainda').evaluate().isNotEmpty;
+      if (!vazia) {
+        await tester.enterText(find.byType(TextField).first, nomeE2e);
+        await tester.pumpAndSettle();
+        if (cardE2e.evaluate().isNotEmpty) return;
+      }
+      await tocar(
+        tester,
+        find.text(vazia ? 'Cadastrar serviço' : 'Novo serviço'),
+      );
+      await esperarAte(tester, find.text('Salvar Serviço'));
+      await digitar(tester, 'Nome do serviço', nomeE2e);
+      await tocar(tester, find.text('Escolha a categoria'));
+      await tocar(tester, find.text('Unhas').last);
+      await digitar(tester, 'Preço de venda', '6500');
+      await digitar(tester, 'Custo de materiais', '1500');
+      await tocar(tester, find.text('Salvar Serviço'));
+      await esperarAte(tester, cardE2e, descricao: 'serviço novo na lista');
+    }
+
+    testWidgets(
+      'cadastra (1ª vez), abre detalhes e edita o preço (restaura no fim)',
+      (tester) async {
+        await abrirServicos(tester);
+        await garantirServicoE2e(tester);
+        final repositorio = injetor<RepositorioServicos>();
+        final original = repositorio.lista!.firstWhere(
+          (s) => s.nome == nomeE2e,
+        );
+        addTearDown(
+          () => repositorio.salvar(original.paraServico(), id: original.id),
+        );
+
+        await tocar(tester, cardE2e);
+        await esperarAte(tester, find.text('Detalhes do Serviço'));
+        expect(find.text('Retorno estimado'), findsOneWidget);
+        expect(find.textContaining('Excluir'), findsNothing);
+
+        await tocar(tester, find.text('Editar Serviço'));
+        await esperarAte(tester, find.text('Salvar Serviço'));
+        final novoPreco = original.precoCobrado + 1000;
+        await digitar(
+          tester,
+          'Preço de venda',
+          FormatadorMoeda.formatarSemSimbolo(novoPreco),
+        );
+        await tocar(tester, find.text('Salvar Serviço'));
+        await esperarAte(tester, find.text('Detalhes do Serviço'));
+
+        final relido = await repositorio.buscarResumo(original.id);
+        expect((relido as Sucesso).valor!.precoCobrado, novoPreco);
+      },
+    );
+  }, skip: pularGrupo('E2E-08'));
 }

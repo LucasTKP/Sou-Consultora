@@ -17,6 +17,7 @@ import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
+import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/ui/navegacao/notificador_acesso.dart';
 import 'package:sou_consultora/ui/navegacao/roteador_app.dart';
 
@@ -25,6 +26,7 @@ import '../../auxiliares/falsos_consultora.dart';
 import '../../auxiliares/falsos_fornecedores.dart';
 import '../../auxiliares/falsos_estoque.dart';
 import '../../auxiliares/falsos_produtos.dart';
+import '../../auxiliares/falsos_servicos.dart';
 import '../../auxiliares/montar_app.dart';
 
 class _RepositorioFalso implements RepositorioAutenticacao {
@@ -99,7 +101,12 @@ Future<void> abrirApp(
     ..registerSingleton<RepositorioEstoque>(
       repositorioEstoqueDeTeste(ServicoEstoqueFalso(), produtos),
     )
-    ..registerSingleton<RepositorioCategorias>(repositorioCategoriasDeTeste());
+    ..registerSingleton<RepositorioCategorias>(repositorioCategoriasDeTeste())
+    ..registerSingleton<RepositorioServicos>(
+      repositorioServicosDeTeste(
+        ServicoServicosFalso(resumos: [servicoDto('s1', 'Manicure')]),
+      ),
+    );
   final acesso = NotificadorAcesso(
     autenticacao: _repositorio,
     consultoras: consultoras,

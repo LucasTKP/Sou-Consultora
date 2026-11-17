@@ -3,33 +3,13 @@ import 'dart:typed_data';
 
 import 'package:sou_consultora/core/dto/resumo_produto_dto.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
+import 'package:sou_consultora/core/model/mudanca_foto.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
 import 'package:sou_consultora/core/model/produto.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';
+import 'package:sou_consultora/core/repository/gravacao_com_foto.dart';
 import 'package:sou_consultora/core/service/servico_foto_dispositivo.dart';
 import 'package:sou_consultora/core/service/servico_produtos.dart';
-
-/// O que fazer com a foto ao salvar um produto.
-sealed class MudancaFoto {
-  const MudancaFoto();
-}
-
-/// Mantém a foto que o produto já tem (ou continua sem foto).
-final class ManterFoto extends MudancaFoto {
-  const ManterFoto();
-}
-
-/// Troca pela foto nova (bytes já recortados).
-final class TrocarFoto extends MudancaFoto {
-  const TrocarFoto(this.bytes);
-
-  final Uint8List bytes;
-}
-
-/// Tira a foto do produto.
-final class RemoverFoto extends MudancaFoto {
-  const RemoverFoto();
-}
 
 /// Produtos da consultora logada.
 ///
@@ -94,25 +74,16 @@ class RepositorioProdutos {
     String? id,
     MudancaFoto foto = const ManterFoto(),
   }) async {
-    final anterior = produto.caminhoFoto;
-    final String? novoCaminho;
-    switch (await _caminhoFinal(anterior, foto)) {
-      case Erro(:final falha):
-        return Erro(falha);
-      case Sucesso(:final valor):
-        novoCaminho = valor;
-    }
-
-    final gravado = _comFoto(produto, novoCaminho);
-    final resultado = id == null
-        ? await _servico.criar(gravado)
-        : await _servico.atualizar(id, gravado);
-
-    if (resultado is Erro<String>) {
-      await _apagarSeNova(novoCaminho, anterior);
-      return resultado;
-    }
-    await _apagarSeTrocada(anterior, novoCaminho);
+    final resultado = await gravarComFoto(
+      caminhoAnterior: produto.caminhoFoto,
+      foto: foto,
+      enviar: _servico.enviarFoto,
+      remover: _servico.removerFoto,
+      gravar: (caminho) => id == null
+          ? _servico.criar(_comFoto(produto, caminho))
+          : _servico.atualizar(id, _comFoto(produto, caminho)),
+    );
+    if (resultado is Erro<String>) return resultado;
     // A gravação já valeu; se recarregar falhar, a lista atualiza na próxima abertura.
     await carregar();
     return resultado;
@@ -127,28 +98,6 @@ class RepositorioProdutos {
   Future<void> encerrar() async {
     await _assinaturaSessao?.cancel();
     await _mudancas.close();
-  }
-
-  Future<Resultado<String?>> _caminhoFinal(
-    String? anterior,
-    MudancaFoto foto,
-  ) async {
-    return switch (foto) {
-      ManterFoto() => Sucesso(anterior),
-      RemoverFoto() => const Sucesso(null),
-      TrocarFoto(:final bytes) => await _servico.enviarFoto(bytes),
-    };
-  }
-
-  Future<void> _apagarSeNova(String? caminho, String? anterior) async {
-    if (caminho == null || caminho == anterior) return;
-    await _servico.removerFoto(caminho);
-  }
-
-  /// Falha ao apagar a foto antiga não desfaz o salvar.
-  Future<void> _apagarSeTrocada(String? anterior, String? atual) async {
-    if (anterior == null || anterior == atual) return;
-    await _servico.removerFoto(anterior);
   }
 
   Future<List<ResumoProduto>> _comFotos(List<ResumoProdutoDto> dtos) async {

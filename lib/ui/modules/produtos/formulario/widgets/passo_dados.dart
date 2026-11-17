@@ -5,7 +5,7 @@ import 'package:sou_consultora/core/model/categoria.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_state.dart';
-import 'package:sou_consultora/ui/modules/produtos/formulario/widgets/campo_foto_produto.dart';
+import 'package:sou_consultora/ui/widgets/formularios/campo_foto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 
@@ -32,7 +32,8 @@ class PassoDados extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CampoFotoProduto(
+        CampoFotoApp(
+          rotuloAcessivel: 'foto do produto',
           fotoNova: estado.fotoNova,
           urlFoto: estado.urlFotoVisivel,
           onTap: onFoto,
