@@ -63,12 +63,17 @@ class AlternadorSegmentadoApp<T> extends StatelessWidget {
                   Icon(opcao.icone, color: cor, size: 22),
                   const SizedBox(width: 8),
                 ],
-                Text(
-                  opcao.rotulo,
-                  style: TextStyle(
-                    color: cor,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
+                // Em tela estreita (ou fonte grande), corta com reticências.
+                Flexible(
+                  child: Text(
+                    opcao.rotulo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: cor,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

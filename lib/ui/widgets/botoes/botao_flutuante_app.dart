@@ -9,20 +9,28 @@ class BotaoFlutuanteApp extends StatelessWidget {
     required this.rotulo,
     required this.onPressed,
     this.icone = Icons.add_rounded,
+    this.secundario = false,
   });
 
   final String rotulo;
   final VoidCallback onPressed;
   final IconData icone;
 
+  /// Fundo branco com texto na cor primária (ação de apoio, acima da principal).
+  final bool secundario;
+
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       heroTag: rotulo,
       onPressed: onPressed,
-      backgroundColor: CoresApp.primaria,
-      foregroundColor: CoresApp.sobrePrimaria,
-      shape: const StadiumBorder(),
+      backgroundColor: secundario ? CoresApp.superficie : CoresApp.primaria,
+      foregroundColor: secundario ? CoresApp.primaria : CoresApp.sobrePrimaria,
+      shape: StadiumBorder(
+        side: secundario
+            ? const BorderSide(color: CoresApp.primariaSuave)
+            : BorderSide.none,
+      ),
       icon: Icon(icone),
       label: Text(
         rotulo,

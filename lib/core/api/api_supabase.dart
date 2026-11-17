@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Porta única do app para o client Supabase.
 class ApiSupabase {
   ApiSupabase({SupabaseClient? cliente})
-      : _cliente = cliente ?? Supabase.instance.client;
+    : _cliente = cliente ?? Supabase.instance.client;
 
   final SupabaseClient _cliente;
 
@@ -25,7 +25,9 @@ class ApiSupabase {
   /// Encerra a sessão. Com [somenteLocal], apenas remove a sessão do aparelho
   /// (não precisa de internet).
   Future<void> sair({bool somenteLocal = false}) {
-    return autenticacao.signOut(scope: somenteLocal ? SignOutScope.local : SignOutScope.global);
+    return autenticacao.signOut(
+      scope: somenteLocal ? SignOutScope.local : SignOutScope.global,
+    );
   }
 
   Future<AuthResponse> entrarComIdToken({
@@ -48,12 +50,46 @@ class ApiSupabase {
   // —— Banco (PostgREST). O RLS limita tudo à consultora logada. ——
 
   /// Primeira linha de [tabela] onde [coluna] = [valor] (null se não houver).
-  Future<Map<String, dynamic>?> buscarUm(String tabela, {required String coluna, required Object valor}) {
-    return _cliente.from(tabela).select().eq(coluna, valor).maybeSingle();
+  /// [selecao] permite embutir relações (ex.: `'*, enderecos(*)'`).
+  Future<Map<String, dynamic>?> buscarUm(
+    String tabela, {
+    required String coluna,
+    required Object valor,
+    String selecao = '*',
+  }) {
+    return _cliente
+        .from(tabela)
+        .select(selecao)
+        .eq(coluna, valor)
+        .maybeSingle();
+  }
+
+  /// Todas as linhas visíveis de [tabela] (ou view), ordenadas por [ordenarPor].
+  /// [onde] filtra por igualdade (ex.: `{'tipo': 'produto'}`).
+  Future<List<Map<String, dynamic>>> listar(
+    String tabela, {
+    String? ordenarPor,
+    Map<String, Object> onde = const {},
+  }) {
+    var consulta = _cliente.from(tabela).select();
+    for (final MapEntry(:key, :value) in onde.entries) {
+      consulta = consulta.eq(key, value);
+    }
+    return ordenarPor == null
+        ? consulta
+        : consulta.order(ordenarPor, ascending: true);
+  }
+
+  /// Chama a função [funcao] do banco (RPC) e devolve o retorno cru.
+  Future<dynamic> rpc(String funcao, {Map<String, dynamic>? parametros}) {
+    return _cliente.rpc(funcao, params: parametros);
   }
 
   /// Insere e devolve a linha gravada (com os valores padrão do banco).
-  Future<Map<String, dynamic>> inserir(String tabela, Map<String, dynamic> dados) {
+  Future<Map<String, dynamic>> inserir(
+    String tabela,
+    Map<String, dynamic> dados,
+  ) {
     return _cliente.from(tabela).insert(dados).select().single();
   }
 
@@ -64,13 +100,25 @@ class ApiSupabase {
     required String coluna,
     required Object valor,
   }) {
-    return _cliente.from(tabela).update(dados).eq(coluna, valor).select().single();
+    return _cliente
+        .from(tabela)
+        .update(dados)
+        .eq(coluna, valor)
+        .select()
+        .single();
   }
 
   // —— Storage (buckets privados, pasta <id do usuário>/) ——
 
-  Future<void> enviarArquivo(String bucket, String caminho, Uint8List bytes, {required String tipoConteudo}) {
-    return _cliente.storage.from(bucket).uploadBinary(
+  Future<void> enviarArquivo(
+    String bucket,
+    String caminho,
+    Uint8List bytes, {
+    required String tipoConteudo,
+  }) {
+    return _cliente.storage
+        .from(bucket)
+        .uploadBinary(
           caminho,
           bytes,
           fileOptions: FileOptions(contentType: tipoConteudo, upsert: true),
@@ -82,7 +130,30 @@ class ApiSupabase {
   }
 
   /// URL temporária para exibir um arquivo privado.
-  Future<String> urlAssinada(String bucket, String caminho, {Duration validade = const Duration(hours: 1)}) {
-    return _cliente.storage.from(bucket).createSignedUrl(caminho, validade.inSeconds);
+  Future<String> urlAssinada(
+    String bucket,
+    String caminho, {
+    Duration validade = const Duration(hours: 1),
+  }) {
+    return _cliente.storage
+        .from(bucket)
+        .createSignedUrl(caminho, validade.inSeconds);
+  }
+
+  /// URLs temporárias de vários arquivos numa chamada só (caminho → URL).
+  /// Arquivos que não existem ficam de fora.
+  Future<Map<String, String>> urlsAssinadas(
+    String bucket,
+    List<String> caminhos, {
+    Duration validade = const Duration(hours: 1),
+  }) async {
+    if (caminhos.isEmpty) return const {};
+    final resultados = await _cliente.storage
+        .from(bucket)
+        .createSignedUrlsResult(caminhos, validade.inSeconds);
+    return {
+      for (final resultado in resultados.whereType<SignedUrlSuccess>())
+        resultado.path: resultado.signedUrl,
+    };
   }
 }

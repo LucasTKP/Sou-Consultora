@@ -41,6 +41,32 @@ abstract final class RotasApp {
   static const perfil = '/perfil';
   static const editarPerfil = '/perfil/editar';
 
+  // Clientes: lista na casca; o resto abre por cima.
+  static const novoCliente = '/clientes/novo';
+  static String detalhesCliente(String id) => '/clientes/$id';
+  static String dadosCliente(String id) => '/clientes/$id/dados';
+  static String editarCliente(String id) => '/clientes/$id/editar';
+  static String comprasCliente(String id) => '/clientes/$id/compras';
+
+  /// Nova venda (com a cliente já escolhida). Construída na fase de Vendas.
+  static String novaVendaPara(String idCliente) =>
+      '/vendas/nova?cliente=$idCliente';
+
+  // Fornecedores: lista na casca (pelo menu); o resto abre por cima.
+  static const novoFornecedor = '/fornecedores/novo';
+  static String detalhesFornecedor(String id) => '/fornecedores/$id';
+  static String editarFornecedor(String id) => '/fornecedores/$id/editar';
+
+  // Produtos: lista na casca (item da barra); o resto abre por cima.
+  static const novoProduto = '/produtos/novo';
+  static String detalhesProduto(String id) => '/produtos/$id';
+  static String editarProduto(String id) => '/produtos/$id/editar';
+
+  /// Lançar estoque; com [produtoId], a folha de item já abre com ele escolhido.
+  static String lancarEstoque({String? produtoId}) => produtoId == null
+      ? '/produtos/lancar-estoque'
+      : '/produtos/lancar-estoque?produto=$produtoId';
+
   static const modulos = <ModuloApp>[
     ModuloApp(
       rota: inicio,
