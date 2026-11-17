@@ -7,6 +7,7 @@ import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
+import 'package:sou_consultora/ui/widgets/formularios/interruptor_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/seletor_quantidade_app.dart';
 
 import '../../auxiliares/montar_app.dart';
@@ -14,7 +15,9 @@ import '../../auxiliares/montar_app.dart';
 void main() {
   setUpAll(() => initializeDateFormatting('pt_BR'));
 
-  testWidgets('campo de texto mostra rótulo obrigatório, opcional e erro', (tester) async {
+  testWidgets('campo de texto mostra rótulo obrigatório, opcional e erro', (
+    tester,
+  ) async {
     await montar(
       tester,
       const Column(
@@ -27,13 +30,19 @@ void main() {
     );
 
     expect(find.textContaining('Nome *', findRichText: true), findsOneWidget);
-    expect(find.textContaining('Observações (Opcional)', findRichText: true), findsOneWidget);
+    expect(
+      find.textContaining('Observações (Opcional)', findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text('Informe o WhatsApp'), findsOneWidget);
   });
 
   testWidgets('campo de moeda devolve centavos', (tester) async {
     int? centavos;
-    await montar(tester, CampoMoedaApp(rotulo: 'Valor', onChanged: (valor) => centavos = valor));
+    await montar(
+      tester,
+      CampoMoedaApp(rotulo: 'Valor', onChanged: (valor) => centavos = valor),
+    );
 
     await tester.enterText(find.byType(TextField), '84250');
     expect(centavos, 84250);
@@ -41,7 +50,14 @@ void main() {
   });
 
   testWidgets('campo de data mostra a data formatada', (tester) async {
-    await montar(tester, CampoDataApp(rotulo: 'Vencimento', data: DateTime(2024, 5, 15), onChanged: (_) {}));
+    await montar(
+      tester,
+      CampoDataApp(
+        rotulo: 'Vencimento',
+        data: DateTime(2024, 5, 15),
+        onChanged: (_) {},
+      ),
+    );
     expect(find.text('15/05/2024'), findsOneWidget);
   });
 
@@ -89,13 +105,19 @@ void main() {
 
   testWidgets('quantidade respeita mínimo e máximo', (tester) async {
     final mudancas = <int>[];
-    await montar(tester, SeletorQuantidadeApp(valor: 1, maximo: 2, onChanged: mudancas.add));
+    await montar(
+      tester,
+      SeletorQuantidadeApp(valor: 1, maximo: 2, onChanged: mudancas.add),
+    );
 
     await tester.tap(find.byTooltip('Diminuir'));
     await tester.tap(find.byTooltip('Aumentar'));
     expect(mudancas, [2]);
 
-    await montar(tester, SeletorQuantidadeApp(valor: 2, maximo: 2, onChanged: mudancas.add));
+    await montar(
+      tester,
+      SeletorQuantidadeApp(valor: 2, maximo: 2, onChanged: mudancas.add),
+    );
     await tester.tap(find.byTooltip('Aumentar'));
     expect(mudancas, [2]);
   });
@@ -116,5 +138,24 @@ void main() {
 
     await tester.tap(find.text('Serviço'));
     expect(selecionado, 'servico');
+  });
+
+  testWidgets('interruptor alterna pelo toque na linha', (tester) async {
+    final valores = <bool>[];
+    await montar(
+      tester,
+      InterruptorApp(
+        rotulo: 'Em espera',
+        descricao: 'A marca sai dos ativos',
+        valor: false,
+        onChanged: valores.add,
+      ),
+    );
+
+    await tester.tap(find.text('Em espera'));
+    await tester.tap(find.byType(Switch));
+
+    expect(find.text('A marca sai dos ativos'), findsOneWidget);
+    expect(valores, [true, true]);
   });
 }

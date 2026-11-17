@@ -15,3 +15,8 @@ final class FalhaRede extends FalhaApp {
 final class FalhaInesperada extends FalhaApp {
   const FalhaInesperada(super.mensagem);
 }
+
+/// Dado recusado por uma regra do banco (ex.: nome repetido).
+final class FalhaValidacao extends FalhaApp {
+  const FalhaValidacao(super.mensagem);
+}
