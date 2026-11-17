@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
-import 'package:sou_consultora/ui/modules/perfil/widgets/foto_perfil/folha_foto_perfil.dart';
+import 'package:sou_consultora/ui/widgets/dialog/folha_foto_app.dart';
 import 'package:sou_consultora/ui/modules/perfil/widgets/foto_perfil/foto_perfil_cubit.dart';
 import 'package:sou_consultora/ui/modules/perfil/widgets/foto_perfil/foto_perfil_state.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
@@ -32,7 +32,11 @@ class _FotoPerfilVista extends StatelessWidget {
 
   Future<void> _abrirFolha(BuildContext context, bool temFoto) async {
     final cubit = context.read<FotoPerfilCubit>();
-    final acao = await FolhaFotoPerfil.mostrar(context, temFoto: temFoto);
+    final acao = await FolhaFotoApp.mostrar(
+      context,
+      titulo: 'Foto do Perfil',
+      temFoto: temFoto,
+    );
     switch (acao) {
       case null:
         return;

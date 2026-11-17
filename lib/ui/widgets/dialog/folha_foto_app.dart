@@ -4,18 +4,20 @@ import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 
-/// Escolha feita na folha "Foto do perfil".
+/// Escolha feita na folha de foto.
 enum AcaoFoto { camera, galeria, remover }
 
-/// Folha "Foto do perfil": tirar, escolher da galeria ou remover.
-abstract final class FolhaFotoPerfil {
+/// Folha de foto (perfil, produto): tirar, escolher da galeria ou remover.
+abstract final class FolhaFotoApp {
   static Future<AcaoFoto?> mostrar(
     BuildContext context, {
+    required String titulo,
     required bool temFoto,
+    String descricaoRemover = 'Voltar a exibir as iniciais',
   }) {
     return FolhaInferiorApp.mostrar<AcaoFoto>(
       context: context,
-      titulo: 'Foto do Perfil',
+      titulo: titulo,
       conteudo: (contexto) => Column(
         children: [
           _opcao(
@@ -44,7 +46,7 @@ abstract final class FolhaFotoPerfil {
               AcaoFoto.remover,
               Icons.delete_outline_rounded,
               'Remover foto',
-              'Voltar a exibir as iniciais',
+              descricaoRemover,
               CoresApp.perigoContainer,
               CoresApp.perigo,
             ),
