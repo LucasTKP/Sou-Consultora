@@ -6,8 +6,9 @@ import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_telefone.dart';
 import 'package:sou_consultora/ui/formatadores/mascaras.dart';
 
-String _digitar(TextInputFormatter mascara, String texto) =>
-    mascara.formatEditUpdate(TextEditingValue.empty, TextEditingValue(text: texto)).text;
+String _digitar(TextInputFormatter mascara, String texto) => mascara
+    .formatEditUpdate(TextEditingValue.empty, TextEditingValue(text: texto))
+    .text;
 
 void main() {
   setUpAll(() => initializeDateFormatting('pt_BR'));
@@ -21,7 +22,10 @@ void main() {
 
     test('ida e volta sem perder centavos', () {
       for (final centavos in [0, 1, 99, 100, 21990, 5482000]) {
-        expect(FormatadorMoeda.ler(FormatadorMoeda.formatar(centavos)), centavos);
+        expect(
+          FormatadorMoeda.ler(FormatadorMoeda.formatar(centavos)),
+          centavos,
+        );
       }
     });
 
@@ -44,11 +48,23 @@ void main() {
 
     test('relativo', () {
       final hoje = DateTime(2024, 11, 2, 18, 30);
-      expect(FormatadorData.relativo(DateTime(2024, 11, 2), hoje: hoje), 'hoje');
-      expect(FormatadorData.relativo(DateTime(2024, 11, 1), hoje: hoje), 'ontem');
-      expect(FormatadorData.relativo(DateTime(2024, 11, 3), hoje: hoje), 'amanhã');
+      expect(
+        FormatadorData.relativo(DateTime(2024, 11, 2), hoje: hoje),
+        'hoje',
+      );
+      expect(
+        FormatadorData.relativo(DateTime(2024, 11, 1), hoje: hoje),
+        'ontem',
+      );
+      expect(
+        FormatadorData.relativo(DateTime(2024, 11, 3), hoje: hoje),
+        'amanhã',
+      );
       expect(FormatadorData.relativo(data, hoje: hoje), 'há 18 dias');
-      expect(FormatadorData.relativo(DateTime(2024, 11, 5), hoje: hoje), 'em 3 dias');
+      expect(
+        FormatadorData.relativo(DateTime(2024, 11, 5), hoje: hoje),
+        'em 3 dias',
+      );
     });
 
     test('ler valida a data', () {

@@ -26,16 +26,26 @@ Future<void> _esperar() => Future<void>.delayed(Duration.zero);
 
 void main() {
   group('destinoPermitido', () {
-    String? destino(EstadoAcesso estado, String rota) => destinoPermitido(estado: estado, destino: rota);
+    String? destino(EstadoAcesso estado, String rota) =>
+        destinoPermitido(estado: estado, destino: rota);
 
     test('desconectado: só o login', () {
-      expect(destino(EstadoAcesso.desconectado, RotasApp.vendas), RotasApp.login);
-      expect(destino(EstadoAcesso.desconectado, RotasApp.cadastro), RotasApp.login);
+      expect(
+        destino(EstadoAcesso.desconectado, RotasApp.vendas),
+        RotasApp.login,
+      );
+      expect(
+        destino(EstadoAcesso.desconectado, RotasApp.cadastro),
+        RotasApp.login,
+      );
       expect(destino(EstadoAcesso.desconectado, RotasApp.login), isNull);
     });
 
     test('verificando ou com erro: só o carregando', () {
-      for (final estado in [EstadoAcesso.verificando, EstadoAcesso.erroVerificacao]) {
+      for (final estado in [
+        EstadoAcesso.verificando,
+        EstadoAcesso.erroVerificacao,
+      ]) {
         expect(destino(estado, RotasApp.inicio), RotasApp.carregando);
         expect(destino(estado, RotasApp.cadastro), RotasApp.carregando);
         expect(destino(estado, RotasApp.carregando), isNull);
@@ -43,14 +53,28 @@ void main() {
     });
 
     test('sem cadastro: só o cadastro', () {
-      expect(destino(EstadoAcesso.semCadastro, RotasApp.vendas), RotasApp.cadastro);
-      expect(destino(EstadoAcesso.semCadastro, RotasApp.login), RotasApp.cadastro);
+      expect(
+        destino(EstadoAcesso.semCadastro, RotasApp.vendas),
+        RotasApp.cadastro,
+      );
+      expect(
+        destino(EstadoAcesso.semCadastro, RotasApp.login),
+        RotasApp.cadastro,
+      );
       expect(destino(EstadoAcesso.semCadastro, RotasApp.cadastro), isNull);
     });
 
     test('pronto: rotas de entrada levam ao Início; demais liberadas', () {
-      for (final rota in [RotasApp.login, RotasApp.cadastro, RotasApp.carregando]) {
-        expect(destino(EstadoAcesso.pronto, rota), RotasApp.inicio, reason: rota);
+      for (final rota in [
+        RotasApp.login,
+        RotasApp.cadastro,
+        RotasApp.carregando,
+      ]) {
+        expect(
+          destino(EstadoAcesso.pronto, rota),
+          RotasApp.inicio,
+          reason: rota,
+        );
       }
       expect(destino(EstadoAcesso.pronto, RotasApp.aPagar), isNull);
       expect(destino(EstadoAcesso.pronto, RotasApp.editarPerfil), isNull);
@@ -65,7 +89,12 @@ void main() {
     });
 
     test('módulos fora da barra não ativam nenhum item', () {
-      for (final rota in [RotasApp.servicos, RotasApp.fornecedores, RotasApp.aReceber, RotasApp.aPagar]) {
+      for (final rota in [
+        RotasApp.servicos,
+        RotasApp.fornecedores,
+        RotasApp.aReceber,
+        RotasApp.aPagar,
+      ]) {
         expect(RotasApp.itemAtivo(rota), isNull, reason: rota);
       }
     });
@@ -93,7 +122,9 @@ void main() {
     test('com sessão e cadastro fica pronto', () async {
       final acesso = NotificadorAcesso(
         autenticacao: _AutenticacaoFalsa(estaLogado: true),
-        consultoras: repositorioDeTeste(ServicoConsultoraFalso(registro: dtoDeTeste())),
+        consultoras: repositorioDeTeste(
+          ServicoConsultoraFalso(registro: dtoDeTeste()),
+        ),
       );
       expect(acesso.estado, EstadoAcesso.verificando);
       await _esperar();
@@ -102,7 +133,10 @@ void main() {
 
     test('sem cadastro, cadastrar libera o app', () async {
       final repositorio = repositorioDeTeste(ServicoConsultoraFalso());
-      final acesso = NotificadorAcesso(autenticacao: _AutenticacaoFalsa(estaLogado: true), consultoras: repositorio);
+      final acesso = NotificadorAcesso(
+        autenticacao: _AutenticacaoFalsa(estaLogado: true),
+        consultoras: repositorio,
+      );
       await _esperar();
       expect(acesso.estado, EstadoAcesso.semCadastro);
 
@@ -112,8 +146,12 @@ void main() {
     });
 
     test('falha → tentar novamente → pronto', () async {
-      final servico = ServicoConsultoraFalso(registro: dtoDeTeste())..falharRede = true;
-      final acesso = NotificadorAcesso(autenticacao: _AutenticacaoFalsa(estaLogado: true), consultoras: repositorioDeTeste(servico));
+      final servico = ServicoConsultoraFalso(registro: dtoDeTeste())
+        ..falharRede = true;
+      final acesso = NotificadorAcesso(
+        autenticacao: _AutenticacaoFalsa(estaLogado: true),
+        consultoras: repositorioDeTeste(servico),
+      );
       await _esperar();
       expect(acesso.estado, EstadoAcesso.erroVerificacao);
       expect(acesso.mensagemErro, contains('internet'));
@@ -127,7 +165,10 @@ void main() {
       final autenticacao = _AutenticacaoFalsa(estaLogado: false);
       final servico = ServicoConsultoraFalso(registro: dtoDeTeste());
       final repositorio = repositorioDeTeste(servico);
-      final acesso = NotificadorAcesso(autenticacao: autenticacao, consultoras: repositorio);
+      final acesso = NotificadorAcesso(
+        autenticacao: autenticacao,
+        consultoras: repositorio,
+      );
 
       autenticacao.controle.add(true);
       await _esperar();

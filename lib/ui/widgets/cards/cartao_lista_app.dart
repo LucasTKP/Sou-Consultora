@@ -32,6 +32,7 @@ class CartaoListaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
+    final larguraMaximaSelo = MediaQuery.sizeOf(context).width * 0.45;
     return Material(
       color: CoresApp.superficie,
       shape: RoundedRectangleBorder(
@@ -66,7 +67,14 @@ class CartaoListaApp extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selo != null) ...[const SizedBox(width: 8), selo!],
+              // Com fonte grande, o selo ocupa no máximo 45% da linha (reticências) em vez de estourar.
+              if (selo != null) ...[
+                const SizedBox(width: 8),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: larguraMaximaSelo),
+                  child: selo!,
+                ),
+              ],
               if (fim != null) ...[const SizedBox(width: 8), fim!],
               if (mostrarSeta && onTap != null)
                 const Icon(

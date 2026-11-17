@@ -55,7 +55,13 @@ class BotaoApp extends StatelessWidget {
       leading: iconeInicio,
       trailing: iconeFim,
       expands: expande,
-      child: Text(rotulo),
+      // Sem expandir, o rótulo encolhe com reticências em vez de estourar (fonte grande).
+      // Expandindo, o ShadButton já envolve o filho num Expanded.
+      child: expande
+          ? Text(rotulo)
+          : Flexible(
+              child: Text(rotulo, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
     );
   }
 }

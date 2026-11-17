@@ -19,7 +19,8 @@ Widget appDeTeste({Widget? home, RouterConfig<Object>? roteador}) {
       ];
       const idiomas = [Locale('pt', 'BR')];
       final tema = TemaApp.mesclarMaterial(Theme.of(context));
-      ShadAppBuilder construtor(BuildContext _, Widget? filho) => ShadAppBuilder(child: filho!);
+      ShadAppBuilder construtor(BuildContext _, Widget? filho) =>
+          ShadAppBuilder(child: filho!);
 
       if (roteador != null) {
         return MaterialApp.router(
@@ -53,7 +54,14 @@ void usarTelaDeCelular(WidgetTester tester) {
 /// Monta um widget isolado numa tela rolável.
 Future<void> montar(WidgetTester tester, Widget filho) async {
   await tester.pumpWidget(
-    appDeTeste(home: Scaffold(body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: filho))),
+    appDeTeste(
+      home: Scaffold(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: filho,
+        ),
+      ),
+    ),
   );
   await tester.pumpAndSettle();
 }

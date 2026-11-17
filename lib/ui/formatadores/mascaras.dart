@@ -60,3 +60,26 @@ class MascaraData extends TextInputFormatter {
     return partes.join('/');
   }
 }
+
+/// 00000-000
+class MascaraCep extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue antigo,
+    TextEditingValue novo,
+  ) {
+    final texto = formatar(novo.text);
+    return TextEditingValue(
+      text: texto,
+      selection: TextSelection.collapsed(offset: texto.length),
+    );
+  }
+
+  /// "01001000" → "01001-000" (parcial enquanto digita).
+  static String formatar(String texto) {
+    var digitos = texto.replaceAll(RegExp(r'\D'), '');
+    if (digitos.length > 8) digitos = digitos.substring(0, 8);
+    if (digitos.length <= 5) return digitos;
+    return '${digitos.substring(0, 5)}-${digitos.substring(5)}';
+  }
+}

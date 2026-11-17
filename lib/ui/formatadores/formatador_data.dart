@@ -5,6 +5,7 @@ abstract final class FormatadorData {
   static final _curta = DateFormat('dd/MM/yyyy', 'pt_BR');
   static final _porExtenso = DateFormat("d 'de' MMMM 'de' y", 'pt_BR');
   static final _mesAno = DateFormat("MMMM 'de' y", 'pt_BR');
+  static final _diaMes = DateFormat("d 'de' MMMM", 'pt_BR');
 
   /// 15/05/2024
   static String curta(DateTime data) => _curta.format(data);
@@ -14,6 +15,28 @@ abstract final class FormatadorData {
 
   /// novembro de 2024
   static String mesAno(DateTime data) => _mesAno.format(data);
+
+  static const _mesesCurtos = [
+    'jan',
+    'fev',
+    'mar',
+    'abr',
+    'mai',
+    'jun',
+    'jul',
+    'ago',
+    'set',
+    'out',
+    'nov',
+    'dez',
+  ];
+
+  /// "mar/2023"
+  static String mesAnoCurto(DateTime data) =>
+      '${_mesesCurtos[data.month - 1]}/${data.year}';
+
+  /// "14 de novembro" (aniversário, sem o ano).
+  static String diaMes(DateTime data) => _diaMes.format(data);
 
   /// "15/05/2024" → DateTime. Texto incompleto ou data inexistente → null.
   static DateTime? ler(String texto) {

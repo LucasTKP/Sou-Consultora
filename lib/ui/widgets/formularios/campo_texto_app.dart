@@ -32,6 +32,7 @@ class CampoTextoApp extends StatelessWidget {
     this.linhas = 1,
     this.acaoTeclado,
     this.capitalizacao = TextCapitalization.none,
+    this.focusNode,
   });
 
   final String? rotulo;
@@ -58,10 +59,14 @@ class CampoTextoApp extends StatelessWidget {
   final TextInputAction? acaoTeclado;
   final TextCapitalization capitalizacao;
 
+  /// Para mover o foco por código (ex.: ir ao número depois do CEP).
+  final FocusNode? focusNode;
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       validator: validador,
       forceErrorText: erro,
       enabled: habilitado,

@@ -30,7 +30,7 @@ class SeloStatusApp extends StatelessWidget {
       backgroundColor: fundo,
       foregroundColor: texto,
       hoverBackgroundColor: fundo,
-      child: Text(rotulo),
+      child: Text(rotulo, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
   }
 }

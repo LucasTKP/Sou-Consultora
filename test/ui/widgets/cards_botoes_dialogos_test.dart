@@ -32,7 +32,9 @@ void main() {
     expect(toques, 2);
   });
 
-  testWidgets('card de lista mostra dados, selo e responde ao toque', (tester) async {
+  testWidgets('card de lista mostra dados, selo e responde ao toque', (
+    tester,
+  ) async {
     var tocou = false;
     await montar(
       tester,
@@ -40,7 +42,10 @@ void main() {
         titulo: 'Dona Carla',
         subtitulo: 'Última compra há 3 dias',
         inicio: const AvatarApp(iniciais: 'DC'),
-        selo: const SeloStatusApp(rotulo: 'Deve R\$ 120', status: StatusSelo.perigo),
+        selo: const SeloStatusApp(
+          rotulo: 'Deve R\$ 120',
+          status: StatusSelo.perigo,
+        ),
         onTap: () => tocou = true,
       ),
     );
@@ -58,8 +63,16 @@ void main() {
       tester,
       GrupoNavegacaoApp(
         itens: [
-          ItemNavegacaoApp(icone: Icons.badge_outlined, titulo: 'Dados Cadastrais', onTap: () => aberto = 'dados'),
-          ItemNavegacaoApp(icone: Icons.shopping_bag_outlined, titulo: 'Compras da Cliente', onTap: () => aberto = 'compras'),
+          ItemNavegacaoApp(
+            icone: Icons.badge_outlined,
+            titulo: 'Dados Cadastrais',
+            onTap: () => aberto = 'dados',
+          ),
+          ItemNavegacaoApp(
+            icone: Icons.shopping_bag_outlined,
+            titulo: 'Compras da Cliente',
+            onTap: () => aberto = 'compras',
+          ),
         ],
       ),
     );
@@ -69,26 +82,45 @@ void main() {
   });
 
   testWidgets('avatar sem foto mostra as iniciais', (tester) async {
-    await montar(tester, const Column(children: [AvatarApp(iniciais: 'AC'), AvatarApp(urlImagem: ' ', iniciais: 'DC')]));
+    await montar(
+      tester,
+      const Column(
+        children: [
+          AvatarApp(iniciais: 'AC'),
+          AvatarApp(urlImagem: ' ', iniciais: 'DC'),
+        ],
+      ),
+    );
     expect(find.text('AC'), findsOneWidget);
     expect(find.text('DC'), findsOneWidget);
   });
 
   testWidgets('foto quadrada sem url mostra reserva em 1:1', (tester) async {
-    await montar(tester, const Center(child: FotoQuadradaApp(tamanho: TamanhoAvatar.destaque)));
+    await montar(
+      tester,
+      const Center(child: FotoQuadradaApp(tamanho: TamanhoAvatar.destaque)),
+    );
 
     expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
     expect(tester.getSize(find.byType(FotoQuadradaApp)), const Size(80, 80));
   });
 
-  testWidgets('diálogo devolve true ao confirmar e false ao cancelar', (tester) async {
+  testWidgets('diálogo devolve true ao confirmar e false ao cancelar', (
+    tester,
+  ) async {
     final respostas = <bool>[];
     await montar(
       tester,
       Builder(
         builder: (context) => TextButton(
           onPressed: () async => respostas.add(
-            await DialogoConfirmacaoApp.mostrar(context: context, titulo: 'Sair', mensagem: 'Deseja sair?', rotuloConfirmar: 'Sair', perigo: true),
+            await DialogoConfirmacaoApp.mostrar(
+              context: context,
+              titulo: 'Sair',
+              mensagem: 'Deseja sair?',
+              rotuloConfirmar: 'Sair',
+              perigo: true,
+            ),
           ),
           child: const Text('abrir'),
         ),
@@ -134,14 +166,19 @@ void main() {
     expect(find.text('Opções da parcela'), findsNothing);
   });
 
-  testWidgets('estados: vazio, erro com tentar novamente e em construção', (tester) async {
+  testWidgets('estados: vazio, erro com tentar novamente e em construção', (
+    tester,
+  ) async {
     var tentou = false;
     await montar(
       tester,
       Column(
         children: [
           const EstadoVazioApp(titulo: 'Nenhum cliente'),
-          EstadoErroApp(mensagem: 'Sem conexão', onTentarNovamente: () => tentou = true),
+          EstadoErroApp(
+            mensagem: 'Sem conexão',
+            onTentarNovamente: () => tentou = true,
+          ),
           const EstadoEmConstrucaoApp(modulo: 'A Pagar'),
         ],
       ),

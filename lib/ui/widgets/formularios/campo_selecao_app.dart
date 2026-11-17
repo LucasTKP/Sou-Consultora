@@ -54,7 +54,9 @@ class _CampoSelecaoAppState<T> extends State<CampoSelecaoApp<T>> {
   @override
   void didUpdateWidget(CampoSelecaoApp<T> antigo) {
     super.didUpdateWidget(antigo);
-    if (antigo.valor != widget.valor) _controle.text = _texto(widget.valor);
+    // Compara o texto (não só o valor): o rótulo pode mudar com o mesmo valor (ex.: contagens).
+    final texto = _texto(widget.valor);
+    if (_controle.text != texto) _controle.text = texto;
   }
 
   @override
