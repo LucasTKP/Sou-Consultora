@@ -27,7 +27,11 @@ class Consultora {
 
   bool get temChavePix => chavePix != null;
 
-  Consultora copyWith({String? nome, String? whatsapp, String? Function()? urlFoto}) {
+  Consultora copyWith({
+    String? nome,
+    String? whatsapp,
+    String? Function()? urlFoto,
+  }) {
     return Consultora(
       id: id,
       nome: nome ?? this.nome,
@@ -38,7 +42,9 @@ class Consultora {
     );
   }
 
-  static String? validarNome(String texto) => texto.trim().isEmpty ? 'Informe o nome' : null;
+  static String? validarNome(String texto) =>
+      texto.trim().isEmpty ? 'Informe o nome' : null;
 
-  static String? validarWhatsapp(String texto) => Telefone.valido(texto) ? null : 'Informe o WhatsApp com DDD';
+  static String? validarWhatsapp(String texto) =>
+      Telefone.valido(texto) ? null : 'Informe o WhatsApp com DDD';
 }

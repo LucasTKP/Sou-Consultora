@@ -9,7 +9,12 @@ import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/service/servico_consultora.dart';
 import 'package:sou_consultora/core/service/servico_foto_dispositivo.dart';
 
-ConsultoraDto dtoDeTeste({String nome = 'Ana Paula', String? foto, String? chave, String? tipo}) {
+ConsultoraDto dtoDeTeste({
+  String nome = 'Ana Paula',
+  String? foto,
+  String? chave,
+  String? tipo,
+}) {
   return ConsultoraDto(
     id: 'id-ana',
     nome: nome,
@@ -22,7 +27,9 @@ ConsultoraDto dtoDeTeste({String nome = 'Ana Paula', String? foto, String? chave
   );
 }
 
-const falhaDeRede = FalhaRede('Sem conexão com a internet. Verifique e tente novamente.');
+const falhaDeRede = FalhaRede(
+  'Sem conexão com a internet. Verifique e tente novamente.',
+);
 
 /// Service falso: grava em memória e registra as chamadas.
 class ServicoConsultoraFalso implements ServicoConsultora {
@@ -35,7 +42,8 @@ class ServicoConsultoraFalso implements ServicoConsultora {
   final List<String> fotosRemovidas = [];
   int _contador = 0;
 
-  Resultado<T> _ou<T>(T valor) => falharRede ? const Erro(falhaDeRede) : Sucesso(valor);
+  Resultado<T> _ou<T>(T valor) =>
+      falharRede ? Erro(falhaDeRede) : Sucesso(valor);
 
   @override
   Future<Resultado<ConsultoraDto?>> buscarMinha() async {
@@ -44,9 +52,12 @@ class ServicoConsultoraFalso implements ServicoConsultora {
   }
 
   @override
-  Future<Resultado<ConsultoraDto>> criar({required String nome, required String whatsapp}) async {
+  Future<Resultado<ConsultoraDto>> criar({
+    required String nome,
+    required String whatsapp,
+  }) async {
     chamadas.add('criar $nome $whatsapp');
-    if (falharRede) return const Erro(falhaDeRede);
+    if (falharRede) return Erro(falhaDeRede);
     return Sucesso(registro = dtoDeTeste(nome: nome));
   }
 
@@ -58,16 +69,30 @@ class ServicoConsultoraFalso implements ServicoConsultora {
     required String? tipoChavePix,
   }) async {
     chamadas.add('atualizar $nome $whatsapp $chavePix $tipoChavePix');
-    if (falharRede) return const Erro(falhaDeRede);
-    return Sucesso(registro = dtoDeTeste(nome: nome, foto: registro?.fotoUrl, chave: chavePix, tipo: tipoChavePix));
+    if (falharRede) return Erro(falhaDeRede);
+    return Sucesso(
+      registro = dtoDeTeste(
+        nome: nome,
+        foto: registro?.fotoUrl,
+        chave: chavePix,
+        tipo: tipoChavePix,
+      ),
+    );
   }
 
   @override
   Future<Resultado<ConsultoraDto>> atualizarFoto(String? caminho) async {
     chamadas.add('atualizarFoto $caminho');
-    if (falharRede || falharAtualizarFoto) return const Erro(falhaDeRede);
+    if (falharRede || falharAtualizarFoto) return Erro(falhaDeRede);
     final atual = registro ?? dtoDeTeste();
-    return Sucesso(registro = dtoDeTeste(nome: atual.nome, foto: caminho, chave: atual.chavePix, tipo: atual.tipoChavePix));
+    return Sucesso(
+      registro = dtoDeTeste(
+        nome: atual.nome,
+        foto: caminho,
+        chave: atual.chavePix,
+        tipo: atual.tipoChavePix,
+      ),
+    );
   }
 
   @override
@@ -83,7 +108,8 @@ class ServicoConsultoraFalso implements ServicoConsultora {
   }
 
   @override
-  Future<Resultado<String>> urlDaFoto(String caminho) async => Sucesso('https://assinada/$caminho');
+  Future<Resultado<String>> urlDaFoto(String caminho) async =>
+      Sucesso('https://assinada/$caminho');
 }
 
 /// Seleção de foto falsa: devolve bytes, null (desistiu) ou erro.
@@ -99,6 +125,12 @@ class FotoDispositivoFalsa implements ServicoFotoDispositivo {
 }
 
 /// Repositório real ligado aos falsos acima.
-RepositorioConsultora repositorioDeTeste(ServicoConsultoraFalso servico, [FotoDispositivoFalsa? fotos]) {
-  return RepositorioConsultora(servico: servico, fotos: fotos ?? FotoDispositivoFalsa());
+RepositorioConsultora repositorioDeTeste(
+  ServicoConsultoraFalso servico, [
+  FotoDispositivoFalsa? fotos,
+]) {
+  return RepositorioConsultora(
+    servico: servico,
+    fotos: fotos ?? FotoDispositivoFalsa(),
+  );
 }

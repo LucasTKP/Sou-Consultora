@@ -19,9 +19,14 @@ void main() {
   });
 
   test('buscar com foto gera a URL assinada', () async {
-    final repositorio = repositorioDeTeste(ServicoConsultoraFalso(registro: dtoDeTeste(foto: 'id-ana/perfil-1.jpg')));
+    final repositorio = repositorioDeTeste(
+      ServicoConsultoraFalso(registro: dtoDeTeste(foto: 'id-ana/perfil-1.jpg')),
+    );
     final resultado = await repositorio.buscarMinha();
-    expect((resultado as Sucesso<Consultora?>).valor?.urlFoto, 'https://assinada/id-ana/perfil-1.jpg');
+    expect(
+      (resultado as Sucesso<Consultora?>).valor?.urlFoto,
+      'https://assinada/id-ana/perfil-1.jpg',
+    );
   });
 
   test('cadastrar guarda o WhatsApp só com dígitos e publica', () async {
@@ -29,7 +34,10 @@ void main() {
     final repositorio = repositorioDeTeste(servico);
     final mudanca = repositorio.mudancas.first;
 
-    await repositorio.cadastrar(nome: '  Ana Paula ', whatsapp: '(11) 98765-4321');
+    await repositorio.cadastrar(
+      nome: '  Ana Paula ',
+      whatsapp: '(11) 98765-4321',
+    );
 
     expect(servico.chamadas.last, 'criar Ana Paula 11987654321');
     expect((await mudanca)?.nome, 'Ana Paula');
@@ -51,18 +59,25 @@ void main() {
   });
 
   test('trocar foto envia, aponta o cadastro e apaga a anterior', () async {
-    final servico = ServicoConsultoraFalso(registro: dtoDeTeste(foto: 'id-ana/perfil-antiga.jpg'));
+    final servico = ServicoConsultoraFalso(
+      registro: dtoDeTeste(foto: 'id-ana/perfil-antiga.jpg'),
+    );
     final repositorio = repositorioDeTeste(servico);
     await repositorio.buscarMinha();
 
     final resultado = await repositorio.trocarFoto(Uint8List(3));
 
-    expect((resultado as Sucesso<Consultora>).valor.caminhoFoto, 'id-ana/perfil-1.jpg');
+    expect(
+      (resultado as Sucesso<Consultora>).valor.caminhoFoto,
+      'id-ana/perfil-1.jpg',
+    );
     expect(servico.fotosRemovidas, ['id-ana/perfil-antiga.jpg']);
   });
 
   test('se gravar o cadastro falhar, apaga a foto recém-enviada e mantém a anterior', () async {
-    final servico = ServicoConsultoraFalso(registro: dtoDeTeste(foto: 'id-ana/perfil-antiga.jpg'))..falharAtualizarFoto = true;
+    final servico = ServicoConsultoraFalso(
+      registro: dtoDeTeste(foto: 'id-ana/perfil-antiga.jpg'),
+    )..falharAtualizarFoto = true;
     final repositorio = repositorioDeTeste(servico);
     await repositorio.buscarMinha();
 
@@ -74,7 +89,9 @@ void main() {
   });
 
   test('remover foto limpa o cadastro e apaga o arquivo', () async {
-    final servico = ServicoConsultoraFalso(registro: dtoDeTeste(foto: 'id-ana/perfil-1.jpg'));
+    final servico = ServicoConsultoraFalso(
+      registro: dtoDeTeste(foto: 'id-ana/perfil-1.jpg'),
+    );
     final repositorio = repositorioDeTeste(servico);
     await repositorio.buscarMinha();
 
@@ -85,7 +102,9 @@ void main() {
   });
 
   test('limpar esquece a consultora', () async {
-    final repositorio = repositorioDeTeste(ServicoConsultoraFalso(registro: dtoDeTeste()));
+    final repositorio = repositorioDeTeste(
+      ServicoConsultoraFalso(registro: dtoDeTeste()),
+    );
     await repositorio.buscarMinha();
     repositorio.limpar();
     expect(repositorio.atual, isNull);

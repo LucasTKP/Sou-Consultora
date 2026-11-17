@@ -31,16 +31,28 @@ class RepositorioConsultora {
     return switch (resultado) {
       Erro(:final falha) => Erro(falha),
       Sucesso(valor: null) => Sucesso(_publicar(null)),
-      Sucesso(valor: final ConsultoraDto dto) => Sucesso(_publicar(await _paraModel(dto))),
+      Sucesso(valor: final ConsultoraDto dto) => Sucesso(
+        _publicar(await _paraModel(dto)),
+      ),
     };
   }
 
-  Future<Resultado<Consultora>> cadastrar({required String nome, required String whatsapp}) async {
-    final resultado = await _servico.criar(nome: nome.trim(), whatsapp: Telefone.digitos(whatsapp));
+  Future<Resultado<Consultora>> cadastrar({
+    required String nome,
+    required String whatsapp,
+  }) async {
+    final resultado = await _servico.criar(
+      nome: nome.trim(),
+      whatsapp: Telefone.digitos(whatsapp),
+    );
     return _publicarResultado(resultado);
   }
 
-  Future<Resultado<Consultora>> atualizar({required String nome, required String whatsapp, ChavePix? chavePix}) async {
+  Future<Resultado<Consultora>> atualizar({
+    required String nome,
+    required String whatsapp,
+    ChavePix? chavePix,
+  }) async {
     final resultado = await _servico.atualizar(
       nome: nome.trim(),
       whatsapp: Telefone.digitos(whatsapp),
@@ -50,7 +62,8 @@ class RepositorioConsultora {
     return _publicarResultado(resultado);
   }
 
-  Future<Resultado<Uint8List?>> escolherFoto(OrigemFoto origem) => _fotos.escolherRecortada(origem);
+  Future<Resultado<Uint8List?>> escolherFoto(OrigemFoto origem) =>
+      _fotos.escolherRecortada(origem);
 
   /// Envia a nova foto, aponta o cadastro para ela e apaga a anterior.
   Future<Resultado<Consultora>> trocarFoto(Uint8List bytes) async {
@@ -71,14 +84,18 @@ class RepositorioConsultora {
   Future<Resultado<Consultora>> removerFoto() async {
     final anterior = _atual?.caminhoFoto;
     final resultado = await _servico.atualizarFoto(null);
-    if (resultado is Sucesso<ConsultoraDto> && anterior != null) await _servico.removerFoto(anterior);
+    if (resultado is Sucesso<ConsultoraDto> && anterior != null) {
+      await _servico.removerFoto(anterior);
+    }
     return _publicarResultado(resultado);
   }
 
   /// Esquece a consultora (ao sair da conta).
   void limpar() => _publicar(null);
 
-  Future<Resultado<Consultora>> _publicarResultado(Resultado<ConsultoraDto> resultado) async {
+  Future<Resultado<Consultora>> _publicarResultado(
+    Resultado<ConsultoraDto> resultado,
+  ) async {
     return switch (resultado) {
       Erro(:final falha) => Erro(falha),
       Sucesso(:final valor) => Sucesso(_publicar(await _paraModel(valor))!),

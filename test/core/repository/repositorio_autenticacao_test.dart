@@ -45,7 +45,10 @@ void main() {
   test('resumo usa nome e foto do Google', () {
     final repositorio = RepositorioAutenticacao(
       servico: _ServicoFalso(
-        usuario: _usuario({'full_name': 'Ana Paula', 'avatar_url': 'https://foto/ana.png'}),
+        usuario: _usuario({
+          'full_name': 'Ana Paula',
+          'avatar_url': 'https://foto/ana.png',
+        }),
       ),
     );
 

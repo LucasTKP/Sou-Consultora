@@ -16,8 +16,8 @@ abstract class ServicoFotoDispositivo {
 
 class ServicoFotoDispositivoNativo implements ServicoFotoDispositivo {
   ServicoFotoDispositivoNativo({ImagePicker? seletor, ImageCropper? recortador})
-      : _seletor = seletor ?? ImagePicker(),
-        _recortador = recortador ?? ImageCropper();
+    : _seletor = seletor ?? ImagePicker(),
+      _recortador = recortador ?? ImageCropper();
 
   final ImagePicker _seletor;
   final ImageCropper _recortador;
@@ -29,7 +29,9 @@ class ServicoFotoDispositivoNativo implements ServicoFotoDispositivo {
   Future<Resultado<Uint8List?>> escolherRecortada(OrigemFoto origem) async {
     try {
       final arquivo = await _seletor.pickImage(
-        source: origem == OrigemFoto.camera ? ImageSource.camera : ImageSource.gallery,
+        source: origem == OrigemFoto.camera
+            ? ImageSource.camera
+            : ImageSource.gallery,
         maxWidth: 1024,
         imageQuality: 85,
       );
@@ -38,8 +40,14 @@ class ServicoFotoDispositivoNativo implements ServicoFotoDispositivo {
       final recortado = await _recortar(arquivo.path);
       if (recortado == null) return const Sucesso(null);
       return Sucesso(await recortado.readAsBytes());
-    } catch (_) {
-      return const Erro(FalhaInesperada('Não foi possível abrir a câmera ou a galeria. Verifique as permissões do app.'));
+    } catch (erro, pilha) {
+      return Erro(
+        const FalhaInesperada(
+          'Não foi possível abrir a câmera ou a galeria. Verifique as permissões do app.',
+        ),
+        causa: erro,
+        pilha: pilha,
+      );
     }
   }
 

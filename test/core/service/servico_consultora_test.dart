@@ -33,28 +33,46 @@ class _ApiFalsa implements ApiSupabase {
   String? get idUsuario => id;
 
   @override
-  Future<Map<String, dynamic>?> buscarUm(String tabela, {required String coluna, required Object valor}) async {
+  Future<Map<String, dynamic>?> buscarUm(
+    String tabela, {
+    required String coluna,
+    required Object valor,
+    String selecao = '*',
+  }) async {
     _talvezFalhar();
     chamadas.add('buscarUm $tabela $coluna=$valor');
     return null;
   }
 
   @override
-  Future<Map<String, dynamic>> inserir(String tabela, Map<String, dynamic> dados) async {
+  Future<Map<String, dynamic>> inserir(
+    String tabela,
+    Map<String, dynamic> dados,
+  ) async {
     _talvezFalhar();
     chamadas.add('inserir $tabela ${dados.keys.toList()}');
     return {..._linha, ...dados};
   }
 
   @override
-  Future<Map<String, dynamic>> atualizar(String tabela, Map<String, dynamic> dados, {required String coluna, required Object valor}) async {
+  Future<Map<String, dynamic>> atualizar(
+    String tabela,
+    Map<String, dynamic> dados, {
+    required String coluna,
+    required Object valor,
+  }) async {
     _talvezFalhar();
     chamadas.add('atualizar $tabela $coluna=$valor');
     return {..._linha, ...dados};
   }
 
   @override
-  Future<void> enviarArquivo(String bucket, String caminho, Uint8List bytes, {required String tipoConteudo}) async {
+  Future<void> enviarArquivo(
+    String bucket,
+    String caminho,
+    Uint8List bytes, {
+    required String tipoConteudo,
+  }) async {
     _talvezFalhar();
     chamadas.add('enviar $bucket $caminho $tipoConteudo');
   }
@@ -74,34 +92,53 @@ void main() {
 
   test('criar não envia o id (o banco usa o usuário logado)', () async {
     final api = _ApiFalsa();
-    final resultado = await ServicoConsultora(api: api).criar(nome: 'Ana', whatsapp: '11987654321');
+    final resultado = await ServicoConsultora(api: api)
+        .criar(nome: 'Ana', whatsapp: '11987654321');
     expect(resultado, isA<Sucesso>());
     expect(api.chamadas, ['inserir consultoras [nome, whatsapp]']);
   });
 
   test('foto vai para a pasta do usuário com nome novo', () async {
     final api = _ApiFalsa();
-    final servico = ServicoConsultora(api: api, agora: () => DateTime.fromMillisecondsSinceEpoch(42));
+    final servico = ServicoConsultora(
+      api: api,
+      agora: () => DateTime.fromMillisecondsSinceEpoch(42),
+    );
     final resultado = await servico.enviarFoto(Uint8List(1));
     expect((resultado as Sucesso<String>).valor, 'id-ana/perfil-42.jpg');
     expect(api.chamadas, ['enviar fotos id-ana/perfil-42.jpg image/jpeg']);
   });
 
   test('falha de rede vira FalhaRede com mensagem amigável', () async {
-    final servico = ServicoConsultora(api: _ApiFalsa(erro: const SocketException('offline')));
-    final resultado = await servico.atualizar(nome: 'Ana', whatsapp: '11987654321', chavePix: null, tipoChavePix: null);
+    final servico = ServicoConsultora(
+      api: _ApiFalsa(erro: const SocketException('offline')),
+    );
+    final resultado = await servico.atualizar(
+      nome: 'Ana',
+      whatsapp: '11987654321',
+      chavePix: null,
+      tipoChavePix: null,
+    );
     final falha = (resultado as Erro).falha;
     expect(falha, isA<FalhaRede>());
     expect(falha.mensagem, contains('internet'));
   });
 
-  test('erro desconhecido vira FalhaInesperada sem detalhes técnicos', () async {
-    final servico = ServicoConsultora(api: _ApiFalsa(erro: StateError('detalhe interno')));
-    final resultado = await servico.criar(nome: 'Ana', whatsapp: '11987654321');
-    final falha = (resultado as Erro).falha;
-    expect(falha, isA<FalhaInesperada>());
-    expect(falha.mensagem, 'Não foi possível concluir o cadastro.');
-  });
+  test(
+    'erro desconhecido vira FalhaInesperada sem detalhes técnicos',
+    () async {
+      final servico = ServicoConsultora(
+        api: _ApiFalsa(erro: StateError('detalhe interno')),
+      );
+      final resultado = await servico.criar(
+        nome: 'Ana',
+        whatsapp: '11987654321',
+      );
+      final falha = (resultado as Erro).falha;
+      expect(falha, isA<FalhaInesperada>());
+      expect(falha.mensagem, 'Não foi possível concluir o cadastro.');
+    },
+  );
 
   test('sem sessão não chama o banco', () async {
     final api = _ApiFalsa(id: null);

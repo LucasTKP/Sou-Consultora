@@ -36,7 +36,7 @@ class ServicoAutenticacao {
 
       final idToken = conta.authentication.idToken;
       if (idToken == null) {
-        return const Erro(FalhaAutenticacao('Token do Google não encontrado.'));
+        return Erro(const FalhaAutenticacao('Token do Google não encontrado.'));
       }
 
       final resposta = await _api.entrarComIdToken(
@@ -45,21 +45,37 @@ class ServicoAutenticacao {
         accessToken: autorizacao.accessToken,
       );
       return Sucesso(resposta);
-    } on GoogleSignInException catch (erro) {
+    } on GoogleSignInException catch (erro, pilha) {
       if (erro.code == GoogleSignInExceptionCode.canceled) {
-        return const Erro(FalhaAutenticacao('Login com Google cancelado.'));
+        return Erro(
+          const FalhaAutenticacao('Login com Google cancelado.'),
+          causa: erro,
+          pilha: pilha,
+        );
       }
-      return const Erro(FalhaAutenticacao('Não foi possível continuar com Google.'));
-    } on AuthException catch (erro) {
-      return Erro(FalhaAutenticacao(erro.message));
-    } catch (_) {
-      return const Erro(FalhaInesperada('Não foi possível continuar com Google.'));
+      return Erro(
+        const FalhaAutenticacao('Não foi possível continuar com Google.'),
+        causa: erro,
+        pilha: pilha,
+      );
+    } on AuthException catch (erro, pilha) {
+      return Erro(FalhaAutenticacao(erro.message), causa: erro, pilha: pilha);
+    } catch (erro, pilha) {
+      return Erro(
+        const FalhaInesperada('Não foi possível continuar com Google.'),
+        causa: erro,
+        pilha: pilha,
+      );
     }
   }
 
   Future<Resultado<AuthResponse>> entrarComApple() async {
     if (!Platform.isIOS && !Platform.isMacOS) {
-      return const Erro(FalhaAutenticacao('Login com Apple nativo está disponível apenas no iPhone/iPad.'));
+      return Erro(
+        const FalhaAutenticacao(
+          'Login com Apple nativo está disponível apenas no iPhone/iPad.',
+        ),
+      );
     }
 
     try {
@@ -67,29 +83,48 @@ class ServicoAutenticacao {
       final nonceHash = sha256.convert(utf8.encode(nonceBruto)).toString();
 
       final credencial = await SignInWithApple.getAppleIDCredential(
-        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
         nonce: nonceHash,
       );
 
       final idToken = credencial.identityToken;
       if (idToken == null) {
-        return const Erro(FalhaAutenticacao('Token da Apple não encontrado.'));
+        return Erro(const FalhaAutenticacao('Token da Apple não encontrado.'));
       }
 
-      final resposta = await _api.entrarComIdToken(provedor: OAuthProvider.apple, idToken: idToken, nonce: nonceBruto);
+      final resposta = await _api.entrarComIdToken(
+        provedor: OAuthProvider.apple,
+        idToken: idToken,
+        nonce: nonceBruto,
+      );
 
       await _salvarNomeAppleSePresente(credencial);
 
       return Sucesso(resposta);
-    } on SignInWithAppleAuthorizationException catch (erro) {
+    } on SignInWithAppleAuthorizationException catch (erro, pilha) {
       if (erro.code == AuthorizationErrorCode.canceled) {
-        return const Erro(FalhaAutenticacao('Login com Apple cancelado.'));
+        return Erro(
+          const FalhaAutenticacao('Login com Apple cancelado.'),
+          causa: erro,
+          pilha: pilha,
+        );
       }
-      return const Erro(FalhaAutenticacao('Não foi possível continuar com Apple.'));
-    } on AuthException catch (erro) {
-      return Erro(FalhaAutenticacao(erro.message));
-    } catch (_) {
-      return const Erro(FalhaInesperada('Não foi possível continuar com Apple.'));
+      return Erro(
+        const FalhaAutenticacao('Não foi possível continuar com Apple.'),
+        causa: erro,
+        pilha: pilha,
+      );
+    } on AuthException catch (erro, pilha) {
+      return Erro(FalhaAutenticacao(erro.message), causa: erro, pilha: pilha);
+    } catch (erro, pilha) {
+      return Erro(
+        const FalhaInesperada('Não foi possível continuar com Apple.'),
+        causa: erro,
+        pilha: pilha,
+      );
     }
   }
 
@@ -107,7 +142,8 @@ class ServicoAutenticacao {
   bool get estaLogado => _api.sessaoAtual != null;
 
   /// Emite `true`/`false` a cada mudança de sessão.
-  Stream<bool> get sessaoAtiva => _api.mudancasDeSessao.map((estado) => estado.session != null);
+  Stream<bool> get sessaoAtiva =>
+      _api.mudancasDeSessao.map((estado) => estado.session != null);
 
   /// Usuário logado (para montar o resumo da consultora).
   User? get usuarioAtual => _api.usuarioAtual;
@@ -129,7 +165,9 @@ class ServicoAutenticacao {
     }
   }
 
-  Future<void> _salvarNomeAppleSePresente(AuthorizationCredentialAppleID credencial) async {
+  Future<void> _salvarNomeAppleSePresente(
+    AuthorizationCredentialAppleID credencial,
+  ) async {
     final nome = [
       credencial.givenName,
       credencial.familyName,
@@ -139,7 +177,11 @@ class ServicoAutenticacao {
 
     await _api.autenticacao.updateUser(
       UserAttributes(
-        data: {'full_name': nome, 'given_name': credencial.givenName, 'family_name': credencial.familyName},
+        data: {
+          'full_name': nome,
+          'given_name': credencial.givenName,
+          'family_name': credencial.familyName,
+        },
       ),
     );
   }

@@ -16,7 +16,10 @@ void main() {
     });
 
     test('sem nome usa o e-mail', () {
-      final resumo = ResumoConsultora.de(nome: '  ', email: 'carla.mendes@email.com');
+      final resumo = ResumoConsultora.de(
+        nome: '  ',
+        email: 'carla.mendes@email.com',
+      );
       expect(resumo.nome, 'carla.mendes@email.com');
       expect(resumo.iniciais, 'CC');
     });
@@ -28,6 +31,9 @@ void main() {
 
   test('foto vazia vira ausência de foto', () {
     expect(ResumoConsultora.de(nome: 'Ana', fotoUrl: ' ').temFoto, isFalse);
-    expect(ResumoConsultora.de(nome: 'Ana', fotoUrl: 'https://x/y.png').temFoto, isTrue);
+    expect(
+      ResumoConsultora.de(nome: 'Ana', fotoUrl: 'https://x/y.png').temFoto,
+      isTrue,
+    );
   });
 }

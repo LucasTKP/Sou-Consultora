@@ -10,11 +10,17 @@ class ResumoConsultora {
     final nomeLimpo = nome?.trim() ?? '';
     final nomeFinal = nomeLimpo.isNotEmpty ? nomeLimpo : (email?.trim() ?? '');
     final fotoLimpa = fotoUrl?.trim() ?? '';
-    return ResumoConsultora(nome: nomeFinal, fotoUrl: fotoLimpa.isEmpty ? null : fotoLimpa);
+    return ResumoConsultora(
+      nome: nomeFinal,
+      fotoUrl: fotoLimpa.isEmpty ? null : fotoLimpa,
+    );
   }
 
   factory ResumoConsultora.daConsultora(Consultora consultora) {
-    return ResumoConsultora.de(nome: consultora.nome, fotoUrl: consultora.urlFoto);
+    return ResumoConsultora.de(
+      nome: consultora.nome,
+      fotoUrl: consultora.urlFoto,
+    );
   }
 
   final String nome;
@@ -27,7 +33,10 @@ class ResumoConsultora {
   String get iniciais {
     final partes = nome
         .split(RegExp(r'[\s@._-]+'))
-        .where((parte) => parte.isNotEmpty && RegExp(r'[A-Za-zÀ-ÿ]').hasMatch(parte[0]))
+        .where(
+          (parte) =>
+              parte.isNotEmpty && RegExp(r'[A-Za-zÀ-ÿ]').hasMatch(parte[0]),
+        )
         .toList();
     if (partes.isEmpty) return '?';
     if (partes.length == 1) return partes.first[0].toUpperCase();

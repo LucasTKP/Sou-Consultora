@@ -39,15 +39,15 @@ class ConsultoraDto {
   final DateTime createdAt;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'nome': nome,
-        'whatsapp': whatsapp,
-        'foto_url': fotoUrl,
-        'chave_pix': chavePix,
-        'tipo_chave_pix': tipoChavePix,
-        'ultimo_codigo_venda': ultimoCodigoVenda,
-        'created_at': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'nome': nome,
+    'whatsapp': whatsapp,
+    'foto_url': fotoUrl,
+    'chave_pix': chavePix,
+    'tipo_chave_pix': tipoChavePix,
+    'ultimo_codigo_venda': ultimoCodigoVenda,
+    'created_at': createdAt.toIso8601String(),
+  };
 
   Consultora paraModel({String? urlFoto}) {
     final tipo = TipoChavePix.doBanco(tipoChavePix);
@@ -55,7 +55,9 @@ class ConsultoraDto {
       id: id,
       nome: nome,
       whatsapp: whatsapp,
-      chavePix: tipo == null || chavePix == null ? null : ChavePix(tipo: tipo, valor: chavePix!),
+      chavePix: tipo == null || chavePix == null
+          ? null
+          : ChavePix(tipo: tipo, valor: chavePix!),
       caminhoFoto: fotoUrl,
       urlFoto: urlFoto,
     );

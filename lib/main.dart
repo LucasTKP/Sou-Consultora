@@ -1,4 +1,10 @@
 // ignore_for_file: deprecated_member_use
+import 'dart:ui' show PlatformDispatcher;
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sou_consultora/core/api/cliente_http_com_registro.dart';
+import 'package:sou_consultora/core/api/observador_cubits.dart';
+import 'package:sou_consultora/core/api/registro_depuracao.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/env/ambiente_app.dart';
 import 'package:sou_consultora/ui/navegacao/notificador_acesso.dart';
@@ -23,9 +29,26 @@ Future<void> inicializarApp() async {
   if (_inicializado) return;
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('pt_BR');
-  await Supabase.initialize(url: AmbienteApp.urlSupabase, anonKey: AmbienteApp.chaveAnonSupabase);
+  _registrarErrosNaoTratados();
+  await Supabase.initialize(
+    url: AmbienteApp.urlSupabase,
+    anonKey: AmbienteApp.chaveAnonSupabase,
+    // Em debug, imprime cada requisição/resposta (auth, banco e storage).
+    httpClient: RegistroDepuracao.ativo ? ClienteHttpComRegistro() : null,
+  );
   configurarDependencias();
   _inicializado = true;
+}
+
+/// Exceções que escapam de cubits e de código assíncrono também vão para o
+/// terminal (erros de widget o Flutter já imprime sozinho em debug).
+void _registrarErrosNaoTratados() {
+  if (!RegistroDepuracao.ativo) return;
+  Bloc.observer = const ObservadorCubits();
+  PlatformDispatcher.instance.onError = (erro, pilha) {
+    RegistroDepuracao.erro('Exceção não tratada', causa: erro, pilha: pilha);
+    return true;
+  };
 }
 
 class MeuApp extends StatefulWidget {
@@ -36,7 +59,10 @@ class MeuApp extends StatefulWidget {
 }
 
 class _MeuAppState extends State<MeuApp> {
-  late final _acesso = NotificadorAcesso(autenticacao: injetor(), consultoras: injetor());
+  late final _acesso = NotificadorAcesso(
+    autenticacao: injetor(),
+    consultoras: injetor(),
+  );
   late final _roteador = RoteadorApp.criar(acesso: _acesso);
 
   @override

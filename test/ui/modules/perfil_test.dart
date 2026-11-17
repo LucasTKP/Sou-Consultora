@@ -32,9 +32,21 @@ late FotoDispositivoFalsa _fotos;
 late RepositorioConsultora _repositorio;
 late _AutenticacaoFalsa _autenticacao;
 
-Future<void> abrirPerfil(WidgetTester tester, {String? chave, String? tipo, String? foto}) async {
+Future<void> abrirPerfil(
+  WidgetTester tester, {
+  String? chave,
+  String? tipo,
+  String? foto,
+}) async {
   usarTelaDeCelular(tester);
-  _servico = ServicoConsultoraFalso(registro: dtoDeTeste(nome: 'Ana Paula Silva', chave: chave, tipo: tipo, foto: foto));
+  _servico = ServicoConsultoraFalso(
+    registro: dtoDeTeste(
+      nome: 'Ana Paula Silva',
+      chave: chave,
+      tipo: tipo,
+      foto: foto,
+    ),
+  );
   _fotos = FotoDispositivoFalsa();
   _repositorio = repositorioDeTeste(_servico, _fotos);
   _autenticacao = _AutenticacaoFalsa();
@@ -49,7 +61,12 @@ Future<void> abrirPerfil(WidgetTester tester, {String? chave, String? tipo, Stri
       GoRoute(
         path: '/perfil',
         builder: (_, _) => const MeuPerfilScreen(),
-        routes: [GoRoute(path: 'editar', builder: (_, _) => const EditarPerfilScreen())],
+        routes: [
+          GoRoute(
+            path: 'editar',
+            builder: (_, _) => const EditarPerfilScreen(),
+          ),
+        ],
       ),
     ],
   );
@@ -63,7 +80,11 @@ Future<void> abrirPerfil(WidgetTester tester, {String? chave, String? tipo, Stri
 
 /// Arrasta a lista da tela do topo até [alvo] existir (o ListView só constrói o visível).
 Future<void> mostrar(WidgetTester tester, Finder alvo) async {
-  for (var tentativa = 0; tentativa < 10 && alvo.evaluate().isEmpty; tentativa++) {
+  for (
+    var tentativa = 0;
+    tentativa < 10 && alvo.evaluate().isEmpty;
+    tentativa++
+  ) {
     await tester.drag(find.byType(ListView).last, const Offset(0, -250));
     await tester.pumpAndSettle();
   }
@@ -88,17 +109,23 @@ Future<void> tocar(WidgetTester tester, Finder alvo) async {
 Future<void> _subirAcimaDosBotoes(WidgetTester tester, Finder alvo) async {
   final lista = find.byType(ListView).last;
   if (find.descendant(of: lista, matching: alvo).evaluate().isEmpty) return;
-  final excesso = tester.getCenter(alvo.first).dy - tester.getRect(lista).bottom;
+  final excesso =
+      tester.getCenter(alvo.first).dy - tester.getRect(lista).bottom;
   if (excesso < 0) return;
   await tester.drag(lista, Offset(0, -(excesso + 60)));
   await tester.pumpAndSettle();
 }
 
-Finder campo(String rotulo) => find.ancestor(of: find.textContaining(rotulo, findRichText: true), matching: find.byType(TextField));
+Finder campo(String rotulo) => find.ancestor(
+  of: find.textContaining(rotulo, findRichText: true),
+  matching: find.byType(TextField),
+);
 
 void main() {
   group('Meu perfil', () {
-    testWidgets('mostra dados, WhatsApp formatado e chave Pix com tipo', (tester) async {
+    testWidgets('mostra dados, WhatsApp formatado e chave Pix com tipo', (
+      tester,
+    ) async {
       await abrirPerfil(tester, chave: '+5511987654321', tipo: 'telefone');
 
       expect(find.text('Ana Paula Silva'), findsWidgets);
@@ -107,7 +134,9 @@ void main() {
       expect(find.text('AS'), findsOneWidget);
     });
 
-    testWidgets('sem chave Pix mostra "Não cadastrada" e não oferece copiar', (tester) async {
+    testWidgets('sem chave Pix mostra "Não cadastrada" e não oferece copiar', (
+      tester,
+    ) async {
       await abrirPerfil(tester);
       expect(find.text('Não cadastrada'), findsOneWidget);
       expect(find.byTooltip('Copiar chave Pix'), findsNothing);
@@ -115,11 +144,20 @@ void main() {
 
     testWidgets('copiar a chave Pix avisa', (tester) async {
       String? copiado;
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (chamada) async {
-        if (chamada.method == 'Clipboard.setData') copiado = (chamada.arguments as Map)['text'] as String;
-        return null;
-      });
-      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (chamada) async {
+          if (chamada.method == 'Clipboard.setData')
+            copiado = (chamada.arguments as Map)['text'] as String;
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
 
       await abrirPerfil(tester, chave: 'ana@email.com', tipo: 'email');
       await tocar(tester, find.byTooltip('Copiar chave Pix'));
@@ -128,7 +166,9 @@ void main() {
       expect(find.text('Chave Pix copiada'), findsOneWidget);
     });
 
-    testWidgets('Mais opções → Sair confirmado encerra a sessão', (tester) async {
+    testWidgets('Mais opções → Sair confirmado encerra a sessão', (
+      tester,
+    ) async {
       await abrirPerfil(tester);
       await tocar(tester, find.text('Mais opções'));
       await tocar(tester, find.text('Sair da Conta'));
@@ -148,7 +188,11 @@ void main() {
   });
 
   group('Editar perfil', () {
-    Future<void> abrirEdicao(WidgetTester tester, {String? chave, String? tipo}) async {
+    Future<void> abrirEdicao(
+      WidgetTester tester, {
+      String? chave,
+      String? tipo,
+    }) async {
       await abrirPerfil(tester, chave: chave, tipo: tipo);
       await tocar(tester, find.text('Editar Perfil'));
     }
@@ -160,7 +204,10 @@ void main() {
 
       expect(find.text('Meu Perfil'), findsOneWidget);
       expect(find.text('Ana Paula Souza'), findsWidgets);
-      expect(_servico.chamadas.last, 'atualizar Ana Paula Souza 11987654321 null null');
+      expect(
+        _servico.chamadas.last,
+        'atualizar Ana Paula Souza 11987654321 null null',
+      );
     });
 
     testWidgets('nome vazio mostra erro e não grava', (tester) async {
@@ -169,7 +216,10 @@ void main() {
       await tocar(tester, find.text('Salvar Alterações'));
 
       expect(find.text('Informe o nome'), findsOneWidget);
-      expect(_servico.chamadas.where((c) => c.startsWith('atualizar')), isEmpty);
+      expect(
+        _servico.chamadas.where((c) => c.startsWith('atualizar')),
+        isEmpty,
+      );
     });
 
     testWidgets('CPF inválido mostra erro', (tester) async {
@@ -180,7 +230,10 @@ void main() {
       await tocar(tester, find.text('Salvar Alterações'));
 
       expect(find.text('CPF inválido'), findsOneWidget);
-      expect(_servico.chamadas.where((c) => c.startsWith('atualizar')), isEmpty);
+      expect(
+        _servico.chamadas.where((c) => c.startsWith('atualizar')),
+        isEmpty,
+      );
     });
 
     testWidgets('CPF válido é gravado só com dígitos', (tester) async {
@@ -190,11 +243,16 @@ void main() {
       await digitar(tester, 'Chave Pix', '529.982.247-25');
       await tocar(tester, find.text('Salvar Alterações'));
 
-      expect(_servico.chamadas.last, 'atualizar Ana Paula Silva 11987654321 52998224725 cpf');
+      expect(
+        _servico.chamadas.last,
+        'atualizar Ana Paula Silva 11987654321 52998224725 cpf',
+      );
       expect(find.text('529.982.247-25'), findsOneWidget);
     });
 
-    testWidgets('CPF inválido, depois trocar para e-mail, salva o e-mail', (tester) async {
+    testWidgets('CPF inválido, depois trocar para e-mail, salva o e-mail', (
+      tester,
+    ) async {
       await abrirEdicao(tester);
       await tocar(tester, campo('Tipo de chave Pix'));
       await tocar(tester, find.text('CPF'));
@@ -208,7 +266,10 @@ void main() {
       await tocar(tester, find.text('Salvar Alterações'));
 
       expect(find.text('Meu Perfil'), findsOneWidget);
-      expect(_servico.chamadas.last, 'atualizar Ana Paula Silva 11987654321 e2e@souconsultora.app email');
+      expect(
+        _servico.chamadas.last,
+        'atualizar Ana Paula Silva 11987654321 e2e@souconsultora.app email',
+      );
     });
 
     testWidgets('chave sem tipo pede o tipo', (tester) async {
@@ -223,7 +284,10 @@ void main() {
       await tocar(tester, find.text('Remover chave Pix'));
       await tocar(tester, find.text('Salvar Alterações'));
 
-      expect(_servico.chamadas.last, 'atualizar Ana Paula Silva 11987654321 null null');
+      expect(
+        _servico.chamadas.last,
+        'atualizar Ana Paula Silva 11987654321 null null',
+      );
       expect(find.text('Não cadastrada'), findsOneWidget);
     });
 
@@ -234,12 +298,17 @@ void main() {
 
       expect(find.text('Meu Perfil'), findsOneWidget);
       expect(find.text('(11) 98765-4321'), findsOneWidget);
-      expect(_servico.chamadas.where((c) => c.startsWith('atualizar')), isEmpty);
+      expect(
+        _servico.chamadas.where((c) => c.startsWith('atualizar')),
+        isEmpty,
+      );
     });
   });
 
   group('Foto do perfil', () {
-    testWidgets('escolher da galeria envia e mostra a nova foto', (tester) async {
+    testWidgets('escolher da galeria envia e mostra a nova foto', (
+      tester,
+    ) async {
       await abrirPerfil(tester);
       await tocar(tester, find.byTooltip('Alterar foto'));
       await tocar(tester, find.text('Escolher da galeria'));
@@ -260,7 +329,9 @@ void main() {
       expect(_repositorio.atual?.caminhoFoto, 'id-ana/perfil-antiga.jpg');
     });
 
-    testWidgets('falha no envio mostra erro e mantém a foto anterior', (tester) async {
+    testWidgets('falha no envio mostra erro e mantém a foto anterior', (
+      tester,
+    ) async {
       await abrirPerfil(tester, foto: 'id-ana/perfil-antiga.jpg');
       _servico.falharRede = true;
       await tocar(tester, find.byTooltip('Alterar foto'));

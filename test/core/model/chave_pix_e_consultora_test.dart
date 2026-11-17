@@ -10,16 +10,37 @@ void main() {
     test('par tipo e chave', () {
       expect(ChavePix.erroDoTipo(null, ''), isNull);
       expect(ChavePix.erroDaChave(null, ''), isNull);
-      expect(ChavePix.erroDoTipo(null, 'ana@email.com'), 'Escolha o tipo da chave');
-      expect(ChavePix.erroDaChave(TipoChavePix.email, '  '), 'Informe a chave Pix');
+      expect(
+        ChavePix.erroDoTipo(null, 'ana@email.com'),
+        'Escolha o tipo da chave',
+      );
+      expect(
+        ChavePix.erroDaChave(TipoChavePix.email, '  '),
+        'Informe a chave Pix',
+      );
     });
 
     test('telefone', () {
-      expect(ChavePix.erroDaChave(TipoChavePix.telefone, '(11) 98765-4321'), isNull);
-      expect(ChavePix.erroDaChave(TipoChavePix.telefone, '+55 11 98765-4321'), isNull);
-      expect(ChavePix.erroDaChave(TipoChavePix.telefone, '(11) 9876'), 'Telefone inválido');
-      expect(ChavePix.normalizar(TipoChavePix.telefone, '(11) 98765-4321'), '+5511987654321');
-      expect(ChavePix.normalizar(TipoChavePix.telefone, '+55 (11) 98765-4321'), '+5511987654321');
+      expect(
+        ChavePix.erroDaChave(TipoChavePix.telefone, '(11) 98765-4321'),
+        isNull,
+      );
+      expect(
+        ChavePix.erroDaChave(TipoChavePix.telefone, '+55 11 98765-4321'),
+        isNull,
+      );
+      expect(
+        ChavePix.erroDaChave(TipoChavePix.telefone, '(11) 9876'),
+        'Telefone inválido',
+      );
+      expect(
+        ChavePix.normalizar(TipoChavePix.telefone, '(11) 98765-4321'),
+        '+5511987654321',
+      );
+      expect(
+        ChavePix.normalizar(TipoChavePix.telefone, '+55 (11) 98765-4321'),
+        '+5511987654321',
+      );
     });
 
     test('CPF', () {
@@ -28,20 +49,51 @@ void main() {
       expect(ChavePix.cpfValido('529.982.247-24'), isFalse);
       expect(ChavePix.cpfValido('111.111.111-11'), isFalse);
       expect(ChavePix.cpfValido('1234'), isFalse);
-      expect(ChavePix.erroDaChave(TipoChavePix.cpf, '111.111.111-11'), 'CPF inválido');
-      expect(ChavePix.normalizar(TipoChavePix.cpf, '529.982.247-25'), '52998224725');
+      expect(
+        ChavePix.erroDaChave(TipoChavePix.cpf, '111.111.111-11'),
+        'CPF inválido',
+      );
+      expect(
+        ChavePix.normalizar(TipoChavePix.cpf, '529.982.247-25'),
+        '52998224725',
+      );
     });
 
     test('e-mail e aleatória', () {
-      expect(ChavePix.erroDaChave(TipoChavePix.email, 'ana@email'), 'E-mail inválido');
-      expect(ChavePix.normalizar(TipoChavePix.email, ' Ana@Email.COM '), 'ana@email.com');
-      expect(ChavePix.erroDaChave(TipoChavePix.aleatoria, '123e4567-e89b-12d3-a456-426614174000'), isNull);
-      expect(ChavePix.erroDaChave(TipoChavePix.aleatoria, 'abc'), 'Chave aleatória inválida');
+      expect(
+        ChavePix.erroDaChave(TipoChavePix.email, 'ana@email'),
+        'E-mail inválido',
+      );
+      expect(
+        ChavePix.normalizar(TipoChavePix.email, ' Ana@Email.COM '),
+        'ana@email.com',
+      );
+      expect(
+        ChavePix.erroDaChave(
+          TipoChavePix.aleatoria,
+          '123e4567-e89b-12d3-a456-426614174000',
+        ),
+        isNull,
+      );
+      expect(
+        ChavePix.erroDaChave(TipoChavePix.aleatoria, 'abc'),
+        'Chave aleatória inválida',
+      );
     });
 
     test('formatação para exibir', () {
-      expect(FormatadorChavePix.formatar(const ChavePix(tipo: TipoChavePix.telefone, valor: '+5511987654321')), '(11) 98765-4321');
-      expect(FormatadorChavePix.formatar(const ChavePix(tipo: TipoChavePix.cpf, valor: '52998224725')), '529.982.247-25');
+      expect(
+        FormatadorChavePix.formatar(
+          const ChavePix(tipo: TipoChavePix.telefone, valor: '+5511987654321'),
+        ),
+        '(11) 98765-4321',
+      );
+      expect(
+        FormatadorChavePix.formatar(
+          const ChavePix(tipo: TipoChavePix.cpf, valor: '52998224725'),
+        ),
+        '529.982.247-25',
+      );
     });
 
     test('tipo do banco', () {
@@ -54,7 +106,10 @@ void main() {
     test('validações', () {
       expect(Consultora.validarNome('  '), 'Informe o nome');
       expect(Consultora.validarNome('Ana'), isNull);
-      expect(Consultora.validarWhatsapp('(11) 9876'), 'Informe o WhatsApp com DDD');
+      expect(
+        Consultora.validarWhatsapp('(11) 9876'),
+        'Informe o WhatsApp com DDD',
+      );
       expect(Consultora.validarWhatsapp('(11) 98765-4321'), isNull);
     });
 
@@ -75,7 +130,10 @@ void main() {
       final consultora = dto.paraModel(urlFoto: 'https://assinada');
       expect(consultora.chavePix?.tipo, TipoChavePix.telefone);
       expect(consultora.caminhoFoto, 'abc/perfil-1.jpg');
-      expect(ResumoConsultora.daConsultora(consultora).fotoUrl, 'https://assinada');
+      expect(
+        ResumoConsultora.daConsultora(consultora).fotoUrl,
+        'https://assinada',
+      );
       expect(ResumoConsultora.daConsultora(consultora).iniciais, 'AP');
     });
 

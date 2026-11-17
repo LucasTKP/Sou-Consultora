@@ -24,7 +24,12 @@ class _GoogleFalso implements GoogleSignIn {
   int saidas = 0;
 
   @override
-  Future<void> initialize({String? clientId, String? serverClientId, String? nonce, String? hostedDomain}) async {}
+  Future<void> initialize({
+    String? clientId,
+    String? serverClientId,
+    String? nonce,
+    String? hostedDomain,
+  }) async {}
 
   @override
   Future<void> signOut() async => saidas++;
