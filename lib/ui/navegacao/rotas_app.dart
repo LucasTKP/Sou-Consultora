@@ -1,0 +1,110 @@
+// ignore_for_file: deprecated_member_use
+import 'package:flutter/material.dart';
+
+/// Itens fixos da barra inferior, na ordem em que aparecem.
+enum ItemBarra { produtos, clientes, inicio, vendas, financeiro }
+
+/// Módulo principal do app (tela inicial de cada fluxo de `fluxos.md`).
+class ModuloApp {
+  const ModuloApp({
+    required this.rota,
+    required this.titulo,
+    required this.icone,
+    this.itemBarra,
+  });
+
+  final String rota;
+  final String titulo;
+  final IconData icone;
+
+  /// Item da barra inferior que fica ativo neste módulo (null = nenhum).
+  final ItemBarra? itemBarra;
+}
+
+/// Rotas do app. [modulos] são as telas principais (dentro da casca, com a barra).
+/// Sub-rotas (ex.: `/clientes/novo`) são criadas por cada fase.
+abstract final class RotasApp {
+  static const login = '/login';
+  static const carregando = '/carregando';
+  static const cadastro = '/cadastro';
+  static const inicio = '/inicio';
+  static const produtos = '/produtos';
+  static const clientes = '/clientes';
+  static const vendas = '/vendas';
+  static const financeiro = '/financeiro';
+  static const servicos = '/servicos';
+  static const fornecedores = '/fornecedores';
+  static const aReceber = '/a-receber';
+  static const aPagar = '/a-pagar';
+
+  /// Perfil abre por cima das telas principais (sem a barra).
+  static const perfil = '/perfil';
+  static const editarPerfil = '/perfil/editar';
+
+  static const modulos = <ModuloApp>[
+    ModuloApp(
+      rota: inicio,
+      titulo: 'Início',
+      icone: Icons.home_rounded,
+      itemBarra: ItemBarra.inicio,
+    ),
+    ModuloApp(
+      rota: vendas,
+      titulo: 'Vendas',
+      icone: Icons.shopping_bag_outlined,
+      itemBarra: ItemBarra.vendas,
+    ),
+    ModuloApp(
+      rota: clientes,
+      titulo: 'Clientes',
+      icone: Icons.people_alt_outlined,
+      itemBarra: ItemBarra.clientes,
+    ),
+    ModuloApp(
+      rota: produtos,
+      titulo: 'Produtos',
+      icone: Icons.inventory_2_outlined,
+      itemBarra: ItemBarra.produtos,
+    ),
+    ModuloApp(rota: servicos, titulo: 'Serviços', icone: Icons.spa_outlined),
+    ModuloApp(
+      rota: fornecedores,
+      titulo: 'Fornecedores',
+      icone: Icons.local_shipping_outlined,
+    ),
+    ModuloApp(
+      rota: aReceber,
+      titulo: 'A Receber',
+      icone: Icons.payments_outlined,
+    ),
+    ModuloApp(
+      rota: aPagar,
+      titulo: 'A Pagar',
+      icone: Icons.receipt_long_outlined,
+    ),
+    ModuloApp(
+      rota: financeiro,
+      titulo: 'Financeiro',
+      icone: Icons.account_balance_wallet_outlined,
+      itemBarra: ItemBarra.financeiro,
+    ),
+  ];
+
+  /// Rota principal do item da barra.
+  static String rotaDoItem(ItemBarra item) =>
+      modulos.firstWhere((modulo) => modulo.itemBarra == item).rota;
+
+  /// Módulo dono do caminho (pelo primeiro segmento: `/clientes/123` → Clientes).
+  static ModuloApp? moduloDe(String caminho) {
+    final segmentos = Uri.parse(caminho).pathSegments;
+    if (segmentos.isEmpty) return null;
+    final raiz = '/${segmentos.first}';
+    for (final modulo in modulos) {
+      if (modulo.rota == raiz) return modulo;
+    }
+    return null;
+  }
+
+  /// Item da barra ativo para o caminho (null quando o módulo não está na barra).
+  static ItemBarra? itemAtivo(String caminho) => moduloDe(caminho)?.itemBarra;
+}

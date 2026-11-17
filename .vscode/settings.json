@@ -1,0 +1,19 @@
+{
+  "dart.flutterSdkPath": "/Users/lucasgeandossantos/.puro/envs/3.50.0/flutter",
+  "dart.sdkPath": "/Users/lucasgeandossantos/.puro/envs/3.50.0/flutter/bin/cache/dart-sdk",
+  "dart.flutterSdkPaths": [
+    "/Users/lucasgeandossantos/.puro/envs/3.50.0/flutter"
+  ],
+  "dart.lineLength": 120,
+  "editor.formatOnSave": true,
+  "editor.rulers": [
+    120
+  ],
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true,
+    "editor.selectionHighlight": false,
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  }
+}

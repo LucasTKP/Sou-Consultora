@@ -1,0 +1,33 @@
+// ignore_for_file: deprecated_member_use
+import 'package:flutter/material.dart';
+import 'package:sou_consultora/ui/temas/cores_app.dart';
+
+/// Botão flutuante estendido das listas ("+ Novo cliente").
+class BotaoFlutuanteApp extends StatelessWidget {
+  const BotaoFlutuanteApp({
+    super.key,
+    required this.rotulo,
+    required this.onPressed,
+    this.icone = Icons.add_rounded,
+  });
+
+  final String rotulo;
+  final VoidCallback onPressed;
+  final IconData icone;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton.extended(
+      heroTag: rotulo,
+      onPressed: onPressed,
+      backgroundColor: CoresApp.primaria,
+      foregroundColor: CoresApp.sobrePrimaria,
+      shape: const StadiumBorder(),
+      icon: Icon(icone),
+      label: Text(
+        rotulo,
+        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+}

@@ -1,0 +1,104 @@
+-- Funções auxiliares dos testes (criadas dentro da transação de cada teste e desfeitas no rollback).
+create extension if not exists pgtap with schema extensions;
+create schema if not exists testes;
+grant usage on schema testes to anon, authenticated;
+
+-- Cria um usuário no Auth e devolve o id.
+create or replace function testes.criar_usuario(p_email text) returns uuid
+language plpgsql as $$
+declare
+  v_id uuid := gen_random_uuid();
+begin
+  insert into auth.users (id, instance_id, aud, role, email, created_at, updated_at)
+  values (v_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', p_email, now(), now());
+  return v_id;
+end $$;
+
+-- Passa a agir como o usuário autenticado informado.
+create or replace function testes.autenticar_como(p_id uuid) returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims', json_build_object('sub', p_id, 'role', 'authenticated')::text, true);
+  perform set_config('request.jwt.claim.sub', p_id::text, true);
+  perform set_config('role', 'authenticated', true);
+end $$;
+
+-- Passa a agir como usuário sem sessão.
+create or replace function testes.anonimo() returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims', json_build_object('role', 'anon')::text, true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('role', 'anon', true);
+end $$;
+
+grant execute on all functions in schema testes to anon, authenticated;
+
+-- Cria usuário + registro de consultora (dispara a cópia das categorias padrão).
+create or replace function testes.criar_consultora(p_email text) returns uuid
+language plpgsql as $$
+declare
+  v_id uuid := testes.criar_usuario(p_email);
+begin
+  insert into public.consultoras (id, nome, whatsapp) values (v_id, p_email, '11999999999');
+  return v_id;
+end $$;
+
+-- Popula uma linha em cada tabela para a consultora informada.
+create or replace function testes.popular(p_id uuid) returns void
+language plpgsql as $$
+declare
+  v_endereco uuid; v_cliente uuid; v_fornecedor uuid; v_cat_prod uuid; v_cat_serv uuid;
+  v_produto uuid; v_servico uuid; v_lancamento uuid; v_lote uuid; v_venda uuid;
+  v_item uuid; v_parcela uuid;
+begin
+  select id into v_cat_prod from public.categorias where consultora_id = p_id and tipo = 'produto' limit 1;
+  select id into v_cat_serv from public.categorias where consultora_id = p_id and tipo = 'servico' limit 1;
+
+  insert into public.enderecos (consultora_id, cidade, uf) values (p_id, 'São Paulo', 'SP') returning id into v_endereco;
+  insert into public.clientes (consultora_id, endereco_id, nome, whatsapp)
+    values (p_id, v_endereco, 'Cliente', '11988887777') returning id into v_cliente;
+  insert into public.fornecedores (consultora_id, nome) values (p_id, 'Marca') returning id into v_fornecedor;
+  insert into public.produtos (consultora_id, fornecedor_id, categoria_id, nome, preco_venda)
+    values (p_id, v_fornecedor, v_cat_prod, 'Perfume', 200) returning id into v_produto;
+  insert into public.servicos (consultora_id, categoria_id, nome, preco_cobrado)
+    values (p_id, v_cat_serv, 'Sobrancelha', 60) returning id into v_servico;
+  insert into public.lancamentos_estoque (consultora_id, fornecedor_id, data_compra)
+    values (p_id, v_fornecedor, current_date) returning id into v_lancamento;
+  insert into public.lotes_estoque (consultora_id, lancamento_id, produto_id, numero_lote, quantidade, quantidade_disponivel, custo_unitario)
+    values (p_id, v_lancamento, v_produto, 1, 3, 2, 120) returning id into v_lote;
+  insert into public.vendas (consultora_id, cliente_id, codigo, subtotal, total_descontos, total)
+    values (p_id, v_cliente, 1, 200, 0, 200) returning id into v_venda;
+  insert into public.itens_venda (consultora_id, venda_id, produto_id, quantidade, preco_unitario, subtotal)
+    values (p_id, v_venda, v_produto, 1, 200, 200) returning id into v_item;
+  insert into public.parcelas (consultora_id, venda_id, numero_parcela, valor, data_vencimento)
+    values (p_id, v_venda, 1, 200, current_date) returning id into v_parcela;
+  insert into public.pagamentos_parcela (consultora_id, parcela_id, valor, forma_pagamento)
+    values (p_id, v_parcela, 50, 'pix');
+  insert into public.saidas_estoque (consultora_id, item_venda_id, lote_id, quantidade)
+    values (p_id, v_item, v_lote, 1);
+  insert into public.boletos (consultora_id, fornecedor_id, valor, data_vencimento)
+    values (p_id, v_fornecedor, 500, current_date);
+end $$;
+
+-- Conta as linhas da consultora em todas as tabelas (para checar remoção).
+create or replace function testes.linhas_da_consultora(p_id uuid) returns bigint
+language sql as $$
+  select (select count(*) from public.consultoras where id = p_id)
+       + (select count(*) from public.enderecos where consultora_id = p_id)
+       + (select count(*) from public.clientes where consultora_id = p_id)
+       + (select count(*) from public.fornecedores where consultora_id = p_id)
+       + (select count(*) from public.categorias where consultora_id = p_id)
+       + (select count(*) from public.produtos where consultora_id = p_id)
+       + (select count(*) from public.servicos where consultora_id = p_id)
+       + (select count(*) from public.lancamentos_estoque where consultora_id = p_id)
+       + (select count(*) from public.lotes_estoque where consultora_id = p_id)
+       + (select count(*) from public.vendas where consultora_id = p_id)
+       + (select count(*) from public.itens_venda where consultora_id = p_id)
+       + (select count(*) from public.parcelas where consultora_id = p_id)
+       + (select count(*) from public.pagamentos_parcela where consultora_id = p_id)
+       + (select count(*) from public.saidas_estoque where consultora_id = p_id)
+       + (select count(*) from public.boletos where consultora_id = p_id)
+$$;
+
+grant execute on all functions in schema testes to anon, authenticated;
