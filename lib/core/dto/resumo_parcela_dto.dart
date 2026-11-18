@@ -18,6 +18,7 @@ class ResumoParcelaDto {
     required this.clienteId,
     required this.clienteNome,
     required this.clienteWhatsapp,
+    required this.nomesItens,
     this.ultimoPagamento,
   });
 
@@ -38,6 +39,7 @@ class ResumoParcelaDto {
       clienteId: json['cliente_id'] as String,
       clienteNome: json['cliente_nome'] as String,
       clienteWhatsapp: json['cliente_whatsapp'] as String,
+      nomesItens: json['nomes_itens'] as String,
     );
   }
 
@@ -59,6 +61,9 @@ class ResumoParcelaDto {
   final String clienteNome;
   final String clienteWhatsapp;
 
+  /// Nomes dos itens da venda separados por " | " (`''` sem itens).
+  final String nomesItens;
+
   ResumoParcela paraModel() => ResumoParcela(
     id: id,
     vendaId: vendaId,
@@ -75,5 +80,6 @@ class ResumoParcelaDto {
     clienteId: clienteId,
     clienteNome: clienteNome,
     clienteWhatsapp: clienteWhatsapp,
+    nomesItens: nomesItens,
   );
 }

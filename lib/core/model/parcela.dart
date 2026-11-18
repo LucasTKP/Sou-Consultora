@@ -29,6 +29,7 @@ class ResumoParcela {
     this.valorPago = 0,
     this.qtdPagamentos = 0,
     this.ultimoPagamento,
+    this.nomesItens = '',
   });
 
   final String id;
@@ -46,6 +47,9 @@ class ResumoParcela {
   final String clienteId;
   final String clienteNome;
   final String clienteWhatsapp;
+
+  /// Nomes dos itens da venda separados por " | " (para a busca).
+  final String nomesItens;
 
   /// Quanto ainda falta pagar.
   int get saldo => valor - valorPago < 0 ? 0 : valor - valorPago;
@@ -68,6 +72,17 @@ class ResumoParcela {
     final dias = _dia(hoje).difference(_dia(vencimento)).inDays;
     return dias < 0 ? 0 : dias;
   }
+
+  /// Vencimento hoje e ainda com saldo.
+  bool venceHoje({required DateTime hoje}) =>
+      !paga && _dia(vencimento) == _dia(hoje);
+
+  /// "Parcela 2/2" ou "Parcela única".
+  String get textoCurto =>
+      qtdParcelas == 1 ? 'Parcela única' : 'Parcela $numero/$qtdParcelas';
+
+  /// "#0012".
+  String get codigoVenda => '#${vendaCodigo.toString().padLeft(4, '0')}';
 
   static DateTime _dia(DateTime d) => DateTime(d.year, d.month, d.day);
 }

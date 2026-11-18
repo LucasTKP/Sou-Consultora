@@ -77,6 +77,7 @@ ResumoParcelaDto parcelaDto(
   String clienteId = 'c1',
   String cliente = 'Mariana Souza',
   int codigo = 1,
+  String itens = 'Kit Lily',
 }) => ResumoParcelaDto(
   id: id,
   vendaId: vendaId,
@@ -85,6 +86,7 @@ ResumoParcelaDto parcelaDto(
   dataVencimento: vencimento ?? DateTime.now().add(const Duration(days: 10)),
   valorPago: pago,
   qtdPagamentos: pago > 0 ? 1 : 0,
+  ultimoPagamento: pago > 0 ? DateTime.now() : null,
   vendaCodigo: codigo,
   dataVenda: DateTime.now(),
   vendaTotal: valor * qtd,
@@ -92,6 +94,7 @@ ResumoParcelaDto parcelaDto(
   clienteId: clienteId,
   clienteNome: cliente,
   clienteWhatsapp: '11987654321',
+  nomesItens: itens,
 );
 
 /// Service falso em memória para Vendas.
@@ -153,6 +156,12 @@ class ServicoVendasFalso implements ServicoVendas {
             (clienteId == null || p.clienteId == clienteId))
           p,
     ]);
+  }
+
+  @override
+  Future<Resultado<ResumoParcelaDto?>> buscarParcela(String id) async {
+    if (falharRede) return Erro(_falha);
+    return Sucesso(parcelas.where((p) => p.id == id).firstOrNull);
   }
 
   @override

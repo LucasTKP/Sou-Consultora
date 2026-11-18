@@ -1,6 +1,9 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sou_consultora/ui/modules/a_receber/comprovante/a_receber_comprovante_screen.dart';
+import 'package:sou_consultora/ui/modules/a_receber/lista/a_receber_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/a_receber/parcela/a_receber_parcela_screen.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/compras/clientes_compras_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/dados/clientes_dados_screen.dart';
@@ -87,24 +90,9 @@ abstract final class RoteadorApp {
                 RotasApp.produtos => _rotaProdutos(),
                 RotasApp.servicos => _rotaServicos(),
                 RotasApp.vendas => _rotaVendas(),
+                RotasApp.aReceber => _rotaAReceber(),
                 _ => _rotaEmConstrucao(modulo),
               },
-          ],
-        ),
-        // Construídas no change `a-receber`.
-        GoRoute(
-          path: '/a-receber/parcelas/:id',
-          parentNavigatorKey: chaveRaiz,
-          builder: (_, _) =>
-              const EmConstrucaoScreen.porCima(titulo: 'Detalhes da Parcela'),
-          routes: [
-            GoRoute(
-              path: 'comprovante',
-              parentNavigatorKey: chaveRaiz,
-              builder: (_, _) => const EmConstrucaoScreen.porCima(
-                titulo: 'Comprovante de Pagamento',
-              ),
-            ),
           ],
         ),
       ],
@@ -293,6 +281,35 @@ abstract final class RoteadorApp {
               parentNavigatorKey: chaveRaiz,
               builder: (_, estado) =>
                   NovaVendaScreen(idVenda: estado.pathParameters['id']),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca (pelo menu); parcela e comprovante abrem por cima.
+  static GoRoute _rotaAReceber() {
+    return GoRoute(
+      path: RotasApp.aReceber,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const AReceberListaScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'parcelas/:id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              AReceberParcelaScreen(idParcela: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'comprovante',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => AReceberComprovanteScreen(
+                idParcela: estado.pathParameters['id']!,
+                idPagamento: estado.uri.queryParameters['pagamento'],
+              ),
             ),
           ],
         ),

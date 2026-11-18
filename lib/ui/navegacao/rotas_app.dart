@@ -60,9 +60,11 @@ abstract final class RotasApp {
   // A receber: parcelas e comprovantes abrem por cima.
   static String detalhesParcela(String id) => '/a-receber/parcelas/$id';
 
-  /// Comprovante do último pagamento da parcela.
-  static String comprovanteParcela(String idParcela) =>
-      '/a-receber/parcelas/$idParcela/comprovante';
+  /// Comprovante do pagamento [idPagamento] da parcela; sem ele, do último.
+  static String comprovanteParcela(String idParcela, {String? idPagamento}) =>
+      idPagamento == null
+      ? '/a-receber/parcelas/$idParcela/comprovante'
+      : '/a-receber/parcelas/$idParcela/comprovante?pagamento=$idPagamento';
 
   // Fornecedores: lista na casca (pelo menu); o resto abre por cima.
   static const novoFornecedor = '/fornecedores/novo';

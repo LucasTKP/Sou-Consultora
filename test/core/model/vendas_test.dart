@@ -328,8 +328,10 @@ void main() {
         'cliente_id': 'c1',
         'cliente_nome': 'Carla',
         'cliente_whatsapp': '11987654321',
+        'nomes_itens': 'Kit Lily | Batom',
       }).paraModel();
       expect(parcela.saldo, 7000);
+      expect(parcela.nomesItens, 'Kit Lily | Batom');
       expect(parcela.vencimento, DateTime(2026, 10, 15));
     });
   });

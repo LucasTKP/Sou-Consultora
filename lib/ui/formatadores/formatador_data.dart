@@ -38,6 +38,11 @@ abstract final class FormatadorData {
   /// "14 de novembro" (aniversário, sem o ano).
   static String diaMes(DateTime data) => _diaMes.format(data);
 
+  /// "15/10".
+  static String diaMesNumerico(DateTime data) =>
+      '${data.day.toString().padLeft(2, '0')}/'
+      '${data.month.toString().padLeft(2, '0')}';
+
   /// "15/05/2024" → DateTime. Texto incompleto ou data inexistente → null.
   static DateTime? ler(String texto) {
     if (!RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(texto)) return null;

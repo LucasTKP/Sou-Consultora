@@ -7,6 +7,7 @@ import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
+import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/core/service/servico_cep.dart';
@@ -16,6 +17,8 @@ import 'package:sou_consultora/core/service/servico_categorias.dart';
 import 'package:sou_consultora/core/service/servico_estoque.dart';
 import 'package:sou_consultora/core/service/servico_fornecedores.dart';
 import 'package:sou_consultora/core/service/servico_produtos.dart';
+import 'package:sou_consultora/core/service/servico_compartilhar.dart';
+import 'package:sou_consultora/core/service/servico_recebimentos.dart';
 import 'package:sou_consultora/core/service/servico_servicos.dart';
 import 'package:sou_consultora/core/service/servico_vendas.dart';
 import 'package:sou_consultora/core/service/servico_whatsapp.dart';
@@ -197,6 +200,33 @@ void _registrarVendas() {
         clientes: injetor(),
         whatsapp: injetor(),
         // Consultora nula = sessão encerrada: esquece as vendas da conta anterior.
+        sessaoEncerrada: injetor<RepositorioConsultora>().mudancas.where(
+          (consultora) => consultora == null,
+        ),
+      ),
+    );
+  }
+
+  if (!injetor.isRegistered<ServicoCompartilhar>()) {
+    injetor.registerLazySingleton<ServicoCompartilhar>(
+      ServicoCompartilharNativo.new,
+    );
+  }
+
+  if (!injetor.isRegistered<ServicoRecebimentos>()) {
+    injetor.registerLazySingleton<ServicoRecebimentos>(
+      () => ServicoRecebimentos(api: injetor()),
+    );
+  }
+
+  if (!injetor.isRegistered<RepositorioRecebimentos>()) {
+    injetor.registerLazySingleton<RepositorioRecebimentos>(
+      () => RepositorioRecebimentos(
+        vendas: injetor(),
+        recebimentos: injetor(),
+        repositorioVendas: injetor(),
+        clientes: injetor(),
+        compartilhar: injetor(),
         sessaoEncerrada: injetor<RepositorioConsultora>().mudancas.where(
           (consultora) => consultora == null,
         ),

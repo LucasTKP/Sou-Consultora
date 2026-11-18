@@ -8,7 +8,8 @@ import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 /// O que foi escolhido na folha de opções da venda.
 enum OpcaoVenda { cobrar, recibo, cancelar }
 
-/// Folha "Opções da venda": cobrar no WhatsApp, gerar recibo e cancelar.
+/// Folha "Opções da venda" (Vendas e A receber): cobrar no WhatsApp, gerar
+/// recibo e cancelar.
 /// [podeCobrar] some na venda quitada; [temRecibo] some sem pagamento.
 abstract final class FolhaOpcoesVenda {
   static Future<OpcaoVenda?> mostrar(
@@ -27,7 +28,7 @@ abstract final class FolhaOpcoesVenda {
               OpcaoVenda.cobrar,
               Icons.chat_outlined,
               'Cobrar no WhatsApp',
-              'Enviar mensagem da próxima parcela',
+              'Lembrete da parcela em aberto',
               CoresApp.sucessoContainer,
               CoresApp.sucesso,
             ),

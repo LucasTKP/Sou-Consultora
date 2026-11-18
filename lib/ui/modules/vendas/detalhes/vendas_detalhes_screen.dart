@@ -11,7 +11,7 @@ import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/modules/servicos/widgets/icone_servico.dart';
 import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_cubit.dart';
 import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_state.dart';
-import 'package:sou_consultora/ui/modules/vendas/detalhes/widgets/folha_opcoes_venda.dart';
+import 'package:sou_consultora/ui/modules/vendas/widgets/folha_opcoes_venda.dart';
 import 'package:sou_consultora/ui/modules/vendas/widgets/selos_venda.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';

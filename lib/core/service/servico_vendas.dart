@@ -61,6 +61,14 @@ class ServicoVendas {
     }, mensagemPadrao: 'Não foi possível carregar as parcelas.');
   }
 
+  /// Uma parcela (Sucesso(null) se não existir ou não for da consultora).
+  Future<Resultado<ResumoParcelaDto?>> buscarParcela(String id) {
+    return executarComFalha(() async {
+      final linha = await _api.buscarUm(_parcelas, coluna: 'id', valor: id);
+      return linha == null ? null : ResumoParcelaDto.fromJson(linha);
+    }, mensagemPadrao: 'Não foi possível carregar a parcela.');
+  }
+
   /// Grava a venda (tudo ou nada) e devolve o id.
   Future<Resultado<String>> concluir(PedidoVenda pedido) {
     return executarComFalha(() async {

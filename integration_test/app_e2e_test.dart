@@ -17,6 +17,10 @@ import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
+import 'package:sou_consultora/core/model/item_venda.dart';
+import 'package:sou_consultora/core/model/pedido_venda.dart';
+import 'package:sou_consultora/core/model/plano_parcelas.dart';
+import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
@@ -891,4 +895,146 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-09'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-10 · A receber
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-10 A receber', () {
+    const cliente = 'E2E Cliente';
+    const servico = 'E2E Serviço';
+
+    testWidgets(
+      'paga parte da 1ª parcela pela tela, confere no banco e o comprovante',
+      (tester) async {
+        await abrirApp(tester);
+        final vendas = injetor<RepositorioVendas>();
+        final recebimentos = injetor<RepositorioRecebimentos>();
+
+        // Venda de teste em 2x, criada direto pelo repositório (a tela de
+        // nova venda é coberta no E2E-09). Serviço: não mexe no estoque.
+        final clientes = await injetor<RepositorioClientes>().carregar();
+        final daCliente = (clientes as Sucesso).valor.where(
+          (c) => c.nome == cliente,
+        );
+        if (daCliente.isEmpty) {
+          fail('Rode antes o E2E-04: ele cria a cliente "$cliente".');
+        }
+        final servicos = await injetor<RepositorioServicos>().carregar();
+        final doServico = (servicos as Sucesso).valor.where(
+          (s) => s.nome == servico,
+        );
+        if (doServico.isEmpty) {
+          fail('Rode antes o E2E-08: ele cria o serviço "$servico".');
+        }
+        final item = doServico.first;
+        final hoje = DateTime.now();
+        final primeira = item.precoCobrado ~/ 2;
+        final resultado = await vendas.concluir(
+          PedidoVenda(
+            clienteId: daCliente.first.id,
+            dataVenda: hoje,
+            itens: [
+              ItemPedido(
+                tipo: TipoItem.servico,
+                catalogoId: item.id,
+                nome: item.nome,
+                precoUnitario: item.precoCobrado,
+                quantidade: 1,
+                baixarEstoque: false,
+              ),
+            ],
+            parcelas: [
+              // A 1ª vence hoje: aparece no mês atual (filtro padrão).
+              ParcelaPlano(valor: primeira, vencimento: hoje),
+              ParcelaPlano(
+                valor: item.precoCobrado - primeira,
+                vencimento: hoje.add(const Duration(days: 30)),
+              ),
+            ],
+          ),
+        );
+        final idVenda = (resultado as Sucesso<String>).valor;
+        // A venda é sempre cancelada, mesmo se o cenário falhar no meio.
+        addTearDown(() async {
+          final ainda = await vendas.detalhe(idVenda);
+          if (ainda case Sucesso(valor: _?)) await vendas.cancelar(idVenda);
+        });
+
+        final parcelas = await recebimentos.carregar();
+        final parcela = (parcelas as Sucesso).valor.firstWhere(
+          (p) => p.vendaId == idVenda && p.numero == 1,
+        );
+        final parcial = parcela.valor ~/ 2;
+
+        // Lista: busca pela cliente e abre a 1ª parcela desta venda.
+        await abrirMenu(tester);
+        await tocarNoMenu(tester, 'A Receber / Cobranças');
+        await esperarAte(tester, find.text('Recebimentos'));
+        await esperarAte(
+          tester,
+          find.textContaining('encontrada'),
+          descricao: 'lista de parcelas',
+        );
+        await tester.enterText(find.byType(TextField).first, cliente);
+        await tester.pumpAndSettle();
+        final cartao = find.textContaining(
+          '${parcela.textoCurto} • ${FormatadorMoeda.formatar(parcela.valor)}',
+        );
+        await tocar(tester, cartao);
+        await esperarAte(tester, find.text('Detalhes da Parcela'));
+        await esperarAte(
+          tester,
+          find.text('Pagar'),
+          descricao: 'detalhes carregados',
+        );
+        await mostrar(tester, find.text('Venda ${parcela.codigoVenda}'));
+        expect(find.text('Venda ${parcela.codigoVenda}'), findsOneWidget);
+
+        // Paga metade pela folha.
+        await tocar(tester, find.text('Pagar'));
+        await esperarAte(tester, find.text('Registrar pagamento'));
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(CampoMoedaApp),
+            matching: find.byType(TextField),
+          ),
+          parcial.toString(),
+        );
+        await tester.pumpAndSettle();
+        await tocar(tester, find.text('Confirmar'));
+        await esperarAte(tester, find.text('Pagamento confirmado'));
+
+        // Banco: um pagamento com o valor parcial; saldo = o resto.
+        final relido = await recebimentos.detalhe(parcela.id);
+        final detalhe = (relido as Sucesso).valor!;
+        expect(detalhe.pagamentos.single.valor, parcial);
+        expect(detalhe.parcela.saldo, parcela.valor - parcial);
+
+        // Comprovante do pagamento parcial.
+        expect(find.text(FormatadorMoeda.formatar(parcial)), findsWidgets);
+        expect(find.text(cliente), findsOneWidget);
+        expect(find.text('Parcela 1 de 2 • Parcial'), findsOneWidget);
+        await mostrar(tester, find.text('Saldo restante da venda'));
+        expect(
+          find.text(FormatadorMoeda.formatar(item.precoCobrado - parcial)),
+          findsWidgets,
+        );
+        expect(find.text('Compartilhar'), findsOneWidget);
+
+        // Volta aos detalhes (já com o pagamento) e cancela a venda pela tela.
+        await voltarDoSistema(tester);
+        await esperarAte(
+          tester,
+          find.text('Pago ${FormatadorMoeda.formatar(parcial)}'),
+        );
+        await tocar(tester, find.text('Mais opções'));
+        await tocar(tester, find.text('Cancelar Venda'));
+        await tocar(tester, find.text('Cancelar venda'));
+        await esperarAte(tester, find.text('Recebimentos'));
+
+        final aposCancelar = await vendas.detalhe(idVenda);
+        expect((aposCancelar as Sucesso).valor, isNull);
+      },
+    );
+  }, skip: pularGrupo('E2E-10'));
 }
