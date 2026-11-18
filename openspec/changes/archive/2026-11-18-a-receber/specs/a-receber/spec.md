@@ -41,6 +41,11 @@ A folha **Registrar pagamento** SHALL vir com o saldo restante no valor (editáv
 ### Requirement: Comprovante de pagamento
 O comprovante SHALL mostrar "Pagamento confirmado", o valor pago, a data e a hora, o nome e a chave Pix da consultora (quando houver), a cliente, a forma de pagamento, a parcela e se ficou quitada ou parcial, a venda (código, data, itens, número de parcelas, total), as parcelas da venda e o saldo restante da venda. **Compartilhar** SHALL enviar a imagem do comprovante com uma descrição curta (cliente, valor, parcela e saldo).
 
+#### Scenario: Pagamento com data retroativa
+- **GIVEN** a parcela já tem um pagamento de hoje
+- **WHEN** ela registra outro pagamento com a data de ontem
+- **THEN** o comprovante que abre é o desse pagamento, não o de hoje
+
 #### Scenario: Compartilhar
 - **WHEN** ela toca em Compartilhar
 - **THEN** o celular abre o compartilhamento com a imagem do comprovante e o texto curto
