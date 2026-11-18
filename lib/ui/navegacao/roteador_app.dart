@@ -13,6 +13,7 @@ import 'package:sou_consultora/ui/modules/clientes/dados/clientes_dados_screen.d
 import 'package:sou_consultora/ui/modules/clientes/detalhes/clientes_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/formulario/clientes_formulario_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/lista/clientes_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/financeiro/financeiro_screen.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/detalhes/fornecedores_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/formulario/fornecedores_formulario_screen.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_screen.dart';
@@ -95,6 +96,7 @@ abstract final class RoteadorApp {
                 RotasApp.vendas => _rotaVendas(),
                 RotasApp.aReceber => _rotaAReceber(),
                 RotasApp.aPagar => _rotaAPagar(),
+                RotasApp.financeiro => _rotaFinanceiro(),
                 _ => _rotaEmConstrucao(modulo),
               },
           ],
@@ -360,6 +362,17 @@ abstract final class RoteadorApp {
           ],
         ),
       ],
+    );
+  }
+
+  /// Tela única na casca (item da barra).
+  static GoRoute _rotaFinanceiro() {
+    return GoRoute(
+      path: RotasApp.financeiro,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const FinanceiroScreen(),
+      ),
     );
   }
 

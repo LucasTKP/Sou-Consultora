@@ -7,8 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
+import 'package:sou_consultora/core/model/boleto.dart';
 import 'package:sou_consultora/core/model/cliente.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
+import 'package:sou_consultora/core/model/filtro_vendas.dart';
+import 'package:sou_consultora/core/model/resumo_financeiro.dart';
 import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
@@ -1150,4 +1153,137 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-11'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-12 · Financeiro
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-12 Financeiro', () {
+    const servico = 'E2E Serviço';
+    const fornecedor = 'E2E Fornecedor';
+    const valorBoleto = 4321;
+
+    /// Valor de um Sucesso mantendo o tipo (o cast cru vira dynamic).
+    T valorDe<T>(Resultado<T> resultado) => (resultado as Sucesso<T>).valor;
+
+    Future<void> abrirFinanceiro(WidgetTester tester) async {
+      await tester.tap(find.bySemanticsLabel('Financeiro').last);
+      await tester.pumpAndSettle();
+      await esperarAte(tester, find.text('Categorias do Mês'));
+    }
+
+    /// O mesmo cálculo do app, a partir do que o banco devolve agora.
+    Future<ResumoFinanceiro> doBanco() async {
+      final vendas = await injetor<RepositorioVendas>().carregar();
+      final boletos = await injetor<RepositorioBoletos>().carregar();
+      return ResumoFinanceiro.calcular(
+        vendas: valorDe(vendas),
+        boletos: valorDe(boletos),
+        periodo: MesAno.de(DateTime.now()),
+      );
+    }
+
+    testWidgets(
+      'uma venda e um boleto do mês entram nos números (e saem no fim)',
+      (tester) async {
+        await abrirApp(tester);
+        final vendas = injetor<RepositorioVendas>();
+        final boletos = injetor<RepositorioBoletos>();
+        final antes = await doBanco();
+
+        // Dados temporários do mês atual, criados pelo repositório.
+        final clientes = await injetor<RepositorioClientes>().carregar();
+        final cliente = valorDe(clientes)
+            .where((c) => c.nome == 'E2E Cliente')
+            .firstOrNull;
+        final servicos = await injetor<RepositorioServicos>().carregar();
+        final item = valorDe(servicos)
+            .where((s) => s.nome == servico)
+            .firstOrNull;
+        final marcas = await injetor<RepositorioFornecedores>().carregar();
+        final marca = valorDe(marcas)
+            .where((f) => f.nome == fornecedor)
+            .firstOrNull;
+        if (cliente == null || item == null || marca == null) {
+          fail(
+            'Rode antes o E2E-04, o E2E-05 e o E2E-08 (cliente, '
+            'fornecedor e serviço de teste).',
+          );
+        }
+        final hoje = DateTime.now();
+        final venda = await vendas.concluir(
+          PedidoVenda(
+            clienteId: cliente.id,
+            dataVenda: hoje,
+            itens: [
+              ItemPedido(
+                tipo: TipoItem.servico,
+                catalogoId: item.id,
+                nome: item.nome,
+                precoUnitario: item.precoCobrado,
+                quantidade: 1,
+                baixarEstoque: false,
+              ),
+            ],
+            parcelas: [
+              ParcelaPlano(valor: item.precoCobrado, vencimento: hoje),
+            ],
+          ),
+        );
+        final idVenda = (venda as Sucesso<String>).valor;
+        addTearDown(() => vendas.cancelar(idVenda));
+        final boleto = await boletos.salvar(
+          PedidoBoleto(
+            fornecedorId: marca.id,
+            valor: valorBoleto,
+            vencimento: hoje,
+            observacoes: 'E2E-12 boleto temporário',
+          ),
+        );
+        final idBoleto = (boleto as Sucesso<String>).valor;
+        addTearDown(() async {
+          final ainda = await boletos.buscar(idBoleto);
+          if (ainda case Sucesso(valor: final b?)) await boletos.excluir(b);
+        });
+
+        final esperado = await doBanco();
+        expect(
+          esperado.faturamentoDoMes,
+          antes.faturamentoDoMes + item.precoCobrado,
+        );
+        expect(esperado.despesasDoMes, antes.despesasDoMes + valorBoleto);
+
+        await abrirFinanceiro(tester);
+        expect(find.textContaining('(Mês atual)'), findsOneWidget);
+        expect(
+          find.text(
+            FormatadorMoeda.formatarSemCentavos(esperado.totalAcumulado),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining(
+            'Faturamento no mês: '
+            '${FormatadorMoeda.formatar(esperado.faturamentoDoMes)}',
+            findRichText: true,
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining(
+            'Despesas no mês: '
+            '${FormatadorMoeda.formatar(esperado.despesasDoMes)}',
+            findRichText: true,
+          ),
+          findsOneWidget,
+        );
+
+        // Os atalhos abrem os módulos.
+        await tocar(tester, find.text('A Receber'));
+        await esperarAte(tester, find.text('Recebimentos'));
+        await abrirFinanceiro(tester);
+        await tocar(tester, find.text('A Pagar'));
+        await esperarAte(tester, find.text('Boletos de Fornecedores'));
+      },
+    );
+  }, skip: pularGrupo('E2E-12'));
 }

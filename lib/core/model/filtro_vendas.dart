@@ -42,6 +42,15 @@ class MesAno {
 
   bool contem(DateTime data) => data.year == ano && data.month == mes;
 
+  /// [meses] para frente (negativo = para trás), virando o ano se preciso.
+  MesAno somar(int meses) {
+    final indice = ano * 12 + (mes - 1) + meses;
+    return MesAno(indice ~/ 12, indice % 12 + 1);
+  }
+
+  /// Ordem cronológica (para ordenar e comparar meses).
+  int get indice => ano * 12 + mes;
+
   @override
   bool operator ==(Object other) =>
       other is MesAno && other.ano == ano && other.mes == mes;

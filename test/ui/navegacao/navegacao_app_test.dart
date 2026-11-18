@@ -13,6 +13,7 @@ import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/ui/navegacao/casca/widgets/item_menu_lateral.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
+import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
@@ -22,6 +23,7 @@ import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/ui/navegacao/notificador_acesso.dart';
 import 'package:sou_consultora/ui/navegacao/roteador_app.dart';
 
+import '../../auxiliares/falsos_boletos.dart';
 import '../../auxiliares/falsos_clientes.dart';
 import '../../auxiliares/falsos_consultora.dart';
 import '../../auxiliares/falsos_fornecedores.dart';
@@ -113,6 +115,12 @@ Future<void> abrirApp(
     ..registerSingleton<RepositorioServicos>(
       repositorioServicosDeTeste(
         ServicoServicosFalso(resumos: [servicoDto('s1', 'Manicure')]),
+      ),
+    )
+    ..registerSingleton<RepositorioBoletos>(
+      repositorioBoletosDeTeste(
+        ServicoBoletosFalso(),
+        fornecedores: injetor<RepositorioFornecedores>(),
       ),
     );
   final acesso = NotificadorAcesso(
@@ -528,7 +536,7 @@ void main() {
 
       await voltarDoSistema(tester);
       expect(find.byType(Drawer), findsNothing);
-      expect(find.text('Financeiro em construção'), findsOneWidget);
+      expect(find.text('Categorias do Mês'), findsOneWidget);
     });
 
     testWidgets('em tela principal fora do Início, vai ao Início', (

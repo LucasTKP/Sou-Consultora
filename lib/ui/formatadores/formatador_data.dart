@@ -82,6 +82,18 @@ abstract final class FormatadorData {
   }
 
   /// "Nov / 2026".
+  /// "Nov" (rótulo do gráfico).
+  static String mesCurto(int mes) {
+    final nome = _mesesCurtos[mes - 1];
+    return '${nome[0].toUpperCase()}${nome.substring(1)}';
+  }
+
+  /// "Novembro / 2026" (seletor de período do Financeiro).
+  static String mesAnoPorExtenso(int ano, int mes) {
+    final nome = _mesAno.format(DateTime(ano, mes)).split(' ').first;
+    return '${nome[0].toUpperCase()}${nome.substring(1)} / $ano';
+  }
+
   static String mesAnoAbreviado(int ano, int mes) =>
       '${_mesesCurtos[mes - 1][0].toUpperCase()}${_mesesCurtos[mes - 1].substring(1)} / $ano';
 
