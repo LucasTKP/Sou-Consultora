@@ -3,6 +3,7 @@ import 'package:sou_consultora/core/api/api_supabase.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
+import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
@@ -10,7 +11,10 @@ import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
+import 'package:sou_consultora/core/service/servico_abrir_link.dart';
+import 'package:sou_consultora/core/service/servico_boletos.dart';
 import 'package:sou_consultora/core/service/servico_cep.dart';
+import 'package:sou_consultora/core/service/servico_escolher_comprovante.dart';
 import 'package:sou_consultora/core/service/servico_clientes.dart';
 import 'package:sou_consultora/core/service/servico_consultora.dart';
 import 'package:sou_consultora/core/service/servico_categorias.dart';
@@ -65,6 +69,7 @@ void configurarDependencias() {
 
   _registrarClientes();
   _registrarFornecedores();
+  _registrarBoletos();
   _registrarProdutos();
   _registrarVendas();
 }
@@ -112,6 +117,39 @@ void _registrarFornecedores() {
         servico: injetor(),
         whatsapp: injetor(),
         // Consultora nula = sessão encerrada: esquece os fornecedores da conta anterior.
+        sessaoEncerrada: injetor<RepositorioConsultora>().mudancas.where(
+          (consultora) => consultora == null,
+        ),
+      ),
+    );
+  }
+}
+
+void _registrarBoletos() {
+  if (!injetor.isRegistered<ServicoBoletos>()) {
+    injetor.registerLazySingleton<ServicoBoletos>(
+      () => ServicoBoletos(api: injetor()),
+    );
+  }
+
+  if (!injetor.isRegistered<ServicoAbrirLink>()) {
+    injetor.registerLazySingleton<ServicoAbrirLink>(ServicoAbrirLinkNativo.new);
+  }
+
+  if (!injetor.isRegistered<ServicoEscolherComprovante>()) {
+    injetor.registerLazySingleton<ServicoEscolherComprovante>(
+      ServicoEscolherComprovanteNativo.new,
+    );
+  }
+
+  if (!injetor.isRegistered<RepositorioBoletos>()) {
+    injetor.registerLazySingleton<RepositorioBoletos>(
+      () => RepositorioBoletos(
+        servico: injetor(),
+        fornecedores: injetor(),
+        abrirLink: injetor(),
+        escolher: injetor(),
+        // Consultora nula = sessão encerrada: esquece os boletos da conta anterior.
         sessaoEncerrada: injetor<RepositorioConsultora>().mudancas.where(
           (consultora) => consultora == null,
         ),

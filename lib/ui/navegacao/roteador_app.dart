@@ -1,6 +1,9 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sou_consultora/ui/modules/a_pagar/detalhes/a_pagar_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/a_pagar/formulario/a_pagar_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/a_pagar/lista/a_pagar_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/a_receber/comprovante/a_receber_comprovante_screen.dart';
 import 'package:sou_consultora/ui/modules/a_receber/lista/a_receber_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/a_receber/parcela/a_receber_parcela_screen.dart';
@@ -91,6 +94,7 @@ abstract final class RoteadorApp {
                 RotasApp.servicos => _rotaServicos(),
                 RotasApp.vendas => _rotaVendas(),
                 RotasApp.aReceber => _rotaAReceber(),
+                RotasApp.aPagar => _rotaAPagar(),
                 _ => _rotaEmConstrucao(modulo),
               },
           ],
@@ -310,6 +314,48 @@ abstract final class RoteadorApp {
                 idParcela: estado.pathParameters['id']!,
                 idPagamento: estado.uri.queryParameters['pagamento'],
               ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca (pelo menu); novo, a lista de uma marca, detalhes e
+  /// edição abrem por cima.
+  static GoRoute _rotaAPagar() {
+    return GoRoute(
+      path: RotasApp.aPagar,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const APagarListaScreen(),
+      ),
+      routes: [
+        // 'novo' e 'fornecedor/:id' antes de ':id', para não virarem um id.
+        GoRoute(
+          path: 'novo',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) => APagarFormularioScreen(
+            fornecedorInicialId: estado.uri.queryParameters['fornecedor'],
+          ),
+        ),
+        GoRoute(
+          path: 'fornecedor/:id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              APagarListaScreen(fornecedorId: estado.pathParameters['id']),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              APagarDetalhesScreen(idBoleto: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) =>
+                  APagarFormularioScreen(idBoleto: estado.pathParameters['id']),
             ),
           ],
         ),

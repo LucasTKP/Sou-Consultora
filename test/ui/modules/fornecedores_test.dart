@@ -36,8 +36,9 @@ Future<void> _abrir(
         builder: (_, _) => const Scaffold(body: Text('anterior')),
       ),
       GoRoute(
-        path: '/a-pagar',
-        builder: (_, _) => const Scaffold(body: Text('A pagar em construção')),
+        path: '/a-pagar/fornecedor/:id',
+        builder: (_, e) =>
+            Scaffold(body: Text('boletos de ${e.pathParameters['id']}')),
       ),
       GoRoute(
         path: '/fornecedores',
@@ -388,19 +389,33 @@ void main() {
       expect(find.text('Em espera'), findsOneWidget);
     });
 
-    testWidgets('Ver em A pagar abre A pagar', (tester) async {
-      final servico = ServicoFornecedoresFalso(
-        resumos: [fornecedorDto('f1', 'Natura')],
-      );
-      await _abrir(
-        tester,
-        repositorioFornecedoresDeTeste(servico),
-        '/fornecedores/f1',
-      );
+    testWidgets(
+      'Ver em A pagar abre os boletos da marca e recarrega na volta',
+      (tester) async {
+        final servico = ServicoFornecedoresFalso(
+          resumos: [fornecedorDto('f1', 'Natura')],
+        );
+        await _abrir(
+          tester,
+          repositorioFornecedoresDeTeste(servico),
+          '/fornecedores/f1',
+        );
 
-      await tester.tap(find.text('Ver em A pagar'));
-      await tester.pumpAndSettle();
-      expect(find.text('A pagar em construção'), findsOneWidget);
-    });
+        await tester.tap(find.text('Ver em A pagar'));
+        await tester.pumpAndSettle();
+        expect(find.text('boletos de f1'), findsOneWidget);
+
+        // Lá ela pagou um boleto: o resumo da marca precisa mudar na volta.
+        servico.resumos = [
+          fornecedorDto('f1', 'Natura', qtdPagos: 1, valorPagos: 68000),
+        ];
+        servico.chamadas.clear();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.text('Detalhes do Fornecedor'), findsOneWidget);
+        expect(servico.chamadas, contains('resumo f1'));
+        expect(find.text('R\$ 680,00'), findsOneWidget);
+      },
+    );
   });
 }

@@ -108,6 +108,21 @@ class ApiSupabase {
         .single();
   }
 
+  /// Apaga as linhas onde [coluna] = [valor] e devolve quantas foram apagadas
+  /// (0 quando não existe ou o RLS esconde a linha).
+  Future<int> excluir(
+    String tabela, {
+    required String coluna,
+    required Object valor,
+  }) async {
+    final apagadas = await _cliente
+        .from(tabela)
+        .delete()
+        .eq(coluna, valor)
+        .select('id');
+    return apagadas.length;
+  }
+
   // —— Storage (buckets privados, pasta <id do usuário>/) ——
 
   Future<void> enviarArquivo(

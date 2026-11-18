@@ -52,6 +52,14 @@ class _DetalhesVista extends StatelessWidget {
     if (salvou == true) await cubit.carregar();
   }
 
+  /// A pagar só com os boletos da marca; na volta, o resumo é recarregado
+  /// (boletos pagos, lançados ou excluídos lá).
+  Future<void> _verEmAPagar(BuildContext context, String id) async {
+    final cubit = context.read<FornecedoresDetalhesCubit>();
+    await context.push(RotasApp.boletosDoFornecedor(id));
+    await cubit.carregar();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FornecedoresDetalhesCubit, FornecedoresDetalhesState>(
@@ -83,7 +91,12 @@ class _DetalhesVista extends StatelessWidget {
 
   Widget _corpo(BuildContext context, FornecedoresDetalhesState estado) {
     final fornecedor = estado.fornecedor;
-    if (fornecedor != null) return _Conteudo(fornecedor: fornecedor);
+    if (fornecedor != null) {
+      return _Conteudo(
+        fornecedor: fornecedor,
+        onVerEmAPagar: () => _verEmAPagar(context, fornecedor.id),
+      );
+    }
     final erro = estado.erro;
     if (erro != null) {
       return EstadoErroApp(
@@ -96,9 +109,10 @@ class _DetalhesVista extends StatelessWidget {
 }
 
 class _Conteudo extends StatelessWidget {
-  const _Conteudo({required this.fornecedor});
+  const _Conteudo({required this.fornecedor, required this.onVerEmAPagar});
 
   final ResumoFornecedor fornecedor;
+  final VoidCallback onVerEmAPagar;
 
   @override
   Widget build(BuildContext context) {
@@ -107,11 +121,7 @@ class _Conteudo extends StatelessWidget {
       children: [
         _Identidade(fornecedor: fornecedor),
         const SizedBox(height: 16),
-        CartaoBoletos(
-          fornecedor: fornecedor,
-          // Até a fase de A pagar, abre a tela "em construção".
-          onVerEmAPagar: () => context.go(RotasApp.aPagar),
-        ),
+        CartaoBoletos(fornecedor: fornecedor, onVerEmAPagar: onVerEmAPagar),
         if (_temContato) ...[
           const SizedBox(height: 16),
           _Contato(fornecedor: fornecedor),

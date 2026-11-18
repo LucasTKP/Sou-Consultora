@@ -9,6 +9,7 @@ import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/cliente.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
+import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/model/fornecedor.dart';
@@ -23,6 +24,7 @@ import 'package:sou_consultora/core/model/plano_parcelas.dart';
 import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
+import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
 
 import 'auxiliares_e2e.dart';
@@ -1037,4 +1039,115 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-10'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-11 · A pagar
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-11 A pagar', () {
+    const marca = 'E2E Fornecedor';
+    const observacao = 'E2E-11 boleto de teste';
+    // A lista, com boletos ou vazia.
+    final listaDeBoletos = find.byWidgetPredicate(
+      (w) =>
+          w is Text &&
+          (w.data == 'Nenhum boleto ainda' ||
+              w.data == 'Boletos de Fornecedores'),
+    );
+
+    testWidgets(
+      'lança boleto pela tela, confere no banco, paga, desfaz e exclui',
+      (tester) async {
+        await abrirApp(tester);
+        final boletos = injetor<RepositorioBoletos>();
+        final antes = await boletos.carregar();
+        final idsAntes = {for (final b in (antes as Sucesso).valor) b.id};
+        // Garante a limpeza mesmo se o cenário falhar no meio.
+        addTearDown(() async {
+          final depois = await boletos.carregar();
+          for (final b in (depois as Sucesso).valor) {
+            if (!idsAntes.contains(b.id)) await boletos.excluir(b);
+          }
+        });
+
+        await abrirMenu(tester);
+        await tocarNoMenu(tester, 'A Pagar / Boletos');
+        await esperarAte(tester, listaDeBoletos, descricao: 'lista de boletos');
+
+        // Lançar: passo 1 (marca, valor, vencimento hoje) e passo 2.
+        await tocar(tester, find.byTooltip('Novo boleto'));
+        await esperarAte(tester, find.text('Passo 1 de 2: Dados do Boleto'));
+        await tocar(tester, find.text('Selecione a marca ou distribuidora'));
+        if (find.text(marca).evaluate().isEmpty) {
+          fail('Rode antes o E2E-05: ele cria o fornecedor "$marca".');
+        }
+        await tocar(tester, find.text(marca).last);
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(CampoMoedaApp),
+            matching: find.byType(TextField),
+          ),
+          '12345',
+        );
+        await tester.pumpAndSettle();
+        await tocar(tester, find.byType(CampoDataApp));
+        await tocar(tester, find.text('OK'));
+        await tocar(tester, find.text('Continuar'));
+        await esperarAte(
+          tester,
+          find.text('Passo 2 de 2: Pagamento e Lembretes'),
+        );
+        await tester.enterText(find.byType(TextField).last, observacao);
+        await tester.pumpAndSettle();
+        await tocar(tester, find.text('Salvar Boleto'));
+        await esperarAte(tester, find.text('Boletos de Fornecedores'));
+
+        // Banco: o boleto novo, em aberto, com o que foi digitado.
+        final hoje = DateTime.now();
+        final dia = DateTime(hoje.year, hoje.month, hoje.day);
+        final depois = await boletos.carregar();
+        final novo = (depois as Sucesso).valor.firstWhere(
+          (b) => !idsAntes.contains(b.id),
+        );
+        expect(novo.fornecedorNome, marca);
+        expect(novo.valor, 12345);
+        expect(novo.vencimento, dia);
+        expect(novo.observacoes, observacao);
+        expect(novo.pago, isFalse);
+
+        // Detalhes pela busca da observação.
+        await tester.enterText(find.byType(TextField).first, 'E2E-11');
+        await tester.pumpAndSettle();
+        await tocar(tester, find.text(marca).first);
+        await esperarAte(tester, find.text('Detalhes do Boleto'));
+        await esperarAte(tester, find.text('Confirmar Pagamento'));
+
+        // Pagar com a data de hoje.
+        await tocar(tester, find.text('Confirmar Pagamento'));
+        await tocar(tester, find.text('Confirmar'));
+        await esperarAte(tester, find.text('VALOR PAGO'));
+        final pago = await boletos.buscar(novo.id);
+        expect((pago as Sucesso).valor!.dataPagamento, dia);
+
+        // Desfazer.
+        await esperarSumir(tester, find.text('Pagamento confirmado.'));
+        await tocar(tester, find.text('Mais opções'));
+        await tocar(tester, find.text('Desfazer Pagamento'));
+        await tocar(tester, find.text('Desfazer'));
+        await esperarAte(tester, find.text('Confirmar Pagamento'));
+        final desfeito = await boletos.buscar(novo.id);
+        expect((desfeito as Sucesso).valor!.pago, isFalse);
+
+        // Excluir pela tela.
+        await esperarSumir(tester, find.text('Pagamento desfeito.'));
+        await tocar(tester, find.text('Mais opções'));
+        await tocar(tester, find.text('Excluir Boleto'));
+        await tocar(tester, find.text('Excluir boleto'));
+        // Volta à lista (vazia se este era o único boleto).
+        await esperarSumir(tester, find.text('Detalhes do Boleto'));
+        await esperarAte(tester, listaDeBoletos, descricao: 'lista de boletos');
+        final excluido = await boletos.buscar(novo.id);
+        expect((excluido as Sucesso).valor, isNull);
+      },
+    );
+  }, skip: pularGrupo('E2E-11'));
 }

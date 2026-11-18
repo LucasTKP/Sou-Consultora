@@ -66,6 +66,18 @@ abstract final class RotasApp {
       ? '/a-receber/parcelas/$idParcela/comprovante'
       : '/a-receber/parcelas/$idParcela/comprovante?pagamento=$idPagamento';
 
+  // A pagar: lista na casca (pelo menu); o resto abre por cima.
+  /// Novo boleto; com [fornecedorId], a marca já vem escolhida.
+  static String novoBoleto({String? fornecedorId}) => fornecedorId == null
+      ? '/a-pagar/novo'
+      : '/a-pagar/novo?fornecedor=$fornecedorId';
+  static String detalhesBoleto(String id) => '/a-pagar/$id';
+  static String editarBoleto(String id) => '/a-pagar/$id/editar';
+
+  /// A pagar só com os boletos da marca (aberta por Fornecedores, por cima).
+  static String boletosDoFornecedor(String fornecedorId) =>
+      '/a-pagar/fornecedor/$fornecedorId';
+
   // Fornecedores: lista na casca (pelo menu); o resto abre por cima.
   static const novoFornecedor = '/fornecedores/novo';
   static String detalhesFornecedor(String id) => '/fornecedores/$id';

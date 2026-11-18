@@ -48,6 +48,7 @@ Marque tudo antes de publicar:
 - [ ] **Serviços no aparelho (change `servicos`):** cadastrar com foto, filtrar por categoria, ordenar, conferir o retorno estimado enquanto preenche e editar.
 - [ ] **Vendas no aparelho (change `vendas`):** venda com baixa de estoque (conferir o saldo e o lote mais antigo consumido), estoque insuficiente, venda de serviço, dividido em 3 com valores e datas editados (Faltam/Sobram), entrada paga, editar venda sem pagamento, Cobrar no WhatsApp (mensagem com Pix), cancelar devolvendo o estoque, Nova venda pela cliente e Compras da cliente.
 - [ ] **A receber no aparelho (change `a-receber`):** filtros de status (contagens) e mês, "Todos os meses", busca por produto, ordenar por valor; detalhes de uma parcela atrasada ("Venceu em… há N dias") e de uma parcial (barra pago × resta); **Cobrar** abre o WhatsApp com a mensagem e o Pix; pagar parcial e depois quitar; valor acima do saldo é recusado; pagamento com **data de ontem** abre o comprovante desse pagamento; **Compartilhar** abre a folha do sistema com a imagem nítida e o texto curto (enviar no WhatsApp e conferir); **Gerar recibo** pelas opções; cancelar a venda pela parcela.
+- [ ] **A pagar no aparelho (change `a-pagar`):** lançar com o atalho de cadastrar marca; filtros de status (contagens) e mês; busca pela observação; card atrasado em vermelho; pagar com a **data de ontem** ("Liquidado em" ontem); anexar comprovante por **foto da câmera**, **da galeria** e **PDF** (o seletor do sistema abre e só aceita PDF), **Ver comprovante** abre a imagem e o PDF; anexar outro substitui; desfazer pagamento; editar; excluir com comprovante; **Ver em A pagar** nos detalhes do fornecedor abre só a marca e, na volta, o resumo da marca está atualizado.
 - [ ] **CEP sem internet:** com o aparelho offline, digitar o CEP avisa e deixa preencher à mão.
 - [ ] **Apagar conta:** hoje **não faz nada** (decisão de produto). **Obrigatório implementar antes da App Store.**
 
@@ -104,6 +105,7 @@ flutter test integration_test/app_e2e_test.dart -d <dispositivo> --plain-name "c
 | **E2E-08** | Serviços: cadastra (só na 1ª vez), abre os detalhes com o retorno estimado, sem botão de excluir; editar o preço grava no banco (relido) | Serviço fixo "E2E Serviço" (Unhas); restaura o preço no fim |
 | **E2E-09** | Vendas: registra uma encomenda à vista do "E2E Produto" para a "E2E Cliente", relê do banco (cliente, item sem baixa) e cancela pela tela (Mais opções → Cancelar venda) | Depende do E2E-04 e do E2E-06; a venda é sempre cancelada no fim |
 | **E2E-10** | A receber: venda do "E2E Serviço" em 2x (1ª vence hoje) criada pelo repositório; pelo menu abre A receber, busca a cliente, abre a 1ª parcela e paga **metade** pela folha; relê do banco (um pagamento, saldo = o resto); o comprovante mostra "Parcela 1 de 2 • Parcial" e o saldo da venda; volta aos detalhes e cancela a venda pela tela | Depende do E2E-04 e do E2E-08; a venda é sempre cancelada no fim. O compartilhar nativo é manual (passo 3) |
+| **E2E-11** | A pagar: pelo menu, lança pela tela um boleto do "E2E Fornecedor" (R$ 123,45, vence hoje, com observação); relê do banco; abre pela busca da observação, **Confirmar pagamento** com a data de hoje (relido: pago hoje), **Desfazer pagamento** (relido: em aberto) e **Excluir boleto** (relido: não existe) | Depende do E2E-05; o boleto é sempre excluído no fim. Câmera, galeria e PDF do comprovante são manuais (passo 3) |
 
 ### Dados que os testes alteram
 
@@ -112,6 +114,7 @@ flutter test integration_test/app_e2e_test.dart -d <dispositivo> --plain-name "c
 - **Produtos:** o produto "E2E Produto" é criado uma única vez e reaproveitado (o app não apaga produtos). O preço alterado volta ao original no fim. Se o E2E-05 ainda não rodou, o E2E-06 cria a marca "E2E Fornecedor".
 - **Estoque:** o E2E-07 lança um lote no "E2E Produto" e o apaga no fim; o produto continua "Esgotado" entre as rodadas.
 - **A receber:** o E2E-10 cria uma venda do "E2E Serviço" em 2x, registra um pagamento e cancela a venda no fim (cancelar apaga parcelas e pagamentos). Não mexe no estoque.
+- **A pagar:** o E2E-11 lança um boleto do "E2E Fornecedor", paga, desfaz e o exclui no fim (sem comprovante).
 - **Clientes:** a cliente "E2E Cliente" é criada uma única vez e reaproveitada (o app não apaga clientes). As observações editadas são restauradas.
 - **Cadastro:** numa conta sem cadastro, o E2E-01 cria o registro (com `E2E_WHATSAPP`). Como "Apagar conta" ainda não funciona, o registro permanece.
 
