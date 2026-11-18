@@ -8,6 +8,7 @@ import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
+import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/core/service/servico_cep.dart';
 import 'package:sou_consultora/core/service/servico_clientes.dart';
 import 'package:sou_consultora/core/service/servico_consultora.dart';
@@ -16,6 +17,7 @@ import 'package:sou_consultora/core/service/servico_estoque.dart';
 import 'package:sou_consultora/core/service/servico_fornecedores.dart';
 import 'package:sou_consultora/core/service/servico_produtos.dart';
 import 'package:sou_consultora/core/service/servico_servicos.dart';
+import 'package:sou_consultora/core/service/servico_vendas.dart';
 import 'package:sou_consultora/core/service/servico_whatsapp.dart';
 import 'package:sou_consultora/core/service/servico_foto_dispositivo.dart';
 import 'package:sou_consultora/core/service/servico_autenticacao.dart';
@@ -61,6 +63,7 @@ void configurarDependencias() {
   _registrarClientes();
   _registrarFornecedores();
   _registrarProdutos();
+  _registrarVendas();
 }
 
 void _registrarClientes() {
@@ -175,6 +178,29 @@ void _registrarProdutos() {
   if (!injetor.isRegistered<RepositorioEstoque>()) {
     injetor.registerLazySingleton<RepositorioEstoque>(
       () => RepositorioEstoque(servico: injetor(), produtos: injetor()),
+    );
+  }
+}
+
+void _registrarVendas() {
+  if (!injetor.isRegistered<ServicoVendas>()) {
+    injetor.registerLazySingleton<ServicoVendas>(
+      () => ServicoVendas(api: injetor()),
+    );
+  }
+
+  if (!injetor.isRegistered<RepositorioVendas>()) {
+    injetor.registerLazySingleton<RepositorioVendas>(
+      () => RepositorioVendas(
+        servico: injetor(),
+        produtos: injetor(),
+        clientes: injetor(),
+        whatsapp: injetor(),
+        // Consultora nula = sessão encerrada: esquece as vendas da conta anterior.
+        sessaoEncerrada: injetor<RepositorioConsultora>().mudancas.where(
+          (consultora) => consultora == null,
+        ),
+      ),
     );
   }
 }

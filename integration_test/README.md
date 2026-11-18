@@ -46,6 +46,7 @@ Marque tudo antes de publicar:
 - [ ] **Produtos no aparelho (6.5 do change `produtos`):** cadastrar com foto da **galeria** e da **câmera**, trocar e remover a foto, cadastrar uma marca pelo atalho ao lado de "Marca / Fornecedor" e escolhê-la, buscar, filtrar por marca/categoria e por estoque, ordenar por preço, abrir detalhes e editar.
 - [ ] **Estoque no aparelho (5.5 do change `estoque`):** lançar pela lista (atalho **Lançar estoque**) e pelo produto, compra com produtos de duas marcas (cada lote com o fornecedor certo), margem prevista (Excelente/Boa/Baixa/Prejuízo), validade do lote, cancelar com itens (confirmação), **Cadastrar novo produto** no lançamento e apagar um lote sem vendas.
 - [ ] **Serviços no aparelho (change `servicos`):** cadastrar com foto, filtrar por categoria, ordenar, conferir o retorno estimado enquanto preenche e editar.
+- [ ] **Vendas no aparelho (change `vendas`):** venda com baixa de estoque (conferir o saldo e o lote mais antigo consumido), estoque insuficiente, venda de serviço, dividido em 3 com valores e datas editados (Faltam/Sobram), entrada paga, editar venda sem pagamento, Cobrar no WhatsApp (mensagem com Pix), cancelar devolvendo o estoque, Nova venda pela cliente e Compras da cliente.
 - [ ] **CEP sem internet:** com o aparelho offline, digitar o CEP avisa e deixa preencher à mão.
 - [ ] **Apagar conta:** hoje **não faz nada** (decisão de produto). **Obrigatório implementar antes da App Store.**
 
@@ -100,6 +101,7 @@ flutter test integration_test/app_e2e_test.dart -d <dispositivo> --plain-name "c
 | **E2E-06** | Editar o preço grava no banco (relido) | Restaura o preço no fim |
 | **E2E-07** | Estoque: lança 2 unidades do "E2E Produto" pela aba Estoque; o lote (quantidade, custo e fornecedor) é relido do banco e o saldo sobe | Apaga o lote no fim (o produto volta a "Esgotado"). Depende do E2E-06 |
 | **E2E-08** | Serviços: cadastra (só na 1ª vez), abre os detalhes com o retorno estimado, sem botão de excluir; editar o preço grava no banco (relido) | Serviço fixo "E2E Serviço" (Unhas); restaura o preço no fim |
+| **E2E-09** | Vendas: registra uma encomenda à vista do "E2E Produto" para a "E2E Cliente", relê do banco (cliente, item sem baixa) e cancela pela tela (Mais opções → Cancelar venda) | Depende do E2E-04 e do E2E-06; a venda é sempre cancelada no fim |
 
 ### Dados que os testes alteram
 

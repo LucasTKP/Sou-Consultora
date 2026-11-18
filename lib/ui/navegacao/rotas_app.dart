@@ -48,9 +48,21 @@ abstract final class RotasApp {
   static String editarCliente(String id) => '/clientes/$id/editar';
   static String comprasCliente(String id) => '/clientes/$id/compras';
 
-  /// Nova venda (com a cliente já escolhida). Construída na fase de Vendas.
+  // Vendas: lista na casca (item da barra); o resto abre por cima.
+  static const novaVenda = '/vendas/nova';
+
+  /// Nova venda com a cliente já escolhida.
   static String novaVendaPara(String idCliente) =>
       '/vendas/nova?cliente=$idCliente';
+  static String detalhesVenda(String id) => '/vendas/$id';
+  static String editarVenda(String id) => '/vendas/$id/editar';
+
+  // A receber: parcelas e comprovantes abrem por cima.
+  static String detalhesParcela(String id) => '/a-receber/parcelas/$id';
+
+  /// Comprovante do último pagamento da parcela.
+  static String comprovanteParcela(String idParcela) =>
+      '/a-receber/parcelas/$idParcela/comprovante';
 
   // Fornecedores: lista na casca (pelo menu); o resto abre por cima.
   static const novoFornecedor = '/fornecedores/novo';

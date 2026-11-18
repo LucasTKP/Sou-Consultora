@@ -18,6 +18,7 @@ import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
+import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/ui/navegacao/notificador_acesso.dart';
 import 'package:sou_consultora/ui/navegacao/roteador_app.dart';
 
@@ -27,6 +28,7 @@ import '../../auxiliares/falsos_fornecedores.dart';
 import '../../auxiliares/falsos_estoque.dart';
 import '../../auxiliares/falsos_produtos.dart';
 import '../../auxiliares/falsos_servicos.dart';
+import '../../auxiliares/falsos_vendas.dart';
 import '../../auxiliares/montar_app.dart';
 
 class _RepositorioFalso implements RepositorioAutenticacao {
@@ -81,15 +83,21 @@ Future<void> abrirApp(
     registro: cadastrada ? dtoDeTeste(nome: 'Ana Paula Consultora') : null,
   );
   final consultoras = repositorioDeTeste(_servicoConsultora);
+  final clientes = repositorioClientesDeTeste(
+    ServicoClientesFalso(resumos: [resumoDto('c1', 'Mariana Souza')]),
+  );
   final produtos = repositorioProdutosDeTeste(
     ServicoProdutosFalso(resumos: [produtoDto('p1', 'Kit Lily')]),
   );
   injetor
     ..registerSingleton<RepositorioAutenticacao>(_repositorio)
     ..registerSingleton<RepositorioConsultora>(consultoras)
-    ..registerSingleton<RepositorioClientes>(
-      repositorioClientesDeTeste(
-        ServicoClientesFalso(resumos: [resumoDto('c1', 'Mariana Souza')]),
+    ..registerSingleton<RepositorioClientes>(clientes)
+    ..registerSingleton<RepositorioVendas>(
+      repositorioVendasDeTeste(
+        ServicoVendasFalso(),
+        produtos: produtos,
+        clientes: clientes,
       ),
     )
     ..registerSingleton<RepositorioFornecedores>(
@@ -513,21 +521,21 @@ void main() {
       tester,
     ) async {
       await abrirApp(tester, logado: true);
-      roteador.go('/vendas');
+      roteador.go('/financeiro');
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Abrir menu'));
       await tester.pumpAndSettle();
 
       await voltarDoSistema(tester);
       expect(find.byType(Drawer), findsNothing);
-      expect(find.text('Vendas em construção'), findsOneWidget);
+      expect(find.text('Financeiro em construção'), findsOneWidget);
     });
 
     testWidgets('em tela principal fora do Início, vai ao Início', (
       tester,
     ) async {
       await abrirApp(tester, logado: true);
-      roteador.go('/vendas');
+      roteador.go('/financeiro');
       await tester.pumpAndSettle();
 
       await voltarDoSistema(tester);

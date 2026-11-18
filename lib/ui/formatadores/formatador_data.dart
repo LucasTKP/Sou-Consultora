@@ -59,6 +59,27 @@ abstract final class FormatadorData {
     };
   }
 
+  /// "Hoje • 14:30", "Ontem • 16:45", "12/11 • 11:20" (outro ano: "12/11/2025 • 11:20").
+  static String quando(DateTime momento, {required DateTime hoje}) {
+    final hora =
+        '${momento.hour.toString().padLeft(2, '0')}:'
+        '${momento.minute.toString().padLeft(2, '0')}';
+    final dias = _diaSemHora(hoje).difference(_diaSemHora(momento)).inDays;
+    final dia = momento.day.toString().padLeft(2, '0');
+    final mes = momento.month.toString().padLeft(2, '0');
+    final data = switch (dias) {
+      0 => 'Hoje',
+      1 => 'Ontem',
+      _ when momento.year == hoje.year => '$dia/$mes',
+      _ => '$dia/$mes/${momento.year}',
+    };
+    return '$data • $hora';
+  }
+
+  /// "Nov / 2026".
+  static String mesAnoAbreviado(int ano, int mes) =>
+      '${_mesesCurtos[mes - 1][0].toUpperCase()}${_mesesCurtos[mes - 1].substring(1)} / $ano';
+
   static DateTime _diaSemHora(DateTime data) =>
       DateTime.utc(data.year, data.month, data.day);
 }

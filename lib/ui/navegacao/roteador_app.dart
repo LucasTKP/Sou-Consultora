@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_screen.dart';
+import 'package:sou_consultora/ui/modules/clientes/compras/clientes_compras_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/dados/clientes_dados_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/detalhes/clientes_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/formulario/clientes_formulario_screen.dart';
@@ -19,6 +20,9 @@ import 'package:sou_consultora/ui/modules/servicos/formulario/servicos_formulari
 import 'package:sou_consultora/ui/modules/servicos/lista/servicos_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/perfil/editar/editar_perfil_screen.dart';
 import 'package:sou_consultora/ui/modules/perfil/meu_perfil/meu_perfil_screen.dart';
+import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/vendas/lista/vendas_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/vendas/nova/nova_venda_screen.dart';
 import 'package:sou_consultora/ui/navegacao/carregando_screen.dart';
 import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/em_construcao_screen.dart';
@@ -82,16 +86,26 @@ abstract final class RoteadorApp {
                 RotasApp.fornecedores => _rotaFornecedores(),
                 RotasApp.produtos => _rotaProdutos(),
                 RotasApp.servicos => _rotaServicos(),
+                RotasApp.vendas => _rotaVendas(),
                 _ => _rotaEmConstrucao(modulo),
               },
           ],
         ),
-        // Construída na fase de Vendas.
+        // Construídas no change `a-receber`.
         GoRoute(
-          path: '/vendas/nova',
+          path: '/a-receber/parcelas/:id',
           parentNavigatorKey: chaveRaiz,
           builder: (_, _) =>
-              const EmConstrucaoScreen.porCima(titulo: 'Nova Venda'),
+              const EmConstrucaoScreen.porCima(titulo: 'Detalhes da Parcela'),
+          routes: [
+            GoRoute(
+              path: 'comprovante',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, _) => const EmConstrucaoScreen.porCima(
+                titulo: 'Comprovante de Pagamento',
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -130,12 +144,11 @@ abstract final class RoteadorApp {
                 idCliente: estado.pathParameters['id'],
               ),
             ),
-            // Construída na fase de Vendas.
             GoRoute(
               path: 'compras',
               parentNavigatorKey: chaveRaiz,
-              builder: (_, _) => const EmConstrucaoScreen.porCima(
-                titulo: 'Compras da Cliente',
+              builder: (_, estado) => ClientesComprasScreen(
+                idCliente: estado.pathParameters['id']!,
               ),
             ),
           ],
@@ -245,6 +258,41 @@ abstract final class RoteadorApp {
               builder: (_, estado) => ServicosFormularioScreen(
                 idServico: estado.pathParameters['id'],
               ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca; nova, detalhes e edição abrem por cima (sem a barra).
+  static GoRoute _rotaVendas() {
+    return GoRoute(
+      path: RotasApp.vendas,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const VendasListaScreen(),
+      ),
+      routes: [
+        // Antes de ':id', para não ser lida como o id de uma venda.
+        GoRoute(
+          path: 'nova',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) => NovaVendaScreen(
+            clienteInicialId: estado.uri.queryParameters['cliente'],
+          ),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              VendasDetalhesScreen(idVenda: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) =>
+                  NovaVendaScreen(idVenda: estado.pathParameters['id']),
             ),
           ],
         ),

@@ -146,9 +146,16 @@ class ServicoWhatsappFalso implements ServicoWhatsapp {
   bool abre = true;
   final List<String> aberturas = [];
 
+  /// Mensagens enviadas junto (null quando abriu sem mensagem).
+  final List<String?> mensagens = [];
+
   @override
-  Future<Resultado<void>> abrirConversa(String whatsapp) async {
+  Future<Resultado<void>> abrirConversa(
+    String whatsapp, {
+    String? mensagem,
+  }) async {
     aberturas.add(whatsapp);
+    mensagens.add(mensagem);
     return abre
         ? const Sucesso(null)
         : Erro(const FalhaInesperada('Não foi possível abrir o WhatsApp'));

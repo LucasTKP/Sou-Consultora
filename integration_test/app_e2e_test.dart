@@ -16,6 +16,7 @@ import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
+import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
@@ -786,4 +787,108 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-08'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-09 · Vendas
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-09 Vendas', () {
+    const cliente = 'E2E Cliente';
+    const produto = 'E2E Produto';
+
+    Future<void> escolher(
+      WidgetTester tester,
+      String campo,
+      String opcao,
+    ) async {
+      await tocar(tester, find.text(campo));
+      await tocar(tester, find.text(opcao).last);
+    }
+
+    testWidgets(
+      'registra uma encomenda à vista, confere no banco e cancela pela tela',
+      (tester) async {
+        await abrirApp(tester);
+        final vendas = injetor<RepositorioVendas>();
+        final antes = await vendas.carregar();
+        final idsAntes = {for (final v in (antes as Sucesso).valor) v.id};
+        // Garante a limpeza mesmo se o cenário falhar no meio.
+        addTearDown(() async {
+          final depois = await vendas.carregar();
+          for (final v in (depois as Sucesso).valor) {
+            if (!idsAntes.contains(v.id)) await vendas.cancelar(v.id);
+          }
+        });
+
+        await tester.tap(find.bySemanticsLabel('Vendas').last);
+        await tester.pumpAndSettle();
+        await esperarAte(
+          tester,
+          find.byWidgetPredicate(
+            (w) =>
+                w is Text &&
+                (w.data == 'Nenhuma venda ainda' ||
+                    (w.data ?? '').contains('realizada')),
+          ),
+          descricao: 'lista de vendas',
+        );
+        await tocar(
+          tester,
+          find.text(
+            find.text('Nenhuma venda ainda').evaluate().isEmpty
+                ? 'Nova venda'
+                : 'Registrar venda',
+          ),
+        );
+        await esperarAte(tester, find.text('Adicionar Produto ou Serviço'));
+
+        if (find.text('Escolha a cliente').evaluate().isNotEmpty) {
+          await tocar(tester, find.text('Escolha a cliente'));
+          if (find.text(cliente).evaluate().isEmpty) {
+            fail('Rode antes o E2E-04: ele cria a cliente "$cliente".');
+          }
+          await tocar(tester, find.text(cliente).last);
+        }
+        await tocar(tester, find.text('Adicionar Produto ou Serviço'));
+        await escolher(tester, 'Escolha o produto', produto);
+        await mostrar(tester, find.text('Baixar do estoque'));
+        await tocar(tester, find.text('Baixar do estoque'));
+        await mostrar(tester, find.text('Salvar'));
+        await tocar(tester, find.text('Salvar'));
+        await tocar(tester, find.text('Avançar'));
+        await esperarAte(tester, find.text('Como a cliente vai pagar?'));
+        await mostrar(tester, find.text('Concluir Venda'));
+        await tocar(tester, find.text('Concluir Venda'));
+        await esperarAte(tester, find.text('Vendas & Pedidos'));
+
+        // Relê do banco: a venda nova existe, com o item como encomenda.
+        final depois = await vendas.carregar();
+        final nova = (depois as Sucesso).valor.firstWhere(
+          (v) => !idsAntes.contains(v.id),
+        );
+        expect(nova.clienteNome, cliente);
+        final detalhe = await vendas.detalhe(nova.id);
+        final itens = (detalhe as Sucesso).valor!.itens;
+        expect(itens.single.nome, produto);
+        expect(itens.single.baixarEstoque, isFalse);
+
+        await tester.enterText(
+          find.byType(TextField).first,
+          nova.codigo.toString(),
+        );
+        await tester.pumpAndSettle();
+        await tocar(tester, find.text(cliente).first);
+        await esperarAte(tester, find.text('Detalhes da Venda'));
+        await tocar(tester, find.text('Mais opções'));
+        await tocar(tester, find.text('Cancelar Venda'));
+        await tocar(tester, find.text('Cancelar venda'));
+        await esperarAte(tester, find.text('Vendas & Pedidos'));
+
+        final aposCancelar = await vendas.carregar();
+        expect(
+          (aposCancelar as Sucesso).valor.any((v) => v.id == nova.id),
+          isFalse,
+        );
+      },
+    );
+  }, skip: pularGrupo('E2E-09'));
 }
