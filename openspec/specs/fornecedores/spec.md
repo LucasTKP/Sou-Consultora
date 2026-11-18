@@ -110,7 +110,7 @@ O app SHALL reabrir o mesmo formulário preenchido em **Editar fornecedor**, com
 - **THEN** não existe botão para excluir
 
 ### Requirement: Detalhes do fornecedor
-O app SHALL mostrar nos detalhes: iniciais, nome, ramo (quando houver), selo de status e "Parceiro desde" com mês e ano do cadastro; o resumo dos boletos com valor e quantidade em aberto, pagos e atrasados; contato, telefone com o botão **WhatsApp** e observações. Campos vazios MUST ser omitidos. **Ver em A pagar** SHALL abrir A pagar (tela "em construção" até a fase de A pagar). **Editar fornecedor** SHALL abrir o formulário e, na volta, os detalhes MUST ser recarregados.
+O app SHALL mostrar nos detalhes: iniciais, nome, ramo (quando houver), selo de status e "Parceiro desde" com mês e ano do cadastro; o resumo dos boletos com valor e quantidade em aberto, pagos e atrasados; contato, telefone com o botão **WhatsApp** e observações. Campos vazios MUST ser omitidos. **Ver em A pagar** SHALL abrir A pagar mostrando só os boletos daquele fornecedor; na volta, os detalhes MUST ser recarregados (o resumo reflete boletos pagos, lançados ou excluídos lá). **Editar fornecedor** SHALL abrir o formulário e, na volta, os detalhes MUST ser recarregados.
 
 #### Scenario: Fornecedor sem boletos
 - **GIVEN** o fornecedor não tem boletos
@@ -131,6 +131,11 @@ O app SHALL mostrar nos detalhes: iniciais, nome, ramo (quando houver), selo de 
 - **GIVEN** o fornecedor foi cadastrado em março de 2023
 - **WHEN** ela abre os detalhes
 - **THEN** aparece "Parceiro desde mar/2023"
+
+#### Scenario: Ver em A pagar
+- **GIVEN** a Natura tem 2 boletos e a Eudora 1
+- **WHEN** ela toca em **Ver em A pagar** nos detalhes da Natura
+- **THEN** A pagar mostra só os 2 boletos da Natura
 
 ### Requirement: Integridade dos dados do fornecedor
 O banco MUST recusar nome vazio, telefone que não tenha só 10 ou 11 dígitos e nome repetido para a mesma consultora (sem diferenciar maiúsculas nem espaços nas pontas). Consultoras diferentes MAY ter fornecedores com o mesmo nome.
