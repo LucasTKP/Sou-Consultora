@@ -9,10 +9,12 @@ abstract final class RegistroDepuracao {
   static const _tamanhoLinha = 800; // o logcat do Android corta linhas longas
   static const _framesPilha = 12;
 
+  /// Tokens pelo nome exato; dados pessoais também com prefixo, como nas
+  /// views e RPCs (`cliente_whatsapp`, `p_whatsapp`, `fornecedor_telefone`).
   static final _camposSensiveis = RegExp(
     r'"(access_token|refresh_token|id_token|provider_token|'
     r'provider_refresh_token|password|nonce|token|'
-    r'p_whatsapp|whatsapp|telefone|cpf|chave_pix)"\s*:\s*"[^"]*"',
+    r'[a-z0-9_]*(?:whatsapp|telefone|cpf|chave_pix))"\s*:\s*"[^"]*"',
     caseSensitive: false,
   );
   static final _tokenNaUrl = RegExp(r'([?&]token=)[^&"\s]+');

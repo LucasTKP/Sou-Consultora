@@ -23,6 +23,21 @@ void main() {
     }
   });
 
+  test('mascara campos com prefixo (views: cliente_whatsapp…)', () {
+    const corpo =
+        '{"cliente_nome":"Carla","cliente_whatsapp":"11999990001",'
+        '"fornecedor_telefone":"1133334444","cliente_cpf":"12345678900"}';
+
+    final mascarado = RegistroDepuracao.mascarar(corpo);
+
+    expect(mascarado, contains('"cliente_whatsapp":"***"'));
+    expect(mascarado, contains('"fornecedor_telefone":"***"'));
+    expect(mascarado, contains('"cliente_cpf":"***"'));
+    for (final segredo in ['1199999', '11333', '123456']) {
+      expect(mascarado, isNot(contains(segredo)));
+    }
+  });
+
   test('mascara token de URL assinada', () {
     expect(
       RegistroDepuracao.mascarar('/object/sign/fotos/a.jpg?token=xyz.123&x=1'),
