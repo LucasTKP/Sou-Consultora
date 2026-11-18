@@ -41,7 +41,7 @@ O app SHALL abrir, pelo ícone de menu das telas principais, um menu lateral com
 
 Grupos e itens:
 - **Navegação principal:** Início, Vendas & Pedidos, Clientes, Produtos & Estoque, Serviços, Fornecedores & Marcas.
-- **Gestão financeira:** A Receber / Cobranças, A Pagar / Boletos, Financeiro & Relatórios.
+- **Gestão financeira:** A Receber / Cobranças (com um selo da quantidade de parcelas atrasadas, quando houver), A Pagar / Boletos, Financeiro & Relatórios.
 - **Rodapé:** Configurações, Sair da conta e a versão do app.
 
 #### Scenario: Navegar pelo menu
@@ -62,6 +62,11 @@ Grupos e itens:
 - **GIVEN** a consultora não tem foto
 - **WHEN** ela abre o menu lateral
 - **THEN** o lugar da foto mostra as iniciais do nome
+
+#### Scenario: Selo de cobranças atrasadas
+- **GIVEN** há 4 parcelas atrasadas
+- **WHEN** a consultora abre o menu lateral
+- **THEN** A Receber / Cobranças mostra o selo "4"; sem parcelas atrasadas, o selo não aparece
 
 ### Requirement: Módulo ainda não construído
 O app SHALL abrir todo módulo do menu e da barra, mesmo os ainda não construídos. Um módulo não construído MUST mostrar o título do módulo e um aviso de que está em construção, sem erro.
