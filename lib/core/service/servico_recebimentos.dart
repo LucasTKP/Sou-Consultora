@@ -24,6 +24,14 @@ class ServicoRecebimentos {
     }, mensagemPadrao: 'Não foi possível carregar os pagamentos.');
   }
 
+  /// Todos os pagamentos da consultora (o Início soma os do mês).
+  Future<Resultado<List<PagamentoDto>>> listarTodosPagamentos() {
+    return executarComFalha(() async {
+      final linhas = await _api.listar('pagamentos_parcelas');
+      return linhas.map(PagamentoDto.fromJson).toList();
+    }, mensagemPadrao: 'Não foi possível carregar os pagamentos.');
+  }
+
   /// Grava o pagamento e devolve o id.
   Future<Resultado<String>> registrar({
     required String parcelaId,

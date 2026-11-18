@@ -57,7 +57,14 @@ abstract final class RotasApp {
   static String detalhesVenda(String id) => '/vendas/$id';
   static String editarVenda(String id) => '/vendas/$id/editar';
 
-  // A receber: parcelas e comprovantes abrem por cima.
+  // A receber: lista na casca (pelo menu), também aberta pelo Início já
+  // filtrada; parcelas e comprovantes abrem por cima.
+  /// "Cobrar agora" do Início: parcelas atrasadas de todos os meses.
+  static const aReceberAtrasadas = '/a-receber?status=atrasado';
+
+  /// "Recebido" do Início: parcelas pagas de todos os meses.
+  static const aReceberPagas = '/a-receber?status=pago';
+
   static String detalhesParcela(String id) => '/a-receber/parcelas/$id';
 
   /// Comprovante do pagamento [idPagamento] da parcela; sem ele, do último.

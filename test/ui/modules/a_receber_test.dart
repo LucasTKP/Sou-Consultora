@@ -105,7 +105,13 @@ Future<void> _abrir(
       ),
       GoRoute(
         path: '/a-receber',
-        builder: (_, _) => const Scaffold(body: AReceberListaScreen()),
+        builder: (_, e) => Scaffold(
+          body: AReceberListaScreen(
+            statusInicial: StatusFiltroRecebimento.doParametro(
+              e.uri.queryParameters['status'],
+            ),
+          ),
+        ),
       ),
       GoRoute(
         path: '/a-receber/parcelas/:id',
@@ -190,6 +196,37 @@ void main() {
       expect(cubit.state.visiveis.map((p) => p.id), ['futura', 'dezembro']);
     });
 
+    test(
+      'status inicial (vindo do Início): já filtra, todos os meses',
+      () async {
+        final ambiente = _Ambiente(
+          vendas: ServicoVendasFalso(
+            parcelas: [
+              parcelaDto('out', 'v1', vencimento: DateTime(2026, 10, 10)),
+              parcelaDto('nov', 'v2', vencimento: DateTime(2026, 11, 10)),
+              parcelaDto('futura', 'v3', vencimento: DateTime(2026, 11, 25)),
+            ],
+          ),
+        );
+        final cubit = AReceberListaCubit(
+          statusInicial: StatusFiltroRecebimento.atrasado,
+          repositorio: ambiente.recebimentos,
+          agora: () => hoje,
+        );
+        addTearDown(cubit.close);
+        await pumpEventQueue();
+
+        expect(cubit.state.mes, isNull);
+        expect(cubit.state.status, StatusFiltroRecebimento.atrasado);
+        expect(cubit.state.visiveis.map((p) => p.id), ['out', 'nov']);
+        expect(
+          StatusFiltroRecebimento.doParametro('pago'),
+          StatusFiltroRecebimento.pago,
+        );
+        expect(StatusFiltroRecebimento.doParametro('qualquer'), isNull);
+      },
+    );
+
     test('erro de rede mostra a mensagem', () async {
       final ambiente = _Ambiente()..servicoVendas.falharRede = true;
       final cubit = AReceberListaCubit(
@@ -254,6 +291,36 @@ void main() {
       await tester.tap(find.text('Mariana Souza'));
       await tester.pumpAndSettle();
       expect(find.text('parcela pa1'), findsOneWidget);
+    });
+
+    testWidgets('?status=atrasado abre só as atrasadas, de qualquer mês', (
+      tester,
+    ) async {
+      final hoje = DateTime.now();
+      final ambiente = _Ambiente(
+        vendas: ServicoVendasFalso(
+          parcelas: [
+            parcelaDto(
+              'antiga',
+              'v1',
+              cliente: 'Atrasada Antiga',
+              vencimento: DateTime(hoje.year, hoje.month - 2, 5),
+            ),
+            parcelaDto(
+              'futura',
+              'v2',
+              cliente: 'Em Dia',
+              vencimento: hoje.add(const Duration(days: 3)),
+            ),
+          ],
+        ),
+      );
+      await _abrir(tester, ambiente, '/a-receber?status=atrasado');
+
+      expect(find.textContaining('Atrasado ('), findsWidgets);
+      expect(find.text('Todos os meses'), findsOneWidget);
+      expect(find.text('Atrasada Antiga'), findsOneWidget);
+      expect(find.text('Em Dia'), findsNothing);
     });
 
     testWidgets('sem parcelas mostra o vazio', (tester) async {

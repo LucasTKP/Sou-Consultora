@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
+import 'package:sou_consultora/core/dto/resumo_parcela_dto.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/resumo_consultora.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
@@ -17,6 +18,8 @@ import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
+import 'package:sou_consultora/core/repository/repositorio_inicio.dart';
+import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
@@ -25,6 +28,8 @@ import 'package:sou_consultora/ui/navegacao/roteador_app.dart';
 
 import '../../auxiliares/falsos_boletos.dart';
 import '../../auxiliares/falsos_clientes.dart';
+import '../../auxiliares/falsos_inicio.dart';
+import '../../auxiliares/falsos_recebimentos.dart';
 import '../../auxiliares/falsos_consultora.dart';
 import '../../auxiliares/falsos_fornecedores.dart';
 import '../../auxiliares/falsos_estoque.dart';
@@ -78,6 +83,7 @@ Future<void> abrirApp(
   required bool logado,
   bool cadastrada = true,
   String nomeLogin = 'Ana Paula Consultora',
+  List<ResumoParcelaDto> parcelas = const [],
 }) async {
   usarTelaDeCelular(tester);
   _repositorio = _RepositorioFalso(logado: logado, nomeLogin: nomeLogin);
@@ -121,6 +127,24 @@ Future<void> abrirApp(
       repositorioBoletosDeTeste(
         ServicoBoletosFalso(),
         fornecedores: injetor<RepositorioFornecedores>(),
+      ),
+    );
+  // O Início (rota inicial) lê também parcelas, pagamentos e lembretes.
+  final servicoVendas = ServicoVendasFalso(parcelas: List.of(parcelas));
+  final servicoRecebimentos = ServicoRecebimentosFalso(vendas: servicoVendas);
+  injetor
+    ..registerSingleton<RepositorioRecebimentos>(
+      repositorioRecebimentosDeTeste(
+        vendas: servicoVendas,
+        recebimentos: servicoRecebimentos,
+        repositorioVendas: injetor<RepositorioVendas>(),
+        clientes: clientes,
+      ),
+    )
+    ..registerSingleton<RepositorioInicio>(
+      repositorioInicioDeTeste(
+        servico: ServicoInicioFalso(),
+        recebimentos: servicoRecebimentos,
       ),
     );
   final acesso = NotificadorAcesso(
@@ -187,7 +211,7 @@ void main() {
 
     testWidgets('com sessão abre direto o Início', (tester) async {
       await abrirApp(tester, logado: true);
-      expect(find.text('Início em construção'), findsOneWidget);
+      expect(find.text('Alertas de hoje'), findsOneWidget);
       expect(find.text('Continuar com Google'), findsNothing);
     });
 
@@ -195,7 +219,7 @@ void main() {
       await abrirApp(tester, logado: true);
       roteador.go('/login');
       await tester.pumpAndSettle();
-      expect(find.text('Início em construção'), findsOneWidget);
+      expect(find.text('Alertas de hoje'), findsOneWidget);
     });
 
     testWidgets('ao entrar vai ao Início e o voltar não retorna ao login', (
@@ -204,7 +228,7 @@ void main() {
       await abrirApp(tester, logado: false);
       _repositorio.mudarSessao(true);
       await tester.pumpAndSettle();
-      expect(find.text('Início em construção'), findsOneWidget);
+      expect(find.text('Alertas de hoje'), findsOneWidget);
 
       await voltarDoSistema(tester);
       expect(find.text('Continuar com Google'), findsNothing);
@@ -253,7 +277,7 @@ void main() {
         _servicoConsultora.chamadas.last,
         'criar Ana Paula Consultora 11987654321',
       );
-      expect(find.text('Início em construção'), findsOneWidget);
+      expect(find.text('Alertas de hoje'), findsOneWidget);
     });
 
     testWidgets('WhatsApp inválido mostra o erro e não grava', (tester) async {
@@ -316,7 +340,7 @@ void main() {
         _servicoConsultora.falharRede = false;
         await tester.tap(find.text('Tentar novamente'));
         await tester.pumpAndSettle();
-        expect(find.text('Início em construção'), findsOneWidget);
+        expect(find.text('Alertas de hoje'), findsOneWidget);
       },
     );
   });
@@ -410,6 +434,53 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    testWidgets('selo de cobranças atrasadas em A Receber', (tester) async {
+      final ontem = DateTime.now().subtract(const Duration(days: 1));
+      await abrirApp(
+        tester,
+        logado: true,
+        parcelas: [
+          parcelaDto('pa1', 'v1', vencimento: ontem),
+          parcelaDto('pa2', 'v1', numero: 2, qtd: 2, vencimento: ontem),
+          parcelaDto('paga', 'v2', pago: 24000, vencimento: ontem),
+        ],
+      );
+      await abrirMenu(tester);
+      // A seção financeira fica abaixo da dobra do menu.
+      await tester.scrollUntilVisible(
+        find.text('A Receber / Cobranças'),
+        150,
+        scrollable: find
+            .descendant(
+              of: find.byType(Drawer),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+
+      final selo = find.descendant(
+        of: find.byType(Drawer),
+        matching: find.bySemanticsLabel(RegExp('2 atrasadas')),
+      );
+      expect(selo, findsOneWidget);
+    });
+
+    testWidgets('sem parcelas atrasadas, sem selo', (tester) async {
+      await abrirApp(tester, logado: true);
+      await abrirMenu(tester);
+      await tester.scrollUntilVisible(
+        find.text('A Receber / Cobranças'),
+        150,
+        scrollable: find
+            .descendant(
+              of: find.byType(Drawer),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      expect(find.bySemanticsLabel(RegExp('atrasadas')), findsNothing);
+    });
+
     testWidgets('mostra a consultora, destaca o item atual e a versão', (
       tester,
     ) async {
@@ -417,7 +488,10 @@ void main() {
       await abrirMenu(tester);
 
       expect(find.text('Ana Paula Consultora'), findsOneWidget);
-      expect(find.text('AC'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byType(Drawer), matching: find.text('AC')),
+        findsOneWidget,
+      );
       expect(find.text('Sou Consultora v1.0.0'), findsOneWidget);
       final inicio = tester.widget<ItemMenuLateral>(
         find.widgetWithText(ItemMenuLateral, 'Início'),
@@ -472,7 +546,7 @@ void main() {
 
       await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
-      expect(find.text('Início em construção'), findsOneWidget);
+      expect(find.text('Alertas de hoje'), findsOneWidget);
 
       await abrirMenu(tester);
       await tester.tap(find.text('Configurações'));
@@ -547,7 +621,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await voltarDoSistema(tester);
-      expect(find.text('Início em construção'), findsOneWidget);
+      expect(find.text('Alertas de hoje'), findsOneWidget);
     });
 
     testWidgets('no Início, fecha o app', (tester) async {

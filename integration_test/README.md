@@ -50,6 +50,7 @@ Marque tudo antes de publicar:
 - [ ] **A receber no aparelho (change `a-receber`):** filtros de status (contagens) e mês, "Todos os meses", busca por produto, ordenar por valor; detalhes de uma parcela atrasada ("Venceu em… há N dias") e de uma parcial (barra pago × resta); **Cobrar** abre o WhatsApp com a mensagem e o Pix; pagar parcial e depois quitar; valor acima do saldo é recusado; pagamento com **data de ontem** abre o comprovante desse pagamento; **Compartilhar** abre a folha do sistema com a imagem nítida e o texto curto (enviar no WhatsApp e conferir); **Gerar recibo** pelas opções; cancelar a venda pela parcela.
 - [ ] **A pagar no aparelho (change `a-pagar`):** lançar com o atalho de cadastrar marca; filtros de status (contagens) e mês; busca pela observação; card atrasado em vermelho; pagar com a **data de ontem** ("Liquidado em" ontem); anexar comprovante por **foto da câmera**, **da galeria** e **PDF** (o seletor do sistema abre e só aceita PDF), **Ver comprovante** abre a imagem e o PDF; anexar outro substitui; desfazer pagamento; editar; excluir com comprovante; **Ver em A pagar** nos detalhes do fornecedor abre só a marca e, na volta, o resumo da marca está atualizado.
 - [ ] **Financeiro no aparelho (change `financeiro`):** gráfico legível com 12 barras (mês escolhido em destaque com o valor em cima), trocar o período para um mês anterior (gráfico e cards mudam), registrar uma venda e pagar um boleto e voltar ao Financeiro (números atualizados sem puxar para recarregar), botão redondo do topo abre Nova venda.
+- [ ] **Início no aparelho (change `inicio`):** cumprimento pela hora com a foto; os três números abrem Vendas, A receber (em Pago) e A pagar; alertas de boleto (venceu, hoje, amanhã) com Ver fatura; Vendas atrasadas com Cobrar agora (A receber em Atrasado); lembrete de recompra de um produto com duração prevista (comprar há mais de duração − 7 dias) com o ícone do WhatsApp abrindo a mensagem pronta; Ver todos abre Clientes; selo de atrasadas no menu lateral; o print `build/prints_e2e/e2e13-inicio.png` legível (botões sem corte).
 - [ ] **CEP sem internet:** com o aparelho offline, digitar o CEP avisa e deixa preencher à mão.
 - [ ] **Apagar conta:** hoje **não faz nada** (decisão de produto). **Obrigatório implementar antes da App Store.**
 
@@ -70,6 +71,10 @@ flutter drive --driver=test_driver/integration_test.dart \
 ```
 
 `E2E_GRUPO` escolhe o grupo (os outros aparecem como *skipped*); sem ele, roda todos.
+
+## Prints dos cenários
+
+Com o `flutter drive`, os cenários que chamam `binding.takeScreenshot('<nome>')` salvam a imagem em `build/prints_e2e/<nome>.png` (ex.: o E2E-13 guarda o Início com os alertas).
 
 ## Rodar um cenário só
 
@@ -108,6 +113,7 @@ flutter test integration_test/app_e2e_test.dart -d <dispositivo> --plain-name "c
 | **E2E-10** | A receber: venda do "E2E Serviço" em 2x (1ª vence hoje) criada pelo repositório; pelo menu abre A receber, busca a cliente, abre a 1ª parcela e paga **metade** pela folha; relê do banco (um pagamento, saldo = o resto); o comprovante mostra "Parcela 1 de 2 • Parcial" e o saldo da venda; volta aos detalhes e cancela a venda pela tela | Depende do E2E-04 e do E2E-08; a venda é sempre cancelada no fim. O compartilhar nativo é manual (passo 3) |
 | **E2E-11** | A pagar: pelo menu, lança pela tela um boleto do "E2E Fornecedor" (R$ 123,45, vence hoje, com observação); relê do banco; abre pela busca da observação, **Confirmar pagamento** com a data de hoje (relido: pago hoje), **Desfazer pagamento** (relido: em aberto) e **Excluir boleto** (relido: não existe) | Depende do E2E-05; o boleto é sempre excluído no fim. Câmera, galeria e PDF do comprovante são manuais (passo 3) |
 | **E2E-12** | Financeiro: cria pelo repositório uma venda do "E2E Serviço" e um boleto de R$ 43,21 do "E2E Fornecedor" no mês atual; o banco sobe exatamente esses valores; pela barra, o Financeiro abre no mês atual com o total dos 12 meses, o "Faturamento no mês" e as "Despesas no mês" iguais ao cálculo sobre o banco; A Receber e A Pagar abrem os módulos | Depende do E2E-04, E2E-05 e E2E-08; a venda é cancelada e o boleto excluído no fim |
+| **E2E-13** | Início: cria pelo repositório uma venda de hoje do "E2E Serviço" com a parcela vencida há 3 dias e um boleto de R$ 84,25 do "E2E Fornecedor" que vence amanhã; o banco sobe exatamente esses valores; o Início mostra o Vendido no mês, "VENCE AMANHÃ", as Vendas Atrasadas (clientes e total) iguais ao cálculo sobre o banco e tira o print `build/prints_e2e/e2e13-inicio.png`; **Cobrar agora** abre A receber em Atrasado e Todos os meses | Depende do E2E-04, E2E-05 e E2E-08; a venda é cancelada e o boleto excluído no fim |
 
 ### Dados que os testes alteram
 
@@ -116,6 +122,7 @@ flutter test integration_test/app_e2e_test.dart -d <dispositivo> --plain-name "c
 - **Produtos:** o produto "E2E Produto" é criado uma única vez e reaproveitado (o app não apaga produtos). O preço alterado volta ao original no fim. Se o E2E-05 ainda não rodou, o E2E-06 cria a marca "E2E Fornecedor".
 - **Estoque:** o E2E-07 lança um lote no "E2E Produto" e o apaga no fim; o produto continua "Esgotado" entre as rodadas.
 - **A receber:** o E2E-10 cria uma venda do "E2E Serviço" em 2x, registra um pagamento e cancela a venda no fim (cancelar apaga parcelas e pagamentos). Não mexe no estoque.
+- **Início:** o E2E-13 cria uma venda atrasada do "E2E Serviço" e um boleto do "E2E Fornecedor" e os apaga no fim.
 - **Financeiro:** o E2E-12 cria uma venda do "E2E Serviço" e um boleto do "E2E Fornecedor" e os apaga no fim.
 - **A pagar:** o E2E-11 lança um boleto do "E2E Fornecedor", paga, desfaz e o exclui no fim (sem comprovante).
 - **Clientes:** a cliente "E2E Cliente" é criada uma única vez e reaproveitada (o app não apaga clientes). As observações editadas são restauradas.

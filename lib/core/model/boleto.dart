@@ -74,6 +74,10 @@ class ResumoBoleto {
     return dias < 0 ? 0 : dias;
   }
 
+  /// Dias até o vencimento com sinal: negativo = venceu há N dias, 0 = hoje.
+  int diasAteVencimento({required DateTime hoje}) =>
+      _dia(vencimento).difference(_dia(hoje)).inDays;
+
   /// Data do pagamento: obrigatória e nunca no futuro.
   static String? validarDataPagamento(
     DateTime? data, {

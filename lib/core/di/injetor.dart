@@ -7,6 +7,7 @@ import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
+import 'package:sou_consultora/core/repository/repositorio_inicio.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
@@ -20,6 +21,7 @@ import 'package:sou_consultora/core/service/servico_consultora.dart';
 import 'package:sou_consultora/core/service/servico_categorias.dart';
 import 'package:sou_consultora/core/service/servico_estoque.dart';
 import 'package:sou_consultora/core/service/servico_fornecedores.dart';
+import 'package:sou_consultora/core/service/servico_inicio.dart';
 import 'package:sou_consultora/core/service/servico_produtos.dart';
 import 'package:sou_consultora/core/service/servico_compartilhar.dart';
 import 'package:sou_consultora/core/service/servico_recebimentos.dart';
@@ -72,6 +74,7 @@ void configurarDependencias() {
   _registrarBoletos();
   _registrarProdutos();
   _registrarVendas();
+  _registrarInicio();
 }
 
 void _registrarClientes() {
@@ -268,6 +271,24 @@ void _registrarVendas() {
         sessaoEncerrada: injetor<RepositorioConsultora>().mudancas.where(
           (consultora) => consultora == null,
         ),
+      ),
+    );
+  }
+}
+
+void _registrarInicio() {
+  if (!injetor.isRegistered<ServicoInicio>()) {
+    injetor.registerLazySingleton<ServicoInicio>(
+      () => ServicoInicio(api: injetor()),
+    );
+  }
+
+  if (!injetor.isRegistered<RepositorioInicio>()) {
+    injetor.registerLazySingleton<RepositorioInicio>(
+      () => RepositorioInicio(
+        servico: injetor(),
+        recebimentos: injetor(),
+        whatsapp: injetor(),
       ),
     );
   }

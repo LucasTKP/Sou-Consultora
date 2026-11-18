@@ -2,6 +2,8 @@
 //
 // Testes E2E do Sou Consultora — rodam no app real, contra o Supabase real.
 // Como rodar e o que conferir à mão: integration_test/README.md
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -12,11 +14,13 @@ import 'package:sou_consultora/core/model/cliente.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/core/model/filtro_vendas.dart';
 import 'package:sou_consultora/core/model/resumo_financeiro.dart';
+import 'package:sou_consultora/core/model/resumo_inicio.dart';
 import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/model/fornecedor.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
+import 'package:sou_consultora/core/repository/repositorio_inicio.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
@@ -40,7 +44,7 @@ final fornecedorE2e = Fornecedor(
 );
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   // ————————————————————————————————————————————————————————————————
   // E2E-01 · Acesso
@@ -1286,4 +1290,151 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-12'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-13 · Início
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-13 Início', () {
+    const valorBoleto = 8425;
+
+    /// Valor de um Sucesso mantendo o tipo (o cast cru vira dynamic).
+    T valorDe<T>(Resultado<T> resultado) => (resultado as Sucesso<T>).valor;
+
+    /// O mesmo cálculo do app, a partir do que o banco devolve agora.
+    Future<ResumoInicio> doBanco() async {
+      final inicio = injetor<RepositorioInicio>();
+      final (vendas, parcelas, boletos, pagamentos, lembretes) = await (
+        injetor<RepositorioVendas>().carregar(),
+        injetor<RepositorioRecebimentos>().carregar(),
+        injetor<RepositorioBoletos>().carregar(),
+        inicio.pagamentos(),
+        inicio.lembretes(),
+      ).wait;
+      return ResumoInicio.calcular(
+        vendas: valorDe(vendas),
+        parcelas: valorDe(parcelas),
+        boletos: valorDe(boletos),
+        pagamentos: valorDe(pagamentos),
+        lembretes: valorDe(lembretes),
+        hoje: DateTime.now(),
+      );
+    }
+
+    testWidgets(
+      'venda atrasada e boleto de amanhã aparecem nos números e alertas',
+      (tester) async {
+        await abrirApp(tester);
+        final vendas = injetor<RepositorioVendas>();
+        final boletos = injetor<RepositorioBoletos>();
+        final antes = await doBanco();
+
+        final cliente = valorDe(await injetor<RepositorioClientes>().carregar())
+            .where((c) => c.nome == 'E2E Cliente')
+            .firstOrNull;
+        final item = valorDe(await injetor<RepositorioServicos>().carregar())
+            .where((s) => s.nome == 'E2E Serviço')
+            .firstOrNull;
+        final marca = valorDe(
+          await injetor<RepositorioFornecedores>().carregar(),
+        ).where((f) => f.nome == 'E2E Fornecedor').firstOrNull;
+        if (cliente == null || item == null || marca == null) {
+          fail(
+            'Rode antes o E2E-04, o E2E-05 e o E2E-08 (cliente, '
+            'fornecedor e serviço de teste).',
+          );
+        }
+
+        // Venda de hoje com a parcela vencida há 3 dias (atrasada) e um
+        // boleto que vence amanhã — temporários.
+        final hoje = DateTime.now();
+        final venda = await vendas.concluir(
+          PedidoVenda(
+            clienteId: cliente.id,
+            dataVenda: hoje,
+            itens: [
+              ItemPedido(
+                tipo: TipoItem.servico,
+                catalogoId: item.id,
+                nome: item.nome,
+                precoUnitario: item.precoCobrado,
+                quantidade: 1,
+                baixarEstoque: false,
+              ),
+            ],
+            parcelas: [
+              ParcelaPlano(
+                valor: item.precoCobrado,
+                vencimento: DateTime(hoje.year, hoje.month, hoje.day - 3),
+              ),
+            ],
+          ),
+        );
+        final idVenda = valorDe(venda);
+        addTearDown(() => vendas.cancelar(idVenda));
+        final boleto = await boletos.salvar(
+          PedidoBoleto(
+            fornecedorId: marca.id,
+            valor: valorBoleto,
+            vencimento: DateTime(hoje.year, hoje.month, hoje.day + 1),
+            observacoes: 'E2E-13 boleto temporário',
+          ),
+        );
+        final idBoleto = valorDe(boleto);
+        addTearDown(() async {
+          final ainda = await boletos.buscar(idBoleto);
+          if (ainda case Sucesso(valor: final b?)) await boletos.excluir(b);
+        });
+
+        // Banco: os números sobem exatamente pelo que foi criado.
+        final esperado = await doBanco();
+        expect(esperado.vendidoNoMes, antes.vendidoNoMes + item.precoCobrado);
+        expect(esperado.qtdVendasNoMes, antes.qtdVendasNoMes + 1);
+        expect(
+          esperado.atrasadas!.total,
+          (antes.atrasadas?.total ?? 0) + item.precoCobrado,
+        );
+        if (antes.alertasBoletos.length < ResumoInicio.maxAlertasBoletos) {
+          expect(
+            esperado.alertasBoletos.map((a) => a.boleto.id),
+            contains(idBoleto),
+          );
+        }
+
+        // Tela: o Início recalcula sozinho (assina vendas e boletos).
+        await tester.tap(find.bySemanticsLabel('Início').last);
+        await tester.pumpAndSettle();
+        await esperarAte(
+          tester,
+          find.text(FormatadorMoeda.formatar(esperado.vendidoNoMes)),
+          descricao: 'Vendido no mês atualizado',
+        );
+        expect(find.text('VENCE AMANHÃ'), findsWidgets);
+        expect(find.text('E2E Fornecedor'), findsWidgets);
+        final atrasadas = esperado.atrasadas!;
+        expect(
+          find.text(
+            atrasadas.qtdClientes == 1
+                ? '1 CLIENTE'
+                : '${atrasadas.qtdClientes} CLIENTES',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.text('Total ${FormatadorMoeda.formatar(atrasadas.total)}'),
+          findsOneWidget,
+        );
+
+        // Print do Início com os alertas (build/prints_e2e/e2e13-inicio.png).
+        if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
+        await tester.pumpAndSettle();
+        await binding.takeScreenshot('e2e13-inicio');
+
+        // Cobrar agora → A receber em Atrasado, todos os meses.
+        await tocar(tester, find.text('Cobrar agora'));
+        await esperarAte(tester, find.text('Recebimentos'));
+        await esperarAte(tester, find.textContaining('Atrasado ('));
+        expect(find.text('Todos os meses'), findsOneWidget);
+      },
+    );
+  }, skip: pularGrupo('E2E-13'));
 }

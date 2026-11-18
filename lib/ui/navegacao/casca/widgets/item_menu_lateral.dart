@@ -11,6 +11,7 @@ class ItemMenuLateral extends StatelessWidget {
     required this.onTap,
     this.atual = false,
     this.cor,
+    this.selo,
   });
 
   final String rotulo;
@@ -20,6 +21,9 @@ class ItemMenuLateral extends StatelessWidget {
 
   /// Cor especial (ex.: vermelho de "Sair da conta").
   final Color? cor;
+
+  /// Número em destaque à direita (ex.: cobranças atrasadas); null = sem selo.
+  final int? selo;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +58,29 @@ class ItemMenuLateral extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (selo case final quantidade?)
+                  Semantics(
+                    label: '$quantidade atrasadas',
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: CoresApp.perigo,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        quantidade > 99 ? '99+' : '$quantidade',
+                        style: const TextStyle(
+                          color: CoresApp.sobrePrimaria,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
                 if (atual)
                   const CircleAvatar(
                     radius: 5,

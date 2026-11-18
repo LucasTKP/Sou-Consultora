@@ -15,6 +15,7 @@ class MenuLateral extends StatelessWidget {
     required this.caminhoAtual,
     required this.onNavegar,
     required this.onSair,
+    this.qtdAtrasadas = 0,
   });
 
   final ResumoConsultora resumo;
@@ -24,6 +25,9 @@ class MenuLateral extends StatelessWidget {
   /// Recebe a rota escolhida; quem chama fecha o menu e navega.
   final ValueChanged<String> onNavegar;
   final VoidCallback onSair;
+
+  /// Parcelas atrasadas: selo em A Receber / Cobranças (0 = sem selo).
+  final int qtdAtrasadas;
 
   static const _principais = [
     (RotasApp.inicio, 'Início', Icons.home_rounded),
@@ -92,6 +96,7 @@ class MenuLateral extends StatelessWidget {
       rotulo: rotulo,
       icone: icone,
       atual: rota == _rotaAtual,
+      selo: rota == RotasApp.aReceber && qtdAtrasadas > 0 ? qtdAtrasadas : null,
       onTap: () => onNavegar(rota),
     );
   }

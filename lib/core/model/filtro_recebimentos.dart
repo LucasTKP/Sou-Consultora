@@ -14,6 +14,16 @@ enum StatusFiltroRecebimento {
 
   final String rotulo;
 
+  /// `?status=atrasado` / `?status=pago` (vindo do Início); null se não houver
+  /// ou não for reconhecido.
+  static StatusFiltroRecebimento? doParametro(String? valor) => switch (valor) {
+    'atrasado' => atrasado,
+    'pago' => pago,
+    'a-receber' => aReceber,
+    'vence-hoje' => venceHoje,
+    _ => null,
+  };
+
   bool aceita(ResumoParcela parcela, {required DateTime hoje}) {
     final status = parcela.status(hoje: hoje);
     final hojeVence = parcela.venceHoje(hoje: hoje);

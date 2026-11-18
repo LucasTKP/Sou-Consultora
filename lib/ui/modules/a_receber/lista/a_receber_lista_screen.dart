@@ -18,12 +18,15 @@ import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
 /// Tela principal de A receber (aberta pelo menu lateral).
 class AReceberListaScreen extends StatelessWidget {
-  const AReceberListaScreen({super.key});
+  const AReceberListaScreen({super.key, this.statusInicial});
+
+  /// Filtro já escolhido (Início: Cobrar agora → Atrasado; Recebido → Pago).
+  final StatusFiltroRecebimento? statusInicial;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AReceberListaCubit(),
+      create: (_) => AReceberListaCubit(statusInicial: statusInicial),
       child: const _AReceberListaVista(),
     );
   }

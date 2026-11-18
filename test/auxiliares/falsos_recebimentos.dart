@@ -59,6 +59,12 @@ class ServicoRecebimentosFalso implements ServicoRecebimentos {
   }
 
   @override
+  Future<Resultado<List<PagamentoDto>>> listarTodosPagamentos() async {
+    if (falharRede) return Erro(_falha);
+    return Sucesso(List.of(pagamentos));
+  }
+
+  @override
   Future<Resultado<String>> registrar({
     required String parcelaId,
     required int valorCentavos,

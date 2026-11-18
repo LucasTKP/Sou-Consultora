@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sou_consultora/core/model/filtro_recebimentos.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/detalhes/a_pagar_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/formulario/a_pagar_formulario_screen.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/lista/a_pagar_lista_screen.dart';
@@ -17,6 +18,7 @@ import 'package:sou_consultora/ui/modules/financeiro/financeiro_screen.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/detalhes/fornecedores_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/formulario/fornecedores_formulario_screen.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/inicio/inicio_screen.dart';
 import 'package:sou_consultora/ui/modules/login/acesso_login_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_screen.dart';
@@ -97,6 +99,7 @@ abstract final class RoteadorApp {
                 RotasApp.aReceber => _rotaAReceber(),
                 RotasApp.aPagar => _rotaAPagar(),
                 RotasApp.financeiro => _rotaFinanceiro(),
+                RotasApp.inicio => _rotaInicio(),
                 _ => _rotaEmConstrucao(modulo),
               },
           ],
@@ -299,8 +302,13 @@ abstract final class RoteadorApp {
     return GoRoute(
       path: RotasApp.aReceber,
       pageBuilder: (_, estado) => NoTransitionPage(
-        key: estado.pageKey,
-        child: const AReceberListaScreen(),
+        // A chave inclui o `?status=`: trocar de filtro recria a lista.
+        key: ValueKey(estado.uri.toString()),
+        child: AReceberListaScreen(
+          statusInicial: StatusFiltroRecebimento.doParametro(
+            estado.uri.queryParameters['status'],
+          ),
+        ),
       ),
       routes: [
         GoRoute(
@@ -362,6 +370,15 @@ abstract final class RoteadorApp {
           ],
         ),
       ],
+    );
+  }
+
+  /// Tela única na casca (item central da barra; abre depois do login).
+  static GoRoute _rotaInicio() {
+    return GoRoute(
+      path: RotasApp.inicio,
+      pageBuilder: (_, estado) =>
+          NoTransitionPage(key: estado.pageKey, child: const InicioScreen()),
     );
   }
 

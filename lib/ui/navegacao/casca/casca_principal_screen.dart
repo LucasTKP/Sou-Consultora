@@ -105,6 +105,7 @@ class _CascaVistaState extends State<_CascaVista> {
             caminhoAtual: widget.caminhoAtual,
             onNavegar: _aoNavegarPeloMenu,
             onSair: _aoSair,
+            qtdAtrasadas: estado.qtdAtrasadas,
           ),
           body: widget.filho,
           bottomNavigationBar: BarraInferior(

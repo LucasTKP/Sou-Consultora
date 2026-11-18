@@ -13,10 +13,11 @@ import 'package:sou_consultora/ui/modules/a_receber/lista/a_receber_lista_state.
 /// status, mês e ordem escolhidos na tela.
 class AReceberListaCubit extends Cubit<AReceberListaState> {
   AReceberListaCubit({
+    StatusFiltroRecebimento? statusInicial,
     RepositorioRecebimentos? repositorio,
     DateTime Function()? agora,
   }) : _repositorio = repositorio ?? injetor<RepositorioRecebimentos>(),
-       super(_inicial((agora ?? DateTime.now)())) {
+       super(_inicial((agora ?? DateTime.now)(), statusInicial)) {
     final emCache = _repositorio.lista;
     if (emCache != null) _aoMudarLista(emCache);
     _assinatura = _repositorio.mudancas.listen(_aoMudarLista);
@@ -26,8 +27,14 @@ class AReceberListaCubit extends Cubit<AReceberListaState> {
   final RepositorioRecebimentos _repositorio;
   late final StreamSubscription<List<ResumoParcela>> _assinatura;
 
-  static AReceberListaState _inicial(DateTime hoje) =>
-      AReceberListaState(hoje: hoje, mes: MesAno.de(hoje));
+  /// Com [statusInicial] (aberta pelo Início), já filtra e mostra todos os
+  /// meses: as atrasadas e as pagas podem ser de meses anteriores.
+  static AReceberListaState _inicial(
+    DateTime hoje,
+    StatusFiltroRecebimento? statusInicial,
+  ) => statusInicial == null
+      ? AReceberListaState(hoje: hoje, mes: MesAno.de(hoje))
+      : AReceberListaState(hoje: hoje, mes: null, status: statusInicial);
 
   Future<void> carregar() async {
     if (state.carregamento != CarregamentoRecebimentos.pronto) {
