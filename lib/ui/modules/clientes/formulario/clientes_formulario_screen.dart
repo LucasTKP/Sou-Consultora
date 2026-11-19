@@ -12,7 +12,6 @@ import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/area_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
-import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Novo cliente ([idCliente] nulo) ou edição. Ao salvar, fecha devolvendo `true`.
@@ -145,6 +144,8 @@ class _FormularioVistaState extends State<_FormularioVista> {
               children: [
                 CabecalhoApp(
                   titulo: estado.editando ? 'Editar Cliente' : 'Novo Cliente',
+                  subtitulo:
+                      'Passo ${estado.passo} de ${ClientesFormularioState.totalPassos}',
                   onVoltar: () => _voltar(context, estado),
                 ),
                 Expanded(child: _corpo(context, estado)),
@@ -172,14 +173,6 @@ class _FormularioVistaState extends State<_FormularioVista> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       children: [
-        IndicadorPassosApp(
-          passoAtual: estado.passo,
-          totalPassos: 2,
-          descricao: estado.passo == 1
-              ? 'Dados da cliente'
-              : 'Endereço (opcional)',
-        ),
-        const SizedBox(height: 20),
         if (estado.passo == 1)
           ..._passo1(context, estado)
         else

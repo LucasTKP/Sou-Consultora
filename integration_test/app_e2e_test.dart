@@ -1110,7 +1110,7 @@ void main() {
               ? find.text('Lançar boleto')
               : find.byTooltip('Novo boleto'),
         );
-        await esperarAte(tester, find.text('Passo 1 de 2: Dados do Boleto'));
+        await esperarAte(tester, find.text('PASSO 1 DE 2'));
         await tocar(tester, find.text('Selecione a marca ou distribuidora'));
         if (find.text(marca).evaluate().isEmpty) {
           fail('Rode antes o E2E-05: ele cria o fornecedor "$marca".');
@@ -1129,7 +1129,7 @@ void main() {
         await tocar(tester, find.text('Continuar'));
         await esperarAte(
           tester,
-          find.text('Passo 2 de 2: Pagamento e Lembretes'),
+          find.text('PASSO 2 DE 2'),
         );
         await tester.enterText(find.byType(TextField).last, observacao);
         await tester.pumpAndSettle();

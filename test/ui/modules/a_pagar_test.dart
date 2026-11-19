@@ -417,7 +417,7 @@ void main() {
       await _abrir(tester, ambiente, '/a-pagar/novo?fornecedor=f1');
 
       expect(find.text('Novo Boleto'), findsOneWidget);
-      expect(find.text('Passo 1 de 2: Dados do Boleto'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
       // A marca já vem da lista da Natura.
       expect(find.text('Natura'), findsOneWidget);
 
@@ -440,7 +440,10 @@ void main() {
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Passo 2 de 2: Pagamento e Lembretes'), findsOneWidget);
+      expect(find.text('PASSO 2 DE 2'), findsOneWidget);
+      // Voltar é pela seta do cabeçalho; o rodapé só tem Salvar.
+      expect(find.text('Voltar'), findsNothing);
+      expect(find.text('Salvar Boleto'), findsOneWidget);
       expect(find.text('Confirmado'), findsOneWidget);
       expect(find.text('R\$ 680,00'), findsOneWidget);
 
@@ -479,9 +482,9 @@ void main() {
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
       expect(find.text('Ciclo 15'), findsOneWidget);
-      await tester.tap(find.text('Voltar'));
+      await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
-      expect(find.text('Passo 1 de 2: Dados do Boleto'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
       expect(
         tester
             .widget<EditableText>(
@@ -656,7 +659,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Editar Boleto'));
       await tester.pumpAndSettle();
-      expect(find.text('Passo 1 de 2: Dados do Boleto'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 

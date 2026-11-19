@@ -12,7 +12,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
-import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Nova venda (com [clienteInicialId] opcional) ou edição ([idVenda]).
@@ -138,11 +137,13 @@ class _NovaVendaVistaState extends State<_NovaVendaVista> {
               children: [
                 CabecalhoApp(
                   titulo: estado.editando ? 'Editar Venda' : 'Nova Venda',
+                  subtitulo:
+                      'Passo ${estado.passo} de ${NovaVendaState.totalPassos}',
                   onVoltar: _voltar,
                 ),
                 Expanded(child: _corpo(estado)),
                 if (!estado.carregando && estado.erroCarregar == null)
-                  _Rodape(estado: estado, onVoltar: _voltar),
+                  _Rodape(estado: estado),
               ],
             ),
           ),
@@ -162,12 +163,6 @@ class _NovaVendaVistaState extends State<_NovaVendaVista> {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        IndicadorPassosApp(
-          passoAtual: estado.passo,
-          totalPassos: NovaVendaState.totalPassos,
-          descricao: estado.passo == 1 ? 'Itens' : 'Pagamento',
-        ),
-        const SizedBox(height: 24),
         if (estado.passo == 1)
           PassoItens(
             estado: estado,
@@ -183,29 +178,23 @@ class _NovaVendaVistaState extends State<_NovaVendaVista> {
 }
 
 class _Rodape extends StatelessWidget {
-  const _Rodape({required this.estado, required this.onVoltar});
+  const _Rodape({required this.estado});
 
   final NovaVendaState estado;
-  final VoidCallback onVoltar;
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<NovaVendaCubit>();
-    final passo1 = estado.passo == 1;
     return SafeArea(
       top: false,
       minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (passo1)
-            BotaoApp(
+      child: estado.passo == 1
+          ? BotaoApp(
               rotulo: 'Avançar',
               iconeFim: const Icon(Icons.arrow_forward_rounded),
               onPressed: cubit.avancar,
             )
-          else
-            BotaoApp(
+          : BotaoApp(
               rotulo: estado.salvando
                   ? 'Salvando...'
                   : estado.editando
@@ -213,13 +202,6 @@ class _Rodape extends StatelessWidget {
                   : 'Concluir Venda',
               onPressed: estado.podeConcluir ? cubit.concluir : null,
             ),
-          const SizedBox(height: 12),
-          BotaoApp.secundario(
-            rotulo: passo1 ? 'Cancelar' : 'Voltar para Itens',
-            onPressed: onVoltar,
-          ),
-        ],
-      ),
     );
   }
 }

@@ -10,7 +10,6 @@ import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
-import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Novo boleto ([idBoleto] nulo) ou edição, em 2 passos.
@@ -110,11 +109,13 @@ class _FormularioVistaState extends State<_FormularioVista> {
               children: [
                 CabecalhoApp(
                   titulo: estado.editando ? 'Editar Boleto' : 'Novo Boleto',
+                  subtitulo:
+                      'Passo ${estado.passo} de ${APagarFormularioState.totalPassos}',
                   onVoltar: _voltar,
                 ),
                 Expanded(child: _corpo(estado)),
                 if (!estado.carregando && estado.erroCarregar == null)
-                  _Rodape(estado: estado, onVoltar: _voltar),
+                  _Rodape(estado: estado),
               ],
             ),
           ),
@@ -134,14 +135,6 @@ class _FormularioVistaState extends State<_FormularioVista> {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        IndicadorPassosApp(
-          passoAtual: estado.passo,
-          totalPassos: APagarFormularioState.totalPassos,
-          descricao: estado.passo == 1
-              ? 'Dados do Boleto'
-              : 'Pagamento e Lembretes',
-        ),
-        const SizedBox(height: 24),
         if (estado.passo == 1)
           PassoDadosBoleto(estado: estado, onNovaMarca: _novaMarca)
         else
@@ -152,43 +145,26 @@ class _FormularioVistaState extends State<_FormularioVista> {
 }
 
 class _Rodape extends StatelessWidget {
-  const _Rodape({required this.estado, required this.onVoltar});
+  const _Rodape({required this.estado});
 
   final APagarFormularioState estado;
-  final VoidCallback onVoltar;
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<APagarFormularioCubit>();
-    if (estado.passo == 1) {
-      return SafeArea(
-        top: false,
-        minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-        child: BotaoApp(
-          rotulo: 'Continuar',
-          iconeFim: const Icon(Icons.arrow_forward_rounded),
-          onPressed: cubit.continuar,
-        ),
-      );
-    }
     return SafeArea(
       top: false,
-      minimum: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BotaoApp(
-            rotulo: estado.salvando ? 'Salvando...' : 'Salvar Boleto',
-            onPressed: estado.salvando ? null : cubit.salvar,
-          ),
-          const SizedBox(height: 8),
-          TextButton.icon(
-            onPressed: estado.salvando ? null : onVoltar,
-            icon: const Icon(Icons.chevron_left_rounded),
-            label: const Text('Voltar'),
-          ),
-        ],
-      ),
+      minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      child: estado.passo == 1
+          ? BotaoApp(
+              rotulo: 'Continuar',
+              iconeFim: const Icon(Icons.arrow_forward_rounded),
+              onPressed: cubit.continuar,
+            )
+          : BotaoApp(
+              rotulo: estado.salvando ? 'Salvando...' : 'Salvar Boleto',
+              onPressed: estado.salvando ? null : cubit.salvar,
+            ),
     );
   }
 }

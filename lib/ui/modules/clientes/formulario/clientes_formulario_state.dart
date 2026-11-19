@@ -3,6 +3,9 @@ import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Cadastro/edição da cliente em dois passos (dados → endereço).
 class ClientesFormularioState {
+  /// 1 = dados da cliente; 2 = endereço (opcional).
+  static const totalPassos = 2;
+
   const ClientesFormularioState({
     this.idCliente,
     this.carregando = false,

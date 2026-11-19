@@ -376,17 +376,19 @@ void main() {
       );
 
       expect(find.text('Novo Cliente'), findsOneWidget);
-      expect(find.textContaining('Passo 1 de 2'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField).at(0), 'Ana');
       await tester.enterText(find.byType(TextField).at(1), '11987654321');
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
-      expect(find.textContaining('Passo 2 de 2'), findsOneWidget);
+      expect(find.text('PASSO 2 DE 2'), findsOneWidget);
+      expect(find.text('Voltar'), findsNothing); // a seta do cabeçalho volta
+      expect(find.text('Salvar Cliente'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
-      expect(find.textContaining('Passo 1 de 2'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
       expect(
         find.text('Ana'),
         findsOneWidget,

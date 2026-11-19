@@ -96,3 +96,20 @@ O botão voltar do Android MUST seguir esta ordem:
 - **GIVEN** a consultora está no Início
 - **WHEN** ela aperta o voltar do sistema
 - **THEN** o app é fechado
+
+### Requirement: Formulários em passos com o mesmo padrão
+Os formulários em mais de um passo (produto, cliente, boleto e nova venda) SHALL mostrar o passo atual no subtítulo do cabeçalho ("Passo 1 de 2") e MUST NOT mostrar indicador com barra ou porcentagem no corpo. O rodapé SHALL ter só o botão principal do passo (Continuar/Avançar ou Salvar/Concluir), sem botões Cancelar ou Voltar. A seta do cabeçalho e o voltar do sistema SHALL voltar ao passo anterior e, no primeiro passo, sair do formulário, com a mesma confirmação de descarte de antes quando houver dados.
+
+#### Scenario: Passo no cabeçalho
+- **WHEN** a consultora abre o cadastro de uma cliente
+- **THEN** o cabeçalho mostra "PASSO 1 DE 2" e o corpo não tem barra de progresso
+
+#### Scenario: Voltar pelo cabeçalho
+- **GIVEN** a consultora está no passo 2 de um formulário
+- **WHEN** ela toca na seta do cabeçalho
+- **THEN** volta ao passo 1 mantendo o que digitou
+
+#### Scenario: Rodapé só com o botão principal
+- **WHEN** ela está no passo 1 ou no passo 2 de um desses formulários
+- **THEN** o rodapé mostra apenas Continuar/Avançar ou Salvar/Concluir
+

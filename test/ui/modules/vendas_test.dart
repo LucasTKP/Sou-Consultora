@@ -220,6 +220,18 @@ void main() {
   });
 
   group('Nova venda (tela)', () {
+    testWidgets('passo no cabeçalho e rodapé só com o botão principal', (
+      tester,
+    ) async {
+      await _abrir(tester, _Ambiente(), '/vendas/nova?cliente=c1');
+
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
+      expect(find.text('Avançar'), findsOneWidget);
+      // Sair é pela seta do cabeçalho: não há botão Cancelar no rodapé.
+      expect(find.text('Cancelar'), findsNothing);
+      expect(find.byTooltip('Voltar'), findsOneWidget);
+    });
+
     testWidgets('sem item, avançar mostra o aviso', (tester) async {
       await _abrir(tester, _Ambiente(), '/vendas/nova?cliente=c1');
 
