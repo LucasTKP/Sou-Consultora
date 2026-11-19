@@ -46,6 +46,10 @@ class Produto {
 
   // —— Validações do passo 1 ——
 
+  /// Mostrada quando o banco recusa um código repetido na mesma marca.
+  static const mensagemCodigoDuplicado =
+      'Você já tem um produto com esse código nesta marca.';
+
   static String? validarNome(String texto) =>
       texto.trim().isEmpty ? 'Informe o nome do produto' : null;
 

@@ -233,3 +233,30 @@ O campo de foto do cadastro de produto SHALL mostrar a miniatura com um botão p
 #### Scenario: Produto sem foto
 - **WHEN** a consultora abre o cadastro de um produto novo
 - **THEN** a miniatura de reserva aparece com o botão "Adicionar foto" ao lado
+
+### Requirement: Código do produto único por marca
+O banco SHALL impedir que uma consultora tenha dois produtos com o mesmo código na mesma marca, ignorando maiúsculas e espaços nas pontas. Produto sem código MUST continuar permitido. O app MUST mostrar uma mensagem clara quando o banco recusar um código repetido.
+
+#### Scenario: Salvar produto com código repetido
+- **GIVEN** a consultora já tem um produto da marca Natura com o código "174918"
+- **WHEN** ela tenta salvar outro produto da Natura com o código "174918"
+- **THEN** o app mostra "Você já tem um produto com esse código nesta marca." e não grava
+
+#### Scenario: Mesmo código em outra marca ou outra consultora
+- **WHEN** o código existe em outra marca da consultora, ou em outra consultora
+- **THEN** a gravação é permitida
+
+### Requirement: Catálogo mostra o que a consultora já cadastrou
+A tela de importar SHALL marcar com o selo "Já cadastrado" os produtos do catálogo que a consultora já tem (mesma marca e mesmo código) e MUST NOT permitir importá-los de novo.
+
+#### Scenario: Produto já cadastrado
+- **GIVEN** a consultora já importou um produto do catálogo
+- **WHEN** ela abre a tela de importar e toca nesse produto
+- **THEN** aparece o aviso "Você já tem este produto cadastrado." e a tela não fecha
+
+### Requirement: Busca do catálogo sem acento
+A busca do catálogo SHALL ignorar acentos e maiúsculas e procurar cada palavra no nome ou no código do produto.
+
+#### Scenario: Buscar sem acento
+- **WHEN** a consultora digita "colonia"
+- **THEN** os produtos com "colônia" no nome aparecem

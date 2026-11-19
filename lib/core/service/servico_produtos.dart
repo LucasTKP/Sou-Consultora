@@ -37,23 +37,31 @@ class ServicoProdutos {
 
   /// Cria o produto e devolve o id.
   Future<Resultado<String>> criar(Produto produto) {
-    return executarComFalha(() async {
-      final linha = await _api.inserir(_tabela, produto.paraGravar());
-      return linha['id'] as String;
-    }, mensagemPadrao: 'Não foi possível salvar o produto.');
+    return executarComFalha(
+      () async {
+        final linha = await _api.inserir(_tabela, produto.paraGravar());
+        return linha['id'] as String;
+      },
+      mensagemPadrao: 'Não foi possível salvar o produto.',
+      mensagemDuplicado: Produto.mensagemCodigoDuplicado,
+    );
   }
 
   /// Atualiza o produto [id] e devolve o id.
   Future<Resultado<String>> atualizar(String id, Produto produto) {
-    return executarComFalha(() async {
-      final linha = await _api.atualizar(
-        _tabela,
-        produto.paraGravar(),
-        coluna: 'id',
-        valor: id,
-      );
-      return linha['id'] as String;
-    }, mensagemPadrao: 'Não foi possível salvar o produto.');
+    return executarComFalha(
+      () async {
+        final linha = await _api.atualizar(
+          _tabela,
+          produto.paraGravar(),
+          coluna: 'id',
+          valor: id,
+        );
+        return linha['id'] as String;
+      },
+      mensagemPadrao: 'Não foi possível salvar o produto.',
+      mensagemDuplicado: Produto.mensagemCodigoDuplicado,
+    );
   }
 
   /// Envia a foto para `fotos/<id>/produtos/<momento>.jpg` e devolve o caminho.

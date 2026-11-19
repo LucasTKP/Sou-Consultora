@@ -4,6 +4,7 @@ import 'package:sou_consultora/core/api/api_supabase.dart';
 import 'package:sou_consultora/core/dto/catalogo_produto_dto.dart';
 import 'package:sou_consultora/core/erros/mapeador_falhas.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
+import 'package:sou_consultora/core/model/texto_busca.dart';
 
 /// Leitura do catálogo de produtos das marcas (tabela e bucket só de leitura).
 class ServicoCatalogo {
@@ -14,8 +15,9 @@ class ServicoCatalogo {
 
   final ApiSupabase _api;
 
-  /// Produtos em ordem alfabética, filtrados por [marca] e por trecho do nome
-  /// ou do código ([texto]).
+  /// Produtos em ordem alfabética, filtrados por [marca] e por [texto]: cada
+  /// palavra precisa aparecer no nome ou no código, sem diferenciar acentos nem
+  /// maiúsculas (a coluna `busca` do banco já vem normalizada).
   Future<Resultado<List<CatalogoProdutoDto>>> listar({
     String? marca,
     String texto = '',
@@ -26,7 +28,7 @@ class ServicoCatalogo {
         _tabela,
         ordenarPor: 'nome',
         onde: {'marca': ?marca},
-        contem: {if (texto.isNotEmpty) 'nome': texto},
+        contem: {'busca': _palavras(texto)},
         limite: limite,
       );
       return linhas.map(CatalogoProdutoDto.fromJson).toList();
@@ -47,4 +49,9 @@ class ServicoCatalogo {
       mensagemPadrao: 'Não foi possível baixar a foto do catálogo.',
     );
   }
+
+  static List<String> _palavras(String texto) => [
+    for (final palavra in TextoBusca.normalizar(texto).split(' '))
+      if (palavra.isNotEmpty) palavra,
+  ];
 }

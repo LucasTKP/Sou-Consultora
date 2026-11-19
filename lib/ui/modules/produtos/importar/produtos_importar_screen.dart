@@ -8,9 +8,12 @@ import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_cu
 import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_state.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/avatares/foto_quadrada_app.dart';
+import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 
 /// Escolhe um produto do catálogo das marcas. Ao tocar, fecha devolvendo o
@@ -148,7 +151,7 @@ class _Lista extends StatelessWidget {
           ),
           children: [
             for (final produto in estado.itens) ...[
-              _CartaoCatalogo(produto: produto),
+              _CartaoCatalogo(produto: produto, jaTem: estado.jaTem(produto)),
               const SizedBox(height: 12),
             ],
             if (estado.possivelTerMais)
@@ -169,9 +172,12 @@ class _Lista extends StatelessWidget {
 }
 
 class _CartaoCatalogo extends StatelessWidget {
-  const _CartaoCatalogo({required this.produto});
+  const _CartaoCatalogo({required this.produto, required this.jaTem});
 
   final ProdutoCatalogo produto;
+
+  /// A consultora já cadastrou este produto: não deixa importar de novo.
+  final bool jaTem;
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +185,19 @@ class _CartaoCatalogo extends StatelessWidget {
       titulo: produto.nome,
       subtitulo: '${produto.marca} · Cód. ${produto.codigo}',
       inicio: FotoQuadradaApp(url: produto.urlFoto),
-      onTap: () => context.pop(produto),
+      selo: jaTem
+          ? const SeloStatusApp(
+              rotulo: 'Já cadastrado',
+              status: StatusSelo.sucesso,
+            )
+          : null,
+      mostrarSeta: !jaTem,
+      onTap: () => jaTem
+          ? ToastApp.mostrar(
+              context,
+              const AvisoToast.aviso('Você já tem este produto cadastrado.'),
+            )
+          : context.pop(produto),
     );
   }
 }

@@ -172,21 +172,24 @@ class ApiSupabase {
     };
   }
 
-  /// Como [listar], mas também filtra por trecho de texto sem diferenciar
-  /// maiúsculas ([contem], ex.: `{'nome': 'batom'}`) e corta em [limite] linhas.
+  /// Como [listar], mas também filtra por trechos de texto sem diferenciar
+  /// maiúsculas ([contem], ex.: `{'busca': ['batom', 'matte']}`: a coluna precisa
+  /// conter todos) e corta em [limite] linhas.
   Future<List<Map<String, dynamic>>> listarComBusca(
     String tabela, {
     required String ordenarPor,
     required int limite,
     Map<String, Object> onde = const {},
-    Map<String, String> contem = const {},
+    Map<String, List<String>> contem = const {},
   }) {
     var consulta = _cliente.from(tabela).select();
     for (final MapEntry(:key, :value) in onde.entries) {
       consulta = consulta.eq(key, value);
     }
-    for (final MapEntry(:key, :value) in contem.entries) {
-      consulta = consulta.ilike(key, '%$value%');
+    for (final MapEntry(:key, value: trechos) in contem.entries) {
+      for (final trecho in trechos) {
+        consulta = consulta.ilike(key, '%$trecho%');
+      }
     }
     return consulta.order(ordenarPor, ascending: true).limit(limite);
   }

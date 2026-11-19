@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
+import 'package:sou_consultora/core/dto/resumo_produto_dto.dart';
 import 'package:sou_consultora/core/erros/falha_app.dart';
 import 'package:sou_consultora/core/model/fornecedor.dart';
 import 'package:sou_consultora/core/model/produto_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_catalogo.dart';
+import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_screen.dart';
@@ -34,6 +36,45 @@ ProdutosFormularioCubit _formulario({
 );
 
 Future<void> _pronto() => Future<void>.delayed(Duration.zero);
+
+Future<void> abrir(
+  WidgetTester tester,
+  ServicoCatalogoFalso catalogo, {
+  List<ResumoProdutoDto> produtosDela = const [],
+}) async {
+  usarTelaDeCelular(tester);
+  injetor
+    ..registerSingleton<RepositorioCatalogo>(
+      repositorioCatalogoDeTeste(catalogo),
+    )
+    ..registerSingleton<RepositorioProdutos>(
+      repositorioProdutosDeTeste(ServicoProdutosFalso(resumos: produtosDela)),
+    );
+  addTearDown(() => injetor.reset());
+  final roteador = GoRouter(
+    initialLocation: '/inicio',
+    routes: [
+      GoRoute(
+        path: '/inicio',
+        builder: (context, _) => Scaffold(
+          body: TextButton(
+            onPressed: () => context.push<ProdutoCatalogo>('/importar'),
+            child: const Text('abrir'),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/importar',
+        builder: (_, _) => const ProdutosImportarScreen(),
+      ),
+    ],
+  );
+  addTearDown(roteador.dispose);
+  await tester.pumpWidget(appDeTeste(roteador: roteador));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('abrir'));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   group('Importar no cadastro (cubit)', () {
@@ -175,40 +216,6 @@ void main() {
   });
 
   group('Tela de importar', () {
-    Future<void> abrir(
-      WidgetTester tester,
-      ServicoCatalogoFalso catalogo,
-    ) async {
-      usarTelaDeCelular(tester);
-      injetor.registerSingleton<RepositorioCatalogo>(
-        repositorioCatalogoDeTeste(catalogo),
-      );
-      addTearDown(() => injetor.reset());
-      final roteador = GoRouter(
-        initialLocation: '/inicio',
-        routes: [
-          GoRoute(
-            path: '/inicio',
-            builder: (context, _) => Scaffold(
-              body: TextButton(
-                onPressed: () => context.push<ProdutoCatalogo>('/importar'),
-                child: const Text('abrir'),
-              ),
-            ),
-          ),
-          GoRoute(
-            path: '/importar',
-            builder: (_, _) => const ProdutosImportarScreen(),
-          ),
-        ],
-      );
-      addTearDown(roteador.dispose);
-      await tester.pumpWidget(appDeTeste(roteador: roteador));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('abrir'));
-      await tester.pumpAndSettle();
-    }
-
     testWidgets('lista o catálogo, filtra por marca e busca por nome', (
       tester,
     ) async {
@@ -255,9 +262,13 @@ void main() {
 
     testWidgets('tocar num produto fecha devolvendo-o', (tester) async {
       usarTelaDeCelular(tester);
-      injetor.registerSingleton<RepositorioCatalogo>(
-        repositorioCatalogoDeTeste(_catalogo()),
-      );
+      injetor
+        ..registerSingleton<RepositorioCatalogo>(
+          repositorioCatalogoDeTeste(_catalogo()),
+        )
+        ..registerSingleton<RepositorioProdutos>(
+          repositorioProdutosDeTeste(ServicoProdutosFalso()),
+        );
       addTearDown(() => injetor.reset());
       ProdutoCatalogo? escolhido;
       final roteador = GoRouter(
@@ -293,10 +304,71 @@ void main() {
     });
   });
 
+  group('Já cadastrado', () {
+    ResumoProdutoDto jaTem() => produtoDto(
+      'p1',
+      'Balm labial ameixa',
+      fornecedorNome: 'Natura',
+      codigo: '1',
+    );
+
+    test('marca o que a consultora já tem, ignorando acento e caixa', () async {
+      final cubit = ProdutosImportarCubit(
+        catalogo: repositorioCatalogoDeTeste(_catalogo()),
+        produtos: repositorioProdutosDeTeste(
+          ServicoProdutosFalso(
+            resumos: [
+              produtoDto('p1', 'Balm', fornecedorNome: 'Natura', codigo: ' 1 '),
+              produtoDto('p2', 'Sem código', fornecedorNome: 'Natura'),
+              produtoDto(
+                'p3',
+                'Outra marca',
+                fornecedorNome: 'Avon',
+                codigo: '2',
+              ),
+            ],
+          ),
+        ),
+      );
+      await _pronto();
+      await _pronto();
+
+      expect(cubit.state.jaCadastrados, {'natura|1', 'avon|2'});
+      const natura1 = ProdutoCatalogo(
+        id: 'a',
+        marca: 'NATURA',
+        codigo: '1',
+        nome: 'x',
+      );
+      const natura2 = ProdutoCatalogo(
+        id: 'b',
+        marca: 'Natura',
+        codigo: '2',
+        nome: 'y',
+      );
+      expect(cubit.state.jaTem(natura1), isTrue);
+      expect(cubit.state.jaTem(natura2), isFalse);
+      await cubit.close();
+    });
+
+    testWidgets('mostra o selo e não deixa importar de novo', (tester) async {
+      await abrir(tester, _catalogo(), produtosDela: [jaTem()]);
+
+      expect(find.text('Já cadastrado'), findsOneWidget);
+
+      await tester.tap(find.text('Balm labial ameixa'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Você já tem este produto cadastrado.'), findsOneWidget);
+      expect(find.text('Importar do catálogo'), findsOneWidget); // não fechou
+    });
+  });
+
   test('a busca espera parar de digitar antes de consultar', () async {
     final catalogo = _catalogo();
     final cubit = ProdutosImportarCubit(
       catalogo: repositorioCatalogoDeTeste(catalogo),
+      produtos: repositorioProdutosDeTeste(ServicoProdutosFalso()),
       esperaBusca: const Duration(milliseconds: 30),
     );
     await _pronto();

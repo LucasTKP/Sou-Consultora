@@ -18,7 +18,7 @@ class RepositorioCatalogo {
     String texto = '',
   }) async {
     final limpo = texto
-        .replaceAll(RegExp(r'[%_*,()]'), ' ')
+        .replaceAll(RegExp(r'[%_*,()\\]'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
     final resultado = await _servico.listar(marca: marca, texto: limpo);

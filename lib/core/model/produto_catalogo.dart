@@ -1,3 +1,5 @@
+import 'package:sou_consultora/core/model/texto_busca.dart';
+
 /// Produto do catálogo das marcas (vira ponto de partida de um produto da consultora).
 class ProdutoCatalogo {
   const ProdutoCatalogo({
@@ -25,4 +27,12 @@ class ProdutoCatalogo {
 
   /// URL assinada, temporária, só para exibir a miniatura.
   final String? urlFoto;
+
+  /// Identifica o produto pela marca e pelo código (sem acento nem maiúsculas),
+  /// igual à regra de código único do banco: serve para saber se a consultora
+  /// já tem este produto.
+  String get chave => chaveDeProduto(marca, codigo);
+
+  static String chaveDeProduto(String marca, String codigo) =>
+      '${TextoBusca.normalizar(marca)}|${TextoBusca.normalizar(codigo)}';
 }

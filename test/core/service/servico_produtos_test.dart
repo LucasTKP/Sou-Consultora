@@ -8,9 +8,11 @@ import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/produto.dart';
 import 'package:sou_consultora/core/service/servico_categorias.dart';
 import 'package:sou_consultora/core/service/servico_produtos.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class _ApiFalsa implements ApiSupabase {
   bool semRede = false;
+  bool codigoRepetido = false;
   String? usuario = 'u1';
   String? tabela;
   Map<String, Object>? filtro;
@@ -39,6 +41,20 @@ class _ApiFalsa implements ApiSupabase {
 
   void _falhar() {
     if (semRede) throw const SocketException('offline');
+    if (codigoRepetido) {
+      throw const PostgrestException(message: 'duplicate', code: '23505');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> atualizar(
+    String tabela,
+    Map<String, dynamic> dados, {
+    required String coluna,
+    required Object valor,
+  }) async {
+    _falhar();
+    return _linha;
   }
 
   @override
@@ -122,6 +138,26 @@ void main() {
     final resultado = await servico.listarResumos();
 
     expect((resultado as Erro).falha, isA<FalhaRede>());
+  });
+
+  test('código repetido na mesma marca vira mensagem amigável', () async {
+    api.codigoRepetido = true;
+    final produto = Produto(
+      nome: 'Kit Lily',
+      fornecedorId: 'm1',
+      categoriaId: 'c1',
+      precoVendaCentavos: 21990,
+      codigo: 'X-1',
+    );
+
+    final criar = await servico.criar(produto);
+    final atualizar = await servico.atualizar('p1', produto);
+
+    for (final resultado in [criar, atualizar]) {
+      final falha = (resultado as Erro).falha;
+      expect(falha, isA<FalhaValidacao>());
+      expect(falha.mensagem, Produto.mensagemCodigoDuplicado);
+    }
   });
 
   test('criar envia só as colunas do produto', () async {
