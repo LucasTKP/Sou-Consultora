@@ -26,6 +26,18 @@ enum StatusFiltroBoleto {
   }
 }
 
+/// Ordem da lista de boletos. Igual à de A receber.
+enum OrdemBoleto {
+  vencimentoProximo('Vencimento: mais próximo'),
+  vencimentoDistante('Vencimento: mais distante'),
+  maiorValor('Maior valor'),
+  menorValor('Menor valor');
+
+  const OrdemBoleto(this.rotulo);
+
+  final String rotulo;
+}
+
 /// Regras de busca, filtro e ordem de A pagar (puras, sem Flutter).
 abstract final class FiltroBoletos {
   /// Mês pelo vencimento ([mes] nulo = todos) e, se informado, só do fornecedor.
@@ -45,20 +57,19 @@ abstract final class FiltroBoletos {
       TextoBusca.contem(boleto.fornecedorNome, busca) ||
       TextoBusca.contem(boleto.observacoes ?? '', busca);
 
-  /// Não pagos primeiro (do vencimento mais antigo ao mais novo, ou seja, o
-  /// mais urgente no topo); pagos no fim (o pagamento mais recente primeiro).
   static List<ResumoBoleto> aplicar(
     List<ResumoBoleto> boletos, {
     required StatusFiltroBoleto status,
     required MesAno? mes,
     required String busca,
+    required OrdemBoleto ordem,
     required DateTime hoje,
     String? fornecedorId,
   }) {
     return doRecorte(boletos, mes: mes, fornecedorId: fornecedorId)
         .where((b) => status.aceita(b, hoje: hoje) && combinaBusca(b, busca))
         .toList()
-      ..sort(_comparar);
+      ..sort((a, b) => _comparar(a, b, ordem));
   }
 
   static Map<StatusFiltroBoleto, int> contagens(
@@ -86,9 +97,14 @@ abstract final class FiltroBoletos {
       ..sort((a, b) => (b.ano * 12 + b.mes).compareTo(a.ano * 12 + a.mes));
   }
 
-  static int _comparar(ResumoBoleto a, ResumoBoleto b) {
-    if (a.pago != b.pago) return a.pago ? 1 : -1;
-    if (a.pago) return b.dataPagamento!.compareTo(a.dataPagamento!);
+  static int _comparar(ResumoBoleto a, ResumoBoleto b, OrdemBoleto ordem) {
+    final resultado = switch (ordem) {
+      OrdemBoleto.vencimentoProximo => a.vencimento.compareTo(b.vencimento),
+      OrdemBoleto.vencimentoDistante => b.vencimento.compareTo(a.vencimento),
+      OrdemBoleto.maiorValor => b.valor.compareTo(a.valor),
+      OrdemBoleto.menorValor => a.valor.compareTo(b.valor),
+    };
+    if (resultado != 0) return resultado;
     return a.vencimento.compareTo(b.vencimento);
   }
 }

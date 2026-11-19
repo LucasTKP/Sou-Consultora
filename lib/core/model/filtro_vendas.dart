@@ -2,7 +2,7 @@ import 'package:sou_consultora/core/model/venda.dart';
 
 /// Opções do filtro de status da lista de vendas.
 enum StatusFiltroVenda {
-  todas('Todas as vendas'),
+  todas('Todas'),
   emAberto('Em aberto'),
   atrasada('Atrasadas'),
   quitada('Quitadas');

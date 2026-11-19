@@ -54,4 +54,64 @@ class ServicoRecebimentos {
       return id as String;
     }, mensagemPadrao: 'Não foi possível registrar o pagamento.');
   }
+
+  /// Corrige um pagamento: valor, forma, data e observação.
+  Future<Resultado<void>> editarPagamento({
+    required String pagamentoId,
+    required int valorCentavos,
+    required FormaPagamento forma,
+    required DateTime data,
+    String? observacao,
+  }) {
+    return executarComFalha(
+      () => _api.rpc(
+        'editar_pagamento',
+        parametros: {
+          'p_pagamento_id': pagamentoId,
+          'p_valor': valorCentavos / 100,
+          'p_forma': forma.valorBanco,
+          'p_data': ConversoresDto.textoData(data),
+          'p_observacao': observacao,
+        },
+      ),
+      mensagemPadrao: 'Não foi possível editar o pagamento.',
+    );
+  }
+
+  /// Apaga um pagamento lançado por engano.
+  Future<Resultado<void>> excluirPagamento(String pagamentoId) {
+    return executarComFalha(
+      () => _api.rpc(
+        'excluir_pagamento',
+        parametros: {'p_pagamento_id': pagamentoId},
+      ),
+      mensagemPadrao: 'Não foi possível excluir o pagamento.',
+    );
+  }
+
+  /// Regrava valor e vencimento de todas as parcelas da venda. A soma tem
+  /// que continuar igual ao total, e parcela com pagamento não muda.
+  Future<Resultado<void>> editarParcelas({
+    required String vendaId,
+    required List<({String id, int valorCentavos, DateTime vencimento})>
+    parcelas,
+  }) {
+    return executarComFalha(
+      () => _api.rpc(
+        'editar_parcelas',
+        parametros: {
+          'p_venda_id': vendaId,
+          'p_parcelas': [
+            for (final parcela in parcelas)
+              {
+                'id': parcela.id,
+                'valor': parcela.valorCentavos / 100,
+                'data_vencimento': ConversoresDto.textoData(parcela.vencimento),
+              },
+          ],
+        },
+      ),
+      mensagemPadrao: 'Não foi possível salvar as parcelas.',
+    );
+  }
 }

@@ -122,6 +122,51 @@ class RepositorioRecebimentos {
     return resultado;
   }
 
+  /// Corrige um pagamento e recarrega parcelas e vendas.
+  Future<Resultado<void>> editarPagamento({
+    required String pagamentoId,
+    required int valorCentavos,
+    required FormaPagamento forma,
+    required DateTime data,
+    String? observacao,
+  }) async {
+    final resultado = await _recebimentos.editarPagamento(
+      pagamentoId: pagamentoId,
+      valorCentavos: valorCentavos,
+      forma: forma,
+      data: data,
+      observacao: observacao,
+    );
+    if (resultado case Sucesso()) await _depoisDeGravar();
+    return resultado;
+  }
+
+  /// Exclui um pagamento e recarrega parcelas e vendas.
+  Future<Resultado<void>> excluirPagamento(String pagamentoId) async {
+    final resultado = await _recebimentos.excluirPagamento(pagamentoId);
+    if (resultado case Sucesso()) await _depoisDeGravar();
+    return resultado;
+  }
+
+  /// Regrava o cronograma da venda e recarrega parcelas e vendas.
+  Future<Resultado<void>> editarParcelas({
+    required String vendaId,
+    required List<({String id, int valorCentavos, DateTime vencimento})>
+    parcelas,
+  }) async {
+    final resultado = await _recebimentos.editarParcelas(
+      vendaId: vendaId,
+      parcelas: parcelas,
+    );
+    if (resultado case Sucesso()) await _depoisDeGravar();
+    return resultado;
+  }
+
+  Future<void> _depoisDeGravar() async {
+    await Future.wait([_repositorioVendas.carregar(), _clientes.carregar()]);
+    if (_lista == null) await carregar();
+  }
+
   Future<Resultado<void>> abrirWhatsapp(String whatsapp, {String? mensagem}) =>
       _repositorioVendas.abrirWhatsapp(whatsapp, mensagem: mensagem);
 
