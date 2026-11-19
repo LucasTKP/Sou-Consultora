@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sou_consultora/core/model/dica_app.dart';
 import 'package:sou_consultora/core/model/marca_padrao.dart';
 import 'package:sou_consultora/core/model/produto_catalogo.dart';
 import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_cubit.dart';
@@ -10,6 +11,8 @@ import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/avatares/foto_quadrada_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
+import 'package:sou_consultora/ui/widgets/dicas/passo_de_dica.dart';
+import 'package:sou_consultora/ui/widgets/dicas/roteiro_dicas.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
@@ -30,35 +33,84 @@ class ProdutosImportarScreen extends StatelessWidget {
   }
 }
 
-class _ImportarVista extends StatelessWidget {
+class _ImportarVista extends StatefulWidget {
   const _ImportarVista();
+
+  @override
+  State<_ImportarVista> createState() => _ImportarVistaState();
+}
+
+class _ImportarVistaState extends State<_ImportarVista> {
+  // Passo a passo da primeira vez: busca → marcas → primeiro produto.
+  final _chaveBusca = GlobalKey();
+  final _chaveMarcas = GlobalKey();
+  final _chavePrimeiro = GlobalKey();
+  late final RoteiroDicas _roteiro;
+
+  @override
+  void initState() {
+    super.initState();
+    // Precisa existir antes de os PassoDeDica serem montados.
+    _roteiro = RoteiroDicas(DicaApp.importarNaLista);
+  }
+
+  @override
+  void dispose() {
+    _roteiro.encerrar();
+    super.dispose();
+  }
+
+  /// Começa quando a lista aparece pela primeira vez (há um produto para apontar).
+  void _aoCarregar(BuildContext context, ProdutosImportarState estado) {
+    _roteiro.iniciar([
+      _chaveBusca,
+      _chaveMarcas,
+      _chavePrimeiro,
+    ], () => mounted);
+  }
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<ProdutosImportarCubit>();
-    return Scaffold(
-      body: Column(
-        children: [
-          const CabecalhoApp(titulo: 'Importar do catálogo'),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: CampoBuscaApp(
-              placeholder: 'Buscar por nome...',
-              onChanged: cubit.alterarBusca,
+    return BlocListener<ProdutosImportarCubit, ProdutosImportarState>(
+      listenWhen: (antes, depois) =>
+          antes.carregando &&
+          !depois.carregando &&
+          depois.erro == null &&
+          depois.itens.isNotEmpty,
+      listener: _aoCarregar,
+      child: Scaffold(
+        body: Column(
+          children: [
+            const CabecalhoApp(titulo: 'Importar do catálogo'),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              child: PassoDeDica(
+                chave: _chaveBusca,
+                dica: DicaApp.importarNaLista,
+                titulo: 'Busque pelo nome',
+                descricao: 'Digite parte do nome ou do código do produto.',
+                child: CampoBuscaApp(
+                  placeholder: 'Buscar por nome...',
+                  onChanged: cubit.alterarBusca,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          const _FiltroMarca(),
-          const SizedBox(height: 4),
-          const Expanded(child: _Lista()),
-        ],
+            const SizedBox(height: 12),
+            _FiltroMarca(chave: _chaveMarcas),
+            const SizedBox(height: 4),
+            Expanded(child: _Lista(chavePrimeiro: _chavePrimeiro)),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _FiltroMarca extends StatelessWidget {
-  const _FiltroMarca();
+  const _FiltroMarca({required this.chave});
+
+  final GlobalKey chave;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +118,7 @@ class _FiltroMarca extends StatelessWidget {
     final escolhida = context.select<ProdutosImportarCubit, String?>(
       (c) => c.state.marca,
     );
-    return SizedBox(
+    final chips = SizedBox(
       height: 44,
       child: ListView(
         scrollDirection: Axis.horizontal,
@@ -85,6 +137,15 @@ class _FiltroMarca extends StatelessWidget {
             ),
         ],
       ),
+    );
+    return PassoDeDica(
+      chave: chave,
+      dica: DicaApp.importarNaLista,
+      titulo: 'Filtre pela marca',
+      descricao:
+          'Escolha Natura, Avon, O Boticário, Eudora, Mary Kay ou Tupperware.',
+      raio: 12,
+      child: chips,
     );
   }
 }
@@ -119,7 +180,10 @@ class _Chip extends StatelessWidget {
 }
 
 class _Lista extends StatelessWidget {
-  const _Lista();
+  const _Lista({required this.chavePrimeiro});
+
+  /// Destaca o primeiro produto no passo a passo da primeira vez.
+  final GlobalKey chavePrimeiro;
 
   @override
   Widget build(BuildContext context) {
@@ -150,8 +214,22 @@ class _Lista extends StatelessWidget {
             MediaQuery.paddingOf(context).bottom + 24,
           ),
           children: [
-            for (final produto in estado.itens) ...[
-              _CartaoCatalogo(produto: produto, jaTem: estado.jaTem(produto)),
+            for (final (indice, produto) in estado.itens.indexed) ...[
+              if (indice == 0)
+                PassoDeDica(
+                  chave: chavePrimeiro,
+                  dica: DicaApp.importarNaLista,
+                  titulo: 'Toque no produto',
+                  descricao:
+                      'Escolha o que você vende e volte ao cadastro com tudo '
+                      'preenchido.',
+                  child: _CartaoCatalogo(
+                    produto: produto,
+                    jaTem: estado.jaTem(produto),
+                  ),
+                )
+              else
+                _CartaoCatalogo(produto: produto, jaTem: estado.jaTem(produto)),
               const SizedBox(height: 12),
             ],
             if (estado.possivelTerMais)

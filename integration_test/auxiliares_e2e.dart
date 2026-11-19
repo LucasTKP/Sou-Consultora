@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sou_consultora/core/di/injetor.dart';
+import 'package:sou_consultora/core/repository/repositorio_dicas.dart';
 import 'package:sou_consultora/main.dart';
 
 /// WhatsApp usado no cadastro quando a conta ainda não tem cadastro.
@@ -20,6 +22,8 @@ bool pularGrupo(String codigo) => grupoE2E.isNotEmpty && grupoE2E != codigo;
 /// Sobe o app real (Supabase de verdade) e espera sair da tela de carregamento.
 Future<void> abrirApp(WidgetTester tester) async {
   await inicializarApp();
+  // O passo a passo da primeira vez cobriria a tela e travaria os cenários.
+  await injetor<RepositorioDicas>().marcarTodasComoVistas();
   await tester.pumpWidget(const MeuApp());
   await esperarAte(
     tester,

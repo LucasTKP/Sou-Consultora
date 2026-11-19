@@ -2,6 +2,8 @@ import 'package:get_it/get_it.dart';
 import 'package:sou_consultora/core/api/api_supabase.dart';
 import 'package:sou_consultora/core/repository/repositorio_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
+import 'package:sou_consultora/core/repository/repositorio_dicas.dart';
+import 'package:sou_consultora/core/service/servico_dicas.dart';
 import 'package:sou_consultora/core/service/servico_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
@@ -82,6 +84,18 @@ void configurarDependencias() {
         fotos: injetor(),
         fornecedores: injetor(),
       ),
+    );
+  }
+
+  if (!injetor.isRegistered<ServicoDicas>()) {
+    injetor.registerLazySingleton<ServicoDicas>(
+      () => ServicoDicasLocal(idUsuario: () => injetor<ApiSupabase>().idUsuario),
+    );
+  }
+
+  if (!injetor.isRegistered<RepositorioDicas>()) {
+    injetor.registerLazySingleton<RepositorioDicas>(
+      () => RepositorioDicas(servico: injetor()),
     );
   }
 

@@ -283,3 +283,31 @@ Nos campos de seleção que permitem cadastrar o item que falta (marca no cadast
 - **GIVEN** a lista de clientes da nova venda está aberta
 - **WHEN** ela busca um nome que não existe
 - **THEN** aparece "Nenhum resultado." e o botão **Cadastrar cliente** continua visível
+
+### Requirement: Passo a passo da importação na primeira vez
+Na primeira vez que a consultora cadastra um produto novo, o app SHALL apresentar a importação do catálogo com um passo a passo de balões que destacam cada elemento: no cadastro, o botão **Importar do catálogo**; na tela de importar, a busca, o filtro por marca e o primeiro produto; de volta ao cadastro com o produto preenchido, o botão **Continuar**. Cada parte MUST aparecer uma única vez por consultora e por aparelho, MUST NOT aparecer na edição de um produto, e dispensá-la ou concluí-la MUST marcá-la como vista. Falha ao ler ou gravar o que já foi visto MUST NOT travar o app.
+
+#### Scenario: Primeiro produto novo
+- **GIVEN** a consultora nunca viu o passo a passo
+- **WHEN** ela abre o cadastro de um produto novo
+- **THEN** um balão "Cadastre mais rápido" destaca o botão **Importar do catálogo**
+
+#### Scenario: Toque para avançar
+- **GIVEN** o balão está na tela
+- **WHEN** ela toca fora do destaque
+- **THEN** o passo a passo avança ou termina e aquela parte não aparece de novo
+
+#### Scenario: Na lista do catálogo
+- **GIVEN** a consultora abre a tela de importar pela primeira vez
+- **THEN** os balões "Busque pelo nome", "Filtre pela marca" e "Toque no produto" aparecem em sequência
+
+#### Scenario: De volta ao cadastro
+- **GIVEN** ela importou um produto pela primeira vez
+- **WHEN** o cadastro volta preenchido
+- **THEN** o balão "Quase pronto!" destaca o botão **Continuar**
+
+#### Scenario: Quem já viu
+- **GIVEN** a consultora já viu o passo a passo
+- **WHEN** ela abre o cadastro ou a tela de importar
+- **THEN** nenhum balão aparece
+
