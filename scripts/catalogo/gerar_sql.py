@@ -48,7 +48,8 @@ def main():
     linhas, dist, sem = [], Counter(), []
     for d in sorted(itens.values(), key=lambda d: d["codigo"]):
         # Tupperware (utilidades) não tem categoria padrão equivalente: a consultora escolhe.
-        cat = None if marca_chave == "tupperware" else categoria(d["nome"])
+        # Marcas com categoria própria no manifesto (Mary Kay, da loja) usam a dela.
+        cat = d["categoria"] if "categoria" in d else (None if marca_chave == "tupperware" else categoria(d["nome"]))
         dist[cat or "(sem categoria)"] += 1
         if cat is None:
             sem.append(d["nome"])
