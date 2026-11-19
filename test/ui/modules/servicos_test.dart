@@ -117,7 +117,7 @@ void main() {
   });
 
   group('Formulário', () {
-    testWidgets('obrigatórios, retorno estimado e salvar', (tester) async {
+    testWidgets('obrigatórios, lucro e salvar', (tester) async {
       final servico = ServicoServicosFalso();
       await _abrir(tester, servico, '/servicos/novo');
       expect(find.text('Cadastrar Serviço'), findsOneWidget);
@@ -140,10 +140,8 @@ void main() {
       await tester.enterText(moedas.at(0), '15000');
       await tester.enterText(moedas.at(1), '3000');
       await tester.pumpAndSettle();
-      expect(
-        find.text('${FormatadorMoeda.formatar(12000)} (80%)'),
-        findsOneWidget,
-      );
+      expect(find.text('Lucro:'), findsOneWidget);
+      expect(find.text(FormatadorMoeda.formatar(12000)), findsOneWidget);
 
       await tester.tap(find.text('Salvar Serviço'));
       await tester.pumpAndSettle();
@@ -156,7 +154,7 @@ void main() {
   });
 
   group('Detalhes', () {
-    testWidgets('preço, retorno, duração e vazios omitidos; sem excluir', (
+    testWidgets('preço, lucro, duração e vazios omitidos; sem excluir', (
       tester,
     ) async {
       await _abrir(
@@ -178,8 +176,9 @@ void main() {
         '/servicos/1',
       );
 
+      expect(find.text('Lucro'), findsOneWidget);
       expect(find.text(FormatadorMoeda.formatar(11500)), findsOneWidget);
-      expect(find.text('77% do valor cobrado'), findsOneWidget);
+      expect(find.textContaining('%'), findsNothing);
       expect(find.text('1h 30min (90 min)'), findsOneWidget);
       expect(find.text('OBSERVAÇÕES / DESCRIÇÃO'), findsNothing);
       expect(find.textContaining('Excluir'), findsNothing);

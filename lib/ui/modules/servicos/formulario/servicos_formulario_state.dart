@@ -59,7 +59,7 @@ class ServicosFormularioState {
   Categoria? get categoriaEscolhida =>
       categorias.where((c) => c.id == categoriaId).firstOrNull;
 
-  /// Retorno estimado (só com preço informado).
+  /// Lucro (só com preço informado).
   Margem? get retorno {
     final valor = preco;
     if (valor == null || valor <= 0) return null;

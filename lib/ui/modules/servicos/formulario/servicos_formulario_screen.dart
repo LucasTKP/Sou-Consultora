@@ -263,7 +263,6 @@ class _CartaoRetorno extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
-    final porcentagem = retorno.porcentagem.round();
     return DecoratedBox(
       decoration: BoxDecoration(
         color: CoresApp.sucessoContainer,
@@ -277,12 +276,12 @@ class _CartaoRetorno extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Retorno estimado:',
+                'Lucro:',
                 style: estilos.titleSmall?.copyWith(color: CoresApp.sucesso),
               ),
             ),
             Text(
-              '${FormatadorMoeda.formatar(retorno.valor)} ($porcentagem%)',
+              FormatadorMoeda.formatar(retorno.valor),
               style: estilos.titleSmall?.copyWith(color: CoresApp.sucesso),
             ),
           ],

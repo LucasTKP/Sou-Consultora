@@ -166,9 +166,8 @@ class _Conteudo extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _Bloco(
-                rotulo: 'Retorno estimado',
+                rotulo: 'Lucro',
                 valor: FormatadorMoeda.formatar(retorno.valor),
-                detalhe: '${retorno.porcentagem.round()}% do valor cobrado',
                 fundo: CoresApp.sucessoContainer,
                 cor: CoresApp.sucesso,
               ),

@@ -32,7 +32,7 @@ class ResumoServico {
   final String? urlFoto;
   final DateTime criadoEm;
 
-  /// Retorno estimado: preço cobrado − custo de materiais.
+  /// Lucro: preço cobrado − custo de materiais.
   Margem get retorno =>
       Margem.calcular(precoVenda: precoCobrado, custo: custoMateriais ?? 0);
 

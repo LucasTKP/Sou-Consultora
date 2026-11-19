@@ -790,7 +790,7 @@ void main() {
 
         await tocar(tester, cardE2e);
         await esperarAte(tester, find.text('Detalhes do Serviço'));
-        expect(find.text('Retorno estimado'), findsOneWidget);
+        expect(find.text('Lucro'), findsOneWidget);
         expect(find.textContaining('Excluir'), findsNothing);
 
         await tocar(tester, find.text('Editar Serviço'));

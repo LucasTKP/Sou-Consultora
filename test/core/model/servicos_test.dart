@@ -30,7 +30,7 @@ void main() {
     expect(dados.keys, isNot(contains('consultora_id')));
   });
 
-  test('retorno estimado: 150 − 30 = 120 (80%); sem custo = 100%', () {
+  test('lucro: 150 − 30 = 120 (80%); sem custo = 100%', () {
     final comCusto = servicoDto(
       '1',
       'Maquiagem',
