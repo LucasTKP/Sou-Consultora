@@ -52,6 +52,9 @@ class RepositorioVersao {
     };
   }
 
+  /// Versão e plataforma do app instalado (usado, por exemplo, na mensagem de suporte).
+  Future<Resultado<InfoApp>> instalada() => _infoApp.ler();
+
   /// Abre a página do app na loja da plataforma.
   Future<Resultado<void>> abrirLoja() async {
     final url = switch (_plataforma) {

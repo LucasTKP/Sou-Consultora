@@ -1,4 +1,12 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/core/env/suporte_app.dart';
+import 'package:sou_consultora/core/erros/resultado.dart';
+import 'package:sou_consultora/core/model/versao_app.dart';
+import 'package:sou_consultora/core/model/versoes_minimas.dart';
+import 'package:sou_consultora/core/repository/repositorio_versao.dart';
+import 'package:sou_consultora/core/service/servico_abrir_link.dart';
+import 'package:sou_consultora/core/service/servico_configuracoes.dart';
+import 'package:sou_consultora/core/service/servico_info_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +34,31 @@ import '../../auxiliares/falsos_produtos.dart';
 import '../../auxiliares/falsos_recebimentos.dart';
 import '../../auxiliares/falsos_vendas.dart';
 import '../../auxiliares/montar_app.dart';
+
+class _InfoFalso implements ServicoInfoApp {
+  @override
+  Future<Resultado<InfoApp>> ler() async => const Sucesso(
+    InfoApp(versao: VersaoApp(1, 4, 2), plataforma: PlataformaApp.android),
+  );
+}
+
+class _ConfiguracoesNunca implements ServicoConfiguracoes {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _LinkNunca implements ServicoAbrirLink {
+  @override
+  Future<Resultado<void>> abrir(String url) async => const Sucesso(null);
+}
+
+RepositorioVersao _versaoDeTeste() => RepositorioVersao(
+  configuracoes: _ConfiguracoesNunca(),
+  infoApp: _InfoFalso(),
+  abrirLink: _LinkNunca(),
+  urlLojaAndroid: 'https://play.google.com/store/apps/details?id=x',
+  urlLojaIos: 'https://apps.apple.com/app/id1',
+);
 
 class _Ambiente {
   _Ambiente({
@@ -88,7 +121,10 @@ class _Ambiente {
     agora: () => hoje,
   );
 
-  void registrar() {
+  void registrar({bool comVersao = false}) {
+    if (comVersao) {
+      injetor.registerSingleton<RepositorioVersao>(_versaoDeTeste());
+    }
     injetor
       ..registerSingleton<RepositorioVendas>(vendas)
       ..registerSingleton<RepositorioRecebimentos>(recebimentos)
@@ -98,9 +134,13 @@ class _Ambiente {
   }
 }
 
-Future<void> _abrir(WidgetTester tester, _Ambiente ambiente) async {
+Future<void> _abrir(
+  WidgetTester tester,
+  _Ambiente ambiente, {
+  bool comVersao = false,
+}) async {
   usarTelaDeCelular(tester);
-  ambiente.registrar();
+  ambiente.registrar(comVersao: comVersao);
   await injetor<RepositorioConsultora>().buscarMinha();
   Widget marcador(String texto) => Scaffold(body: Text(texto));
   final roteador = GoRouter(
@@ -223,6 +263,48 @@ void main() {
       expect(ambiente.whatsapp.mensagens.single, endsWith('Ana'));
     });
 
+    test('Ajuda abre o WhatsApp do suporte com nome e versão', () async {
+      final ambiente = _comTudo();
+      await ambiente.consultora.buscarMinha();
+      injetor.registerSingleton<RepositorioVersao>(_versaoDeTeste());
+      addTearDown(injetor.reset);
+      final cubit = ambiente.cubit(DateTime.now());
+      addTearDown(cubit.close);
+      await pumpEventQueue();
+
+      await cubit.falarComSuporte();
+
+      expect(ambiente.whatsapp.aberturas, [SuporteApp.whatsapp]);
+      expect(SuporteApp.whatsapp, '16991614062');
+      final mensagem = ambiente.whatsapp.mensagens.single!;
+      expect(mensagem, contains('Nome: Ana Paula Silva'));
+      expect(mensagem, contains('App: 1.4.2 (Android)'));
+    });
+
+    test('Ajuda funciona mesmo sem conseguir ler a versão', () async {
+      final ambiente = _comTudo();
+      final cubit = ambiente.cubit(DateTime.now());
+      addTearDown(cubit.close);
+      await pumpEventQueue();
+
+      await cubit.falarComSuporte();
+
+      expect(ambiente.whatsapp.aberturas, [SuporteApp.whatsapp]);
+      expect(ambiente.whatsapp.mensagens.single, isNot(contains('App:')));
+    });
+
+    test('falha ao abrir o WhatsApp mostra o aviso', () async {
+      final ambiente = _comTudo();
+      ambiente.whatsapp.abre = false;
+      final cubit = ambiente.cubit(DateTime.now());
+      addTearDown(cubit.close);
+      await pumpEventQueue();
+
+      await cubit.falarComSuporte();
+
+      expect(cubit.state.aviso?.mensagem, contains('WhatsApp'));
+    });
+
     test('erro de rede mostra a mensagem', () async {
       final ambiente = _comTudo()..servicoInicio.falharRede = true;
       final cubit = ambiente.cubit(DateTime.now());
@@ -289,6 +371,26 @@ void main() {
       await tester.tap(botao.hitTestable());
       await tester.pumpAndSettle();
       expect(ambiente.whatsapp.mensagens.single, contains('Lily'));
+    });
+
+    testWidgets('botão Ajuda abre o WhatsApp do suporte', (tester) async {
+      final ambiente = _comTudo();
+      await _abrir(tester, ambiente, comVersao: true);
+
+      expect(find.text('Ajuda'), findsOneWidget);
+      await tester.tap(find.text('Ajuda'));
+      await tester.pumpAndSettle();
+
+      expect(ambiente.whatsapp.aberturas, ['16991614062']);
+      expect(ambiente.whatsapp.mensagens.single, contains('Meu problema:'));
+    });
+
+    testWidgets('Ajuda aparece também quando o Início dá erro', (tester) async {
+      final ambiente = _comTudo()..servicoInicio.falharRede = true;
+      await _abrir(tester, ambiente);
+
+      expect(find.textContaining('Sem conexão'), findsWidgets);
+      expect(find.text('Ajuda'), findsOneWidget);
     });
 
     testWidgets('sem nada: Nada para hoje e lembrete vazio', (tester) async {

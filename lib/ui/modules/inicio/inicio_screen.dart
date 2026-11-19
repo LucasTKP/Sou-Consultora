@@ -9,6 +9,7 @@ import 'package:sou_consultora/ui/modules/inicio/widgets/secao_alertas.dart';
 import 'package:sou_consultora/ui/modules/inicio/widgets/secao_lembretes.dart';
 import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
@@ -43,18 +44,34 @@ class _InicioVista extends StatelessWidget {
       listener: _aoAvisar,
       builder: (context, estado) {
         final pronto = estado.carregamento == CarregamentoInicio.pronto;
-        return Column(
+        return Stack(
           children: [
-            CabecalhoInicio(
-              consultora: estado.consultora,
-              resumo: pronto ? estado.resumo : null,
-              onMenu: () => CascaPrincipalScreen.abrirMenu(context),
-              onPerfil: () => context.push(RotasApp.perfil),
-              onVendas: () => context.go(RotasApp.vendas),
-              onRecebido: () => context.push(RotasApp.aReceberPagas),
-              onBoletos: () => context.push(RotasApp.aPagar),
+            Column(
+              children: [
+                CabecalhoInicio(
+                  consultora: estado.consultora,
+                  resumo: pronto ? estado.resumo : null,
+                  onMenu: () => CascaPrincipalScreen.abrirMenu(context),
+                  onPerfil: () => context.push(RotasApp.perfil),
+                  onVendas: () => context.go(RotasApp.vendas),
+                  onRecebido: () => context.push(RotasApp.aReceberPagas),
+                  onBoletos: () => context.push(RotasApp.aPagar),
+                ),
+                Expanded(child: _corpo(context, estado)),
+              ],
             ),
-            Expanded(child: _corpo(context, estado)),
+            // Fora do corpo, para aparecer também quando o Início dá erro:
+            // é justamente aí que a consultora mais precisa pedir ajuda.
+            Positioned(
+              right: 16,
+              // A casca usa `extendBody`: a barra inferior chega como padding.
+              bottom: MediaQuery.paddingOf(context).bottom + 16,
+              child: BotaoFlutuanteApp(
+                rotulo: 'Ajuda',
+                icone: Icons.support_agent_rounded,
+                onPressed: context.read<InicioCubit>().falarComSuporte,
+              ),
+            ),
           ],
         );
       },
@@ -79,7 +96,8 @@ class _InicioVista extends StatelessWidget {
             24,
             16,
             // A casca usa `extendBody`: a barra inferior chega como padding.
-            MediaQuery.paddingOf(context).bottom + 24,
+            // O resto é folga para o botão "Ajuda" não cobrir o último cartão.
+            MediaQuery.paddingOf(context).bottom + 96,
           ),
           children: [
             SecaoAlertas(

@@ -3,14 +3,18 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
+import 'package:sou_consultora/core/env/suporte_app.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/core/model/resumo_inicio.dart';
+import 'package:sou_consultora/core/model/versoes_minimas.dart';
 import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/repository/repositorio_inicio.dart';
 import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
+import 'package:sou_consultora/core/repository/repositorio_versao.dart';
 import 'package:sou_consultora/ui/formatadores/mensagem_recompra.dart';
+import 'package:sou_consultora/ui/formatadores/mensagem_suporte.dart';
 import 'package:sou_consultora/ui/modules/inicio/inicio_state.dart';
 import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
@@ -97,6 +101,31 @@ class InicioCubit extends Cubit<InicioState> {
         lembrete: ativo.lembrete,
         diasDesdeCompra: ativo.diasDesdeCompra,
         nomeConsultora: state.consultora?.nome ?? '',
+      ),
+    );
+    if (isClosed) return;
+    if (resultado case Erro(:final falha)) {
+      emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
+    }
+  }
+
+  /// Abre o WhatsApp do suporte com o nome da consultora e a versão do app.
+  Future<void> falarComSuporte() async {
+    String? versao;
+    PlataformaApp? plataforma;
+    if (injetor.isRegistered<RepositorioVersao>()) {
+      final info = await injetor<RepositorioVersao>().instalada();
+      if (info case Sucesso(:final valor)) {
+        versao = valor.versao.toString();
+        plataforma = valor.plataforma;
+      }
+    }
+    final resultado = await _inicio.abrirWhatsapp(
+      SuporteApp.whatsapp,
+      MensagemSuporte.montar(
+        nomeConsultora: state.consultora?.nome ?? '',
+        versao: versao,
+        plataforma: plataforma,
       ),
     );
     if (isClosed) return;

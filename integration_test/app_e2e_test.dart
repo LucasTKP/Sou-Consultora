@@ -1457,6 +1457,9 @@ void main() {
           findsOneWidget,
         );
 
+        // Botão flutuante de ajuda (o toque abre o WhatsApp, fora do app: é manual).
+        expect(find.text('Ajuda'), findsOneWidget);
+
         // Print do Início com os alertas (build/prints_e2e/e2e13-inicio.png).
         if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
         await tester.pumpAndSettle();

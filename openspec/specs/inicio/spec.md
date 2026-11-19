@@ -46,6 +46,18 @@ Para cada cliente e cada produto com duração prevista, o app SHALL considerar 
 - **GIVEN** a previsão do produto foi há 61 dias e ela não comprou de novo
 - **THEN** o lembrete não aparece mais
 
+### Requirement: Botão de ajuda com o suporte
+O Início SHALL mostrar um botão flutuante "Ajuda" que abre o WhatsApp do suporte (+55 16 99161-4062) com uma mensagem pronta contendo o nome da consultora, a versão do app e o sistema do aparelho. O botão MUST aparecer também quando o Início falha ao carregar, e MUST NOT cobrir o último item da lista.
+
+#### Scenario: Pedir ajuda
+- **GIVEN** a consultora está no Início
+- **WHEN** ela toca em "Ajuda"
+- **THEN** o WhatsApp abre numa conversa com o suporte, com a mensagem "Olá! Preciso de ajuda com o app Sou Consultora." seguida do nome, da versão e de "Meu problema:"
+
+#### Scenario: Início com erro
+- **GIVEN** o Início não conseguiu carregar por falta de internet
+- **THEN** o botão "Ajuda" continua visível
+
 ### Requirement: Isolamento do Início
 Os números, alertas e lembretes MUST vir só dos dados da consultora logada; a view de lembretes MUST respeitar o RLS, e o anônimo não lê nada.
 
