@@ -53,3 +53,21 @@ O sistema SHALL permitir que a consultora apague a própria conta, removendo o l
 #### Scenario: Usuário anônimo tenta apagar conta
 - **WHEN** um usuário sem sessão chama a remoção de conta
 - **THEN** a operação é recusada
+
+### Requirement: Marcas escolhidas no cadastro viram fornecedores
+A tela de cadastro SHALL perguntar, de forma opcional, quais marcas a consultora vende, entre Natura, Avon, O Boticário, Eudora, Tupperware e Mary Kay. O app MUST criar um fornecedor para cada marca marcada, com o nome da marca, antes de liberar o app. Marcar nenhuma marca MUST NOT impedir o cadastro, e falha ao criar uma marca MUST NOT bloquear a entrada.
+
+#### Scenario: Cadastro com marcas
+- **GIVEN** a consultora marcou Natura e Mary Kay no cadastro
+- **WHEN** ela conclui o cadastro
+- **THEN** os fornecedores "Natura" e "Mary Kay" já existem quando o Início abre
+
+#### Scenario: Cadastro sem marcas
+- **GIVEN** a consultora não marcou nenhuma marca
+- **WHEN** ela conclui o cadastro
+- **THEN** o cadastro é concluído e nenhum fornecedor é criado
+
+#### Scenario: Falha ao criar uma marca
+- **GIVEN** a consultora marcou uma marca e a criação do fornecedor falha
+- **WHEN** ela conclui o cadastro
+- **THEN** o app abre normalmente e ela pode cadastrar a marca depois em Fornecedores

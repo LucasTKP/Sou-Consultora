@@ -8,6 +8,7 @@ import 'package:sou_consultora/core/model/origem_foto.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/service/servico_consultora.dart';
 import 'package:sou_consultora/core/service/servico_foto_dispositivo.dart';
+import 'falsos_fornecedores.dart';
 
 ConsultoraDto dtoDeTeste({
   String nome = 'Ana Paula',
@@ -128,9 +129,11 @@ class FotoDispositivoFalsa implements ServicoFotoDispositivo {
 RepositorioConsultora repositorioDeTeste(
   ServicoConsultoraFalso servico, [
   FotoDispositivoFalsa? fotos,
+  ServicoFornecedoresFalso? fornecedores,
 ]) {
   return RepositorioConsultora(
     servico: servico,
     fotos: fotos ?? FotoDispositivoFalsa(),
+    fornecedores: fornecedores ?? ServicoFornecedoresFalso(),
   );
 }

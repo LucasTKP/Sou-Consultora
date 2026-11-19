@@ -1,3 +1,5 @@
+import 'package:sou_consultora/core/model/marca_padrao.dart';
+
 /// Formulário de cadastro da consultora.
 class CadastroState {
   const CadastroState({
@@ -6,6 +8,7 @@ class CadastroState {
     this.whatsapp = '',
     this.erroNome,
     this.erroWhatsapp,
+    this.marcas = const {},
     this.salvando = false,
     this.erroGeral,
   });
@@ -18,6 +21,9 @@ class CadastroState {
   final String? erroWhatsapp;
   final bool salvando;
 
+  /// Marcas que a consultora vende (viram fornecedores ao cadastrar).
+  final Set<MarcaPadrao> marcas;
+
   /// Falha ao gravar (ex.: sem internet). Exibida uma vez.
   final String? erroGeral;
 
@@ -26,6 +32,7 @@ class CadastroState {
     String? whatsapp,
     String? Function()? erroNome,
     String? Function()? erroWhatsapp,
+    Set<MarcaPadrao>? marcas,
     bool? salvando,
     String? Function()? erroGeral,
   }) {
@@ -35,6 +42,7 @@ class CadastroState {
       whatsapp: whatsapp ?? this.whatsapp,
       erroNome: erroNome != null ? erroNome() : this.erroNome,
       erroWhatsapp: erroWhatsapp != null ? erroWhatsapp() : this.erroWhatsapp,
+      marcas: marcas ?? this.marcas,
       salvando: salvando ?? this.salvando,
       erroGeral: erroGeral != null ? erroGeral() : this.erroGeral,
     );

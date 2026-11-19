@@ -61,6 +61,12 @@ void configurarDependencias() {
     );
   }
 
+  if (!injetor.isRegistered<ServicoFornecedores>()) {
+    injetor.registerLazySingleton<ServicoFornecedores>(
+      () => ServicoFornecedores(api: injetor()),
+    );
+  }
+
   if (!injetor.isRegistered<ServicoFotoDispositivo>()) {
     injetor.registerLazySingleton<ServicoFotoDispositivo>(
       ServicoFotoDispositivoNativo.new,
@@ -69,7 +75,11 @@ void configurarDependencias() {
 
   if (!injetor.isRegistered<RepositorioConsultora>()) {
     injetor.registerLazySingleton<RepositorioConsultora>(
-      () => RepositorioConsultora(servico: injetor(), fotos: injetor()),
+      () => RepositorioConsultora(
+        servico: injetor(),
+        fotos: injetor(),
+        fornecedores: injetor(),
+      ),
     );
   }
 

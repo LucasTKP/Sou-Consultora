@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sou_consultora/core/model/marca_padrao.dart';
 import 'package:sou_consultora/ui/formatadores/mascaras.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_cubit.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_state.dart';
@@ -82,6 +83,41 @@ class _CadastroVista extends StatelessWidget {
                       formatadores: [MascaraTelefone()],
                       onChanged: cubit.alterarWhatsapp,
                       leading: const Icon(Icons.phone_outlined),
+                    ),
+                    const SizedBox(height: 32),
+                    Text(
+                      'Quais marcas você vende?',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Opcional. Vamos cadastrar cada uma como fornecedor '
+                      'para você.',
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: CoresApp.sobreSuperficieVariante),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final marca in MarcaPadrao.values)
+                          FilterChip(
+                            label: Text(marca.nome),
+                            selected: estado.marcas.contains(marca),
+                            onSelected: estado.salvando
+                                ? null
+                                : (_) => cubit.alternarMarca(marca),
+                            selectedColor: CoresApp.primariaSuave,
+                            checkmarkColor: CoresApp.primariaEscura,
+                            backgroundColor: CoresApp.superficie,
+                            side: BorderSide(
+                              color: estado.marcas.contains(marca)
+                                  ? CoresApp.primaria
+                                  : CoresApp.contorno,
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),

@@ -4,8 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/chave_pix.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
+import 'package:sou_consultora/core/model/marca_padrao.dart';
 
 import '../../auxiliares/falsos_consultora.dart';
+import '../../auxiliares/falsos_fornecedores.dart';
 
 void main() {
   test('buscar sem cadastro devolve null e publica null', () async {
@@ -42,6 +44,81 @@ void main() {
     expect(servico.chamadas.last, 'criar Ana Paula 11987654321');
     expect((await mudanca)?.nome, 'Ana Paula');
     expect(repositorio.atual?.nome, 'Ana Paula');
+  });
+
+  group('cadastrar com marcas', () {
+    const nome = 'Ana';
+    const whatsapp = '11987654321';
+
+    test('cria um fornecedor por marca marcada, antes de publicar', () async {
+      final fornecedores = ServicoFornecedoresFalso();
+      final repositorio = repositorioDeTeste(
+        ServicoConsultoraFalso(),
+        null,
+        fornecedores,
+      );
+      var fornecedoresAoPublicar = -1;
+      final assinatura = repositorio.mudancas.listen(
+        (_) => fornecedoresAoPublicar = fornecedores.salvos.length,
+      );
+
+      await repositorio.cadastrar(
+        nome: nome,
+        whatsapp: whatsapp,
+        marcas: [MarcaPadrao.natura, MarcaPadrao.boticario],
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(fornecedores.salvos.map((s) => s.fornecedor.nome), [
+        'Natura',
+        'O Boticário',
+      ]);
+      expect(fornecedores.salvos.first.fornecedor.ramo, isNotNull);
+      expect(fornecedoresAoPublicar, 2);
+      await assinatura.cancel();
+    });
+
+    test('sem marcas não cria fornecedor nenhum', () async {
+      final fornecedores = ServicoFornecedoresFalso();
+      await repositorioDeTeste(
+        ServicoConsultoraFalso(),
+        null,
+        fornecedores,
+      ).cadastrar(nome: nome, whatsapp: whatsapp);
+      expect(fornecedores.chamadas, isEmpty);
+    });
+
+    test('falha ao criar marca não impede o cadastro', () async {
+      final fornecedores = ServicoFornecedoresFalso()..falharRede = true;
+      final repositorio = repositorioDeTeste(
+        ServicoConsultoraFalso(),
+        null,
+        fornecedores,
+      );
+      final resultado = await repositorio.cadastrar(
+        nome: nome,
+        whatsapp: whatsapp,
+        marcas: [MarcaPadrao.avon],
+      );
+      expect(resultado, isA<Sucesso<Consultora>>());
+      expect(repositorio.atual?.nome, nome);
+    });
+
+    test('se o cadastro falha, nenhuma marca é criada', () async {
+      final fornecedores = ServicoFornecedoresFalso();
+      final repositorio = repositorioDeTeste(
+        ServicoConsultoraFalso()..falharRede = true,
+        null,
+        fornecedores,
+      );
+      final resultado = await repositorio.cadastrar(
+        nome: nome,
+        whatsapp: whatsapp,
+        marcas: [MarcaPadrao.eudora],
+      );
+      expect(resultado, isA<Erro<Consultora>>());
+      expect(fornecedores.chamadas, isEmpty);
+    });
   });
 
   test('atualizar grava a chave Pix normalizada', () async {
