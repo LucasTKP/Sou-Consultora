@@ -191,3 +191,45 @@ Produtos, o resumo de produtos e as fotos de produto MUST respeitar o isolamento
 #### Scenario: Anônimo
 - **WHEN** o usuário anônimo consulta produtos ou o resumo de produtos
 - **THEN** nada é retornado e nada é gravado
+
+### Requirement: Importar produto do catálogo das marcas
+O cadastro de produto novo SHALL ter o botão "Importar do catálogo", que abre uma tela com busca por nome e filtro por marca. Ao escolher um produto, o app MUST voltar ao cadastro com o nome, o código, a marca, a categoria e a foto já preenchidos e MUST deixar o preço em branco. O botão MUST NOT aparecer na edição de um produto existente.
+
+#### Scenario: Importar um produto
+- **GIVEN** a consultora abre o cadastro de um produto novo
+- **WHEN** ela toca em "Importar do catálogo" e escolhe um produto
+- **THEN** o cadastro volta com nome, código, marca, categoria e foto preenchidos e o preço vazio
+
+#### Scenario: Marca que ela ainda não tem
+- **GIVEN** a consultora não tem a marca do produto escolhido como fornecedor
+- **WHEN** ela importa o produto
+- **THEN** o app cadastra a marca como fornecedor e a seleciona no produto
+
+#### Scenario: Categoria sem equivalente
+- **GIVEN** a categoria sugerida pelo catálogo não existe para a consultora
+- **WHEN** ela importa o produto
+- **THEN** a categoria fica vazia para ela escolher
+
+#### Scenario: Falha ao baixar a foto
+- **GIVEN** a foto do catálogo não pôde ser baixada
+- **WHEN** ela importa o produto
+- **THEN** um aviso aparece e os demais campos continuam preenchidos
+
+### Requirement: Catálogo global somente leitura
+O catálogo (`catalogo_produtos` e o bucket `catalogo`) SHALL ser legível por qualquer consultora logada, MUST NOT ser legível por anon e MUST NOT aceitar gravação pelo app. A importação MUST copiar os dados e a foto para o produto da consultora, sem referência ao catálogo.
+
+#### Scenario: Escrita no catálogo
+- **WHEN** uma consultora tenta inserir, alterar ou apagar uma linha ou arquivo do catálogo
+- **THEN** o banco recusa
+
+#### Scenario: Leitura sem login
+- **GIVEN** não há sessão ativa
+- **WHEN** o app lê o catálogo
+- **THEN** o banco recusa
+
+### Requirement: Botão de foto compacto no produto
+O campo de foto do cadastro de produto SHALL mostrar a miniatura com um botão pequeno "Adicionar foto" ou "Trocar foto" ao lado, sem ocupar a linha inteira.
+
+#### Scenario: Produto sem foto
+- **WHEN** a consultora abre o cadastro de um produto novo
+- **THEN** a miniatura de reserva aparece com o botão "Adicionar foto" ao lado

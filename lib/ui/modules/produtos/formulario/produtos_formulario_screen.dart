@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
+import 'package:sou_consultora/core/model/produto_catalogo.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_state.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/widgets/passo_dados.dart';
@@ -100,6 +101,12 @@ class _FormularioVistaState extends State<_FormularioVista> {
     }
   }
 
+  Future<void> _importar() async {
+    final item = await context.push<ProdutoCatalogo>(RotasApp.importarProduto);
+    if (item == null || !mounted) return;
+    await _cubit.importar(item);
+  }
+
   Future<void> _novaMarca() async {
     await context.push(RotasApp.novoFornecedor);
     if (!mounted) return;
@@ -171,6 +178,7 @@ class _FormularioVistaState extends State<_FormularioVista> {
             codigo: _codigo,
             onFoto: _escolherFoto,
             onNovaMarca: _novaMarca,
+            onImportar: _importar,
           )
         else
           PassoPrecos(estado: estado, observacoes: _observacoes),

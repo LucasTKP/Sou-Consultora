@@ -23,6 +23,7 @@ import 'package:sou_consultora/ui/modules/inicio/inicio_screen.dart';
 import 'package:sou_consultora/ui/modules/login/acesso_login_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/lancar_estoque/lancar_estoque_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/lista/produtos_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/servicos/detalhes/servicos_detalhes_screen.dart';
@@ -209,6 +210,11 @@ abstract final class RoteadorApp {
           builder: (_, _) => const ProdutosFormularioScreen(),
         ),
         // Antes de ':id', para não ser lida como o id de um produto.
+        GoRoute(
+          path: 'importar',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const ProdutosImportarScreen(),
+        ),
         GoRoute(
           path: 'lancar-estoque',
           parentNavigatorKey: chaveRaiz,

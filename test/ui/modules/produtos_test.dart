@@ -7,6 +7,7 @@ import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/model/categoria.dart';
 import 'package:sou_consultora/core/model/filtro_produtos.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
+import 'package:sou_consultora/core/repository/repositorio_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
@@ -15,10 +16,12 @@ import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/lista/produtos_lista_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/lista/produtos_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/produtos/lista/produtos_lista_state.dart';
 
+import '../../auxiliares/falsos_catalogo.dart';
 import '../../auxiliares/falsos_consultora.dart';
 import '../../auxiliares/falsos_estoque.dart';
 import '../../auxiliares/falsos_fornecedores.dart';
@@ -31,6 +34,7 @@ Future<void> _abrir(
   ServicoProdutosFalso servico,
   String caminho, {
   ServicoFornecedoresFalso? fornecedores,
+  ServicoCatalogoFalso? catalogo,
 }) async {
   usarTelaDeCelular(tester);
   final produtos = repositorioProdutosDeTeste(servico);
@@ -45,7 +49,10 @@ Future<void> _abrir(
             ServicoFornecedoresFalso(resumos: [fornecedorDto('m1', 'Natura')]),
       ),
     )
-    ..registerSingleton<RepositorioCategorias>(repositorioCategoriasDeTeste());
+    ..registerSingleton<RepositorioCategorias>(repositorioCategoriasDeTeste())
+    ..registerSingleton<RepositorioCatalogo>(
+      repositorioCatalogoDeTeste(catalogo),
+    );
   final roteador = GoRouter(
     initialLocation: '/inicio',
     routes: [
@@ -60,6 +67,10 @@ Future<void> _abrir(
       GoRoute(
         path: '/produtos/novo',
         builder: (_, _) => const ProdutosFormularioScreen(),
+      ),
+      GoRoute(
+        path: '/produtos/importar',
+        builder: (_, _) => const ProdutosImportarScreen(),
       ),
       GoRoute(
         path: '/produtos/:id',
@@ -88,6 +99,7 @@ ProdutosFormularioCubit _formulario(
   String? idProduto,
   ServicoFornecedoresFalso? fornecedores,
   FotoDispositivoFalsa? fotos,
+  ServicoCatalogoFalso? catalogo,
 }) {
   return ProdutosFormularioCubit(
     idProduto: idProduto,
@@ -102,6 +114,7 @@ ProdutosFormularioCubit _formulario(
           ),
     ),
     categorias: repositorioCategoriasDeTeste(),
+    catalogo: repositorioCatalogoDeTeste(catalogo),
   );
 }
 
@@ -329,6 +342,45 @@ void main() {
   });
 
   group('Formulário (tela)', () {
+    testWidgets('novo: importar do catálogo preenche o passo 1', (
+      tester,
+    ) async {
+      final catalogo = ServicoCatalogoFalso(
+        itens: [catalogoDto('174918', 'Balm labial ameixa')],
+      );
+      await _abrir(
+        tester,
+        ServicoProdutosFalso(),
+        '/produtos/novo',
+        catalogo: catalogo,
+      );
+
+      expect(find.text('Importar do catálogo'), findsOneWidget);
+      expect(find.text('Adicionar foto'), findsOneWidget);
+
+      await tester.tap(find.text('Importar do catálogo'));
+      await tester.pumpAndSettle();
+      expect(find.text('Balm labial ameixa'), findsOneWidget);
+      await tester.tap(find.text('Balm labial ameixa'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Novo Produto'), findsOneWidget);
+      expect(find.text('Balm labial ameixa'), findsOneWidget);
+      expect(find.text('174918'), findsOneWidget);
+      expect(find.text('Natura'), findsOneWidget);
+      expect(find.text('Maquiagem'), findsOneWidget);
+      expect(find.text('Trocar foto'), findsOneWidget);
+      expect(catalogo.fotosBaixadas, ['natura/174918.jpg']);
+    });
+
+    testWidgets('editar não mostra o botão de importar', (tester) async {
+      final servico = ServicoProdutosFalso(
+        resumos: [produtoDto('p1', 'Batom', precoVenda: 4999)],
+      );
+      await _abrir(tester, servico, '/produtos/p1/editar');
+      expect(find.text('Importar do catálogo'), findsNothing);
+    });
+
     testWidgets('novo: passo 1 → passo 2 → voltar; cancelar não grava', (
       tester,
     ) async {

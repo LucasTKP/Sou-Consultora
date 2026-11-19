@@ -93,6 +93,9 @@ abstract final class RotasApp {
 
   // Produtos: lista na casca (item da barra); o resto abre por cima.
   static const novoProduto = '/produtos/novo';
+
+  /// Catálogo das marcas: devolve o produto escolhido ao cadastro.
+  static const importarProduto = '/produtos/importar';
   static String detalhesProduto(String id) => '/produtos/$id';
   static String editarProduto(String id) => '/produtos/$id/editar';
 

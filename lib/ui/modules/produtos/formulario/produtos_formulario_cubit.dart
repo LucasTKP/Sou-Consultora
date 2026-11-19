@@ -2,11 +2,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/categoria.dart';
+import 'package:sou_consultora/core/model/fornecedor.dart';
+import 'package:sou_consultora/core/model/marca_padrao.dart';
+import 'package:sou_consultora/core/model/produto_catalogo.dart';
+import 'package:sou_consultora/core/model/texto_busca.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
 import 'package:sou_consultora/core/model/mudanca_foto.dart';
 import 'package:sou_consultora/core/model/produto.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';
+import 'package:sou_consultora/core/repository/repositorio_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
@@ -20,7 +25,9 @@ class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
     RepositorioProdutos? produtos,
     RepositorioFornecedores? fornecedores,
     RepositorioCategorias? categorias,
+    RepositorioCatalogo? catalogo,
   }) : _produtos = produtos ?? injetor<RepositorioProdutos>(),
+       _catalogo = catalogo ?? injetor<RepositorioCatalogo>(),
        _fornecedores = fornecedores ?? injetor<RepositorioFornecedores>(),
        _categorias = categorias ?? injetor<RepositorioCategorias>(),
        super(ProdutosFormularioState(idProduto: idProduto)) {
@@ -30,6 +37,7 @@ class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
   final RepositorioProdutos _produtos;
   final RepositorioFornecedores _fornecedores;
   final RepositorioCategorias _categorias;
+  final RepositorioCatalogo _catalogo;
 
   /// Marcas e categorias para os seletores e, na edição, os dados do produto.
   Future<void> carregar() async {
@@ -97,6 +105,79 @@ class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
       fotoRemovida: state.caminhoFotoAtual != null,
     ),
   );
+
+  /// Preenche o passo 1 a partir de um produto do catálogo: nome, código, marca
+  /// (fornecedor da consultora com o mesmo nome; criado se ainda não existir),
+  /// categoria (a de mesmo nome) e foto. O preço continua com ela.
+  Future<void> importar(ProdutoCatalogo item) async {
+    final marcaId = await _marcaDoCatalogo(item.marca);
+    if (isClosed) return;
+    final categoria = state.categorias
+        .where(
+          (c) =>
+              item.categoria != null &&
+              TextoBusca.normalizar(c.nome) ==
+                  TextoBusca.normalizar(item.categoria!),
+        )
+        .firstOrNull;
+    emit(
+      state.copyWith(
+        nome: item.nome,
+        codigo: item.codigo,
+        fornecedorId: () => marcaId ?? state.fornecedorId,
+        categoriaId: () => categoria?.id ?? state.categoriaId,
+        erroNome: () => null,
+        erroMarca: () => null,
+        erroCategoria: () => null,
+        versaoPreenchimento: state.versaoPreenchimento + 1,
+      ),
+    );
+    await _importarFoto(item);
+  }
+
+  /// Id da marca ativa da consultora com o nome de [marca]; cria se não existir.
+  Future<String?> _marcaDoCatalogo(String marca) async {
+    String normal(String texto) => TextoBusca.normalizar(texto);
+    ResumoFornecedor? achar() => state.marcasDisponiveis
+        .where((m) => normal(m.nome) == normal(marca))
+        .firstOrNull;
+
+    if (achar() case final existente?) return existente.id;
+    final modelo = MarcaPadrao.values
+        .where((m) => normal(m.nome) == normal(marca))
+        .firstOrNull;
+    final criada = await _fornecedores.salvar(
+      modelo?.paraFornecedor() ?? Fornecedor(nome: marca),
+    );
+    if (criada is Erro) {
+      // Já existe com esse nome, só em espera, ou falhou: não cria outra.
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            aviso: () => AvisoToast.erro(
+              'Não foi possível cadastrar a marca "$marca". Escolha-a na lista.',
+            ),
+          ),
+        );
+      }
+      return null;
+    }
+    await recarregarMarcas();
+    return achar()?.id;
+  }
+
+  Future<void> _importarFoto(ProdutoCatalogo item) async {
+    final resultado = await _catalogo.baixarFoto(item);
+    if (isClosed) return;
+    switch (resultado) {
+      case Erro(:final falha):
+        emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
+      case Sucesso(valor: null):
+        return;
+      case Sucesso(:final valor?):
+        emit(state.copyWith(fotoNova: () => valor, fotoRemovida: false));
+    }
+  }
 
   /// Vai ao passo 2 se o passo 1 estiver completo.
   void continuar() {

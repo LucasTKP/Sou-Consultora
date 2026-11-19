@@ -22,7 +22,7 @@ select testes.autenticar_como(:'id_a');
 -- Estrutura
 select is(
   (select count(*)::int from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'),
-  16, 'as 15 entidades + configuracoes existem');
+  17, 'as 15 entidades + configuracoes + catalogo_produtos existem');
 
 -- Item: produto XOR serviço; serviço não baixa estoque
 select throws_ok(format(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/avatares/avatar_app.dart';
 import 'package:sou_consultora/ui/widgets/avatares/foto_quadrada_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 
 /// Campo de foto 1:1 dos cadastros (produto, serviço): mostra a foto nova,
 /// a gravada ou o ícone de reserva. Tocar abre a escolha (câmera, galeria, remover).
@@ -16,6 +17,7 @@ class CampoFotoApp extends StatelessWidget {
     this.urlFoto,
     this.descricao = 'Opcional · câmera ou galeria',
     this.rotuloAcessivel = 'foto',
+    this.compacto = false,
   });
 
   final Uint8List? fotoNova;
@@ -26,9 +28,29 @@ class CampoFotoApp extends StatelessWidget {
   /// Ex.: "foto do produto" → "Adicionar foto do produto".
   final String rotuloAcessivel;
 
+  /// Miniatura com um botão pequeno ao lado, em vez da linha inteira tocável.
+  final bool compacto;
+
   @override
   Widget build(BuildContext context) {
     final temFoto = fotoNova != null || urlFoto != null;
+    if (compacto) {
+      return Row(
+        children: [
+          _miniatura(),
+          const SizedBox(width: 16),
+          Flexible(
+            child: BotaoApp.contorno(
+              rotulo: temFoto ? 'Trocar foto' : 'Adicionar foto',
+              iconeFim: const Icon(Icons.photo_camera_outlined),
+              expande: false,
+              tamanho: TamanhoBotao.compacto,
+              onPressed: onTap,
+            ),
+          ),
+        ],
+      );
+    }
     return Semantics(
       button: true,
       label: temFoto ? 'Trocar $rotuloAcessivel' : 'Adicionar $rotuloAcessivel',

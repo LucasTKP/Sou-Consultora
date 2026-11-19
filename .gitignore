@@ -54,3 +54,6 @@ lib/core/env/ambiente_app.g.dart
 
 # Claude Code (pessoal)
 .claude/settings.local.json
+
+# Dados e fotos do catálogo das marcas (material das marcas: não vai para o git)
+catalogo_dados/

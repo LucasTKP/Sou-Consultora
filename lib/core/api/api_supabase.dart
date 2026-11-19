@@ -171,4 +171,28 @@ class ApiSupabase {
         resultado.path: resultado.signedUrl,
     };
   }
+
+  /// Como [listar], mas também filtra por trecho de texto sem diferenciar
+  /// maiúsculas ([contem], ex.: `{'nome': 'batom'}`) e corta em [limite] linhas.
+  Future<List<Map<String, dynamic>>> listarComBusca(
+    String tabela, {
+    required String ordenarPor,
+    required int limite,
+    Map<String, Object> onde = const {},
+    Map<String, String> contem = const {},
+  }) {
+    var consulta = _cliente.from(tabela).select();
+    for (final MapEntry(:key, :value) in onde.entries) {
+      consulta = consulta.eq(key, value);
+    }
+    for (final MapEntry(:key, :value) in contem.entries) {
+      consulta = consulta.ilike(key, '%$value%');
+    }
+    return consulta.order(ordenarPor, ascending: true).limit(limite);
+  }
+
+  /// Baixa um arquivo de um bucket (as policies decidem quem pode ler).
+  Future<Uint8List> baixarArquivo(String bucket, String caminho) {
+    return _cliente.storage.from(bucket).download(caminho);
+  }
 }
