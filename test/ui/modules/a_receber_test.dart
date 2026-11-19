@@ -277,7 +277,7 @@ void main() {
       await _abrir(tester, ambiente, '/a-receber');
 
       expect(find.text('Recebimentos'), findsOneWidget);
-      expect(find.text('2 parcelas encontradas'), findsOneWidget);
+      expect(find.text('2 parcelas'), findsOneWidget);
       expect(find.text('Fora do Mês'), findsNothing);
       expect(find.text('Vence hoje'), findsNWidgets(2));
       expect(find.text('Parcela 2/2 • R\$ 70,00'), findsOneWidget);
@@ -285,7 +285,7 @@ void main() {
 
       await tester.enterText(find.byType(EditableText).first, 'lily');
       await tester.pumpAndSettle();
-      expect(find.text('1 parcela encontrada'), findsOneWidget);
+      expect(find.text('1 parcela'), findsOneWidget);
       expect(find.text('Beatriz Lima'), findsNothing);
 
       await tester.tap(find.text('Mariana Souza'));
@@ -326,6 +326,7 @@ void main() {
     testWidgets('sem parcelas mostra o vazio', (tester) async {
       await _abrir(tester, _Ambiente(), '/a-receber');
       expect(find.text('Nada a receber'), findsOneWidget);
+      expect(find.text('Registrar venda'), findsOneWidget);
     });
   });
 
@@ -370,7 +371,6 @@ void main() {
       final cubit = AReceberParcelaCubit(
         idParcela: 'pa2',
         recebimentos: ambiente.recebimentos,
-        vendas: ambiente.repositorioVendas,
         agora: () => hoje,
       );
       addTearDown(() async {
@@ -428,6 +428,84 @@ void main() {
       expect(cubit.state.registrando, isFalse);
     });
 
+    test('editar pagamento: o teto é o saldo mais o próprio valor', () async {
+      final hoje = DateTime.now();
+      final ambiente = parcial();
+      final cubit = cubitDe(ambiente, hoje);
+      await pumpEventQueue();
+      final pg2 = cubit.state.detalhe!.pagamentos.single;
+
+      expect(
+        await cubit.editarPagamento(
+          pagamentoId: pg2.id,
+          valorCentavos: 12001,
+          forma: FormaPagamento.pix,
+          data: hoje,
+        ),
+        isFalse,
+      );
+      expect(cubit.state.erroValor, contains('saldo'));
+
+      expect(
+        await cubit.editarPagamento(
+          pagamentoId: pg2.id,
+          valorCentavos: 12000,
+          forma: FormaPagamento.dinheiro,
+          data: hoje,
+          observacao: '  ajuste  ',
+        ),
+        isTrue,
+      );
+      expect(cubit.state.detalhe?.parcela.saldo, 0);
+      expect(cubit.state.detalhe?.pagamentos.single.forma, FormaPagamento.dinheiro);
+      expect(cubit.state.detalhe?.pagamentos.single.observacao, 'ajuste');
+    });
+
+    test('excluir pagamento devolve o valor ao saldo da parcela', () async {
+      final ambiente = parcial();
+      final cubit = cubitDe(ambiente, DateTime.now());
+      await pumpEventQueue();
+      final pg2 = cubit.state.detalhe!.pagamentos.single;
+
+      expect(await cubit.excluirPagamento(pg2.id), isTrue);
+      expect(cubit.state.detalhe?.pagamentos, isEmpty);
+      expect(cubit.state.detalhe?.parcela.saldo, 12000);
+    });
+
+    test('editar parcelas: a soma tem que bater com o total da venda', () async {
+      final ambiente = parcial();
+      final cubit = cubitDe(ambiente, DateTime.now());
+      await pumpEventQueue();
+      final total = cubit.state.detalhe!.venda.total;
+      final novoVencimento = DateTime.now().add(const Duration(days: 40));
+
+      expect(
+        await cubit.editarParcelas([
+          (id: 'pa1', valorCentavos: 12000, vencimento: novoVencimento),
+          (id: 'pa2', valorCentavos: 11000, vencimento: novoVencimento),
+        ]),
+        isFalse,
+      );
+      expect(cubit.state.erroParcelas, isNotNull);
+
+      expect(
+        await cubit.editarParcelas([
+          (id: 'pa1', valorCentavos: 12000, vencimento: novoVencimento),
+          (
+            id: 'pa2',
+            valorCentavos: total - 12000,
+            vencimento: novoVencimento,
+          ),
+        ]),
+        isTrue,
+      );
+      expect(cubit.state.erroParcelas, isNull);
+      expect(
+        cubit.state.detalhe?.parcelasDaVenda.last.vencimento,
+        novoVencimento,
+      );
+    });
+
     testWidgets('pagamento parcial: saldo, pagamentos e a venda', (
       tester,
     ) async {
@@ -453,7 +531,9 @@ void main() {
       expect(find.text('Venda #4892'), findsOneWidget);
       expect(find.text('PARCELAS DA VENDA (2X)'), findsOneWidget);
 
-      await tester.tap(find.text('1ª parcela • R\$ 120,00'));
+      final outraParcela = find.text('1ª parcela • R\$ 120,00').hitTestable();
+      await tester.scrollUntilVisible(outraParcela, 80);
+      await tester.tap(outraParcela);
       await tester.pumpAndSettle();
       expect(find.text('PARCELA 1 DE 2'), findsOneWidget);
       expect(find.text('PARCELA QUITADA'), findsOneWidget);
@@ -508,20 +588,63 @@ void main() {
       expect(mensagem, contains('R\$ 70,00'));
     });
 
-    testWidgets('Mais opções: cancelar a venda fecha a tela', (tester) async {
+    testWidgets('Mais opções não oferece cancelar a venda', (tester) async {
       final ambiente = parcial();
       await _abrir(tester, ambiente, '/a-receber/parcelas/pa2');
 
       await tester.tap(find.text('Mais opções'));
       await tester.pumpAndSettle();
+      expect(find.text('Editar pagamento'), findsOneWidget);
       expect(find.text('Gerar Recibo / Comprovante'), findsOneWidget);
-      await tester.tap(find.text('Cancelar Venda'));
+      expect(find.text('Cancelar Venda'), findsNothing);
+
+      await tester.tap(find.text('Editar pagamento'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Cancelar venda'));
-      await tester.pumpAndSettle();
-      expect(ambiente.servicoVendas.cancelados, ['v1']);
-      expect(find.text('anterior'), findsOneWidget);
+      expect(find.text('Forma de pagamento'), findsOneWidget);
+      expect(find.text('Salvar pagamento'), findsOneWidget);
     });
+
+    testWidgets('o selo Recebido não abre a edição do pagamento', (
+      tester,
+    ) async {
+      final ambiente = parcial();
+      await _abrir(tester, ambiente, '/a-receber/parcelas/pa2');
+
+      final recebido = find.text('Recebido').hitTestable();
+      await tester.scrollUntilVisible(recebido, 200);
+      await tester.tap(recebido);
+      await tester.pumpAndSettle();
+      expect(find.text('Editar pagamento'), findsNothing);
+      expect(find.text('Excluir pagamento'), findsNothing);
+    });
+
+    testWidgets('editar pagamento corrige valor e forma', (tester) async {
+      final ambiente = parcial();
+      await _abrir(tester, ambiente, '/a-receber/parcelas/pa2');
+
+      final editar = find.byTooltip('Editar pagamento');
+      await tester.scrollUntilVisible(editar, 200);
+      await tester.ensureVisible(editar);
+      await tester.pumpAndSettle();
+      await tester.tap(editar);
+      await tester.pumpAndSettle();
+      expect(find.text('Editar pagamento'), findsOneWidget);
+      expect(find.text('Forma de pagamento'), findsOneWidget);
+      expect(find.text('Pix'), findsWidgets);
+      expect(find.text('Salvar pagamento'), findsOneWidget);
+    });
+
+    testWidgets('a lista de parcelas não tem lápis de editar', (tester) async {
+      final ambiente = parcial();
+      await _abrir(tester, ambiente, '/a-receber/parcelas/pa2');
+
+      await tester.scrollUntilVisible(
+        find.text('PARCELAS DA VENDA (2X)'),
+        200,
+      );
+      expect(find.byTooltip('Editar parcela'), findsNothing);
+    });
+
 
     testWidgets('parcela inexistente mostra o erro', (tester) async {
       final ambiente = parcial();

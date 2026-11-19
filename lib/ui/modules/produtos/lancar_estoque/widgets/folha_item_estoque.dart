@@ -143,7 +143,7 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
         ],
         const SizedBox(height: 16),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: Column(
@@ -201,20 +201,17 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
         const SizedBox(height: 24),
         BotaoApp(
           rotulo: _editando ? 'Salvar item' : 'Adicionar à Compra',
-          iconeInicio: const Icon(Icons.check_circle_outline_rounded),
           onPressed: _confirmar,
         ),
         const SizedBox(height: 12),
         if (_editando)
           BotaoApp.secundario(
             rotulo: 'Remover da compra',
-            iconeInicio: const Icon(Icons.delete_outline_rounded),
             onPressed: () => Navigator.of(context).pop(const ItemRemovido()),
           )
         else
           BotaoApp.secundario(
             rotulo: 'Voltar sem adicionar',
-            iconeInicio: const Icon(Icons.close_rounded),
             onPressed: () => Navigator.of(context).pop(),
           ),
       ],

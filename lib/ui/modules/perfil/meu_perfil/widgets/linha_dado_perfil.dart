@@ -41,7 +41,7 @@ class LinhaDadoPerfil extends StatelessWidget {
               color: corFundoIcone,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icone, color: corIcone),
+            child: Icon(icone, color: corIcone, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(

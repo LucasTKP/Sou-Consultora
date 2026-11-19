@@ -74,7 +74,7 @@ class LinhaInformacao extends StatelessWidget {
           children: [
             const Icon(
               Icons.auto_awesome_outlined,
-              size: 16,
+              size: 24,
               color: CoresApp.primaria,
             ),
             const SizedBox(width: 4),

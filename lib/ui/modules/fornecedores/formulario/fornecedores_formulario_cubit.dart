@@ -6,6 +6,7 @@ import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_telefone.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/formulario/fornecedores_formulario_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Novo fornecedor ([idFornecedor] nulo) ou edição (com "Em espera").
 class FornecedoresFormularioCubit extends Cubit<FornecedoresFormularioState> {
@@ -83,7 +84,12 @@ class FornecedoresFormularioCubit extends Cubit<FornecedoresFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(salvando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            salvando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso():
         emit(state.copyWith(salvando: false, salvo: true));
     }

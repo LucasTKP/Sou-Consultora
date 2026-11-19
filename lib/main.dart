@@ -10,6 +10,8 @@ import 'package:sou_consultora/core/env/ambiente_app.dart';
 import 'package:sou_consultora/ui/navegacao/notificador_acesso.dart';
 import 'package:sou_consultora/ui/navegacao/roteador_app.dart';
 import 'package:sou_consultora/ui/temas/tema_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:toastification/toastification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -90,7 +92,10 @@ class _MeuAppState extends State<MeuApp> {
           ],
           supportedLocales: const [Locale('pt', 'BR'), Locale('en', 'US')],
           builder: (context, child) {
-            return ShadAppBuilder(child: child!);
+            return ToastificationConfigProvider(
+              config: ToastApp.configuracao(context),
+              child: ShadAppBuilder(child: child!),
+            );
           },
           routerConfig: _roteador,
         );

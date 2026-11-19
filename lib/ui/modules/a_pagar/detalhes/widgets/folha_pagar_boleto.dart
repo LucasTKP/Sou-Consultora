@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/detalhes/a_pagar_detalhes_cubit.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/detalhes/a_pagar_detalhes_state.dart';
-import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/erro_em_toast.dart';
 
 /// Folha "Confirmar pagamento": a data (hoje por padrão, nunca futura) e o
 /// valor, que é quitado inteiro. Devolve true quando gravou.
@@ -72,18 +72,10 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
               erro: estado.erroDataPagamento,
               onChanged: _alterarData,
             ),
-            if (estado.erroPagamento case final erro?) ...[
-              const SizedBox(height: 12),
-              Text(
-                erro,
-                style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(color: CoresApp.perigo),
-              ),
-            ],
+            ErroEmToast(erro: estado.erroPagamento),
             const SizedBox(height: 24),
             BotaoApp(
               rotulo: pagando ? 'Confirmando...' : 'Confirmar',
-              iconeInicio: const Icon(Icons.check_circle_outline_rounded),
               onPressed: pagando ? null : _confirmar,
             ),
           ],

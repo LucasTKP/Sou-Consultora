@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/core/model/cliente.dart';
 import 'package:sou_consultora/core/model/detalhe_parcela.dart';
+import 'package:sou_consultora/core/model/pagamento.dart';
 import 'package:sou_consultora/core/model/parcela.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_telefone.dart';
 import 'package:sou_consultora/ui/modules/a_receber/parcela/a_receber_parcela_cubit.dart';
@@ -17,9 +18,9 @@ import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/widgets/avatares/avatar_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
-import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Detalhes de uma parcela: saldo, cliente (Cobrar), pagamentos, a venda e
 /// as outras parcelas; Pagar (com saldo) e Mais opções.
@@ -41,17 +42,9 @@ class _ParcelaVista extends StatelessWidget {
   const _ParcelaVista();
 
   void _aoMudarEstado(BuildContext context, AReceberParcelaState estado) {
-    if (estado.cancelada) {
-      Navigator.of(context).pop(true);
-      return;
-    }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<AReceberParcelaCubit>().limparAviso();
   }
 
@@ -65,6 +58,23 @@ class _ParcelaVista extends StatelessWidget {
     );
     if (idPagamento == null || !context.mounted) return;
     await _abrirComprovante(context, idPagamento: idPagamento);
+  }
+
+  /// Corrige um pagamento anotado errado: valor, forma, data e observação.
+  Future<void> _editarPagamento(
+    BuildContext context,
+    AReceberParcelaState estado,
+    Pagamento pagamento,
+  ) async {
+    final cubit = context.read<AReceberParcelaCubit>();
+    final saldoMaximo = estado.detalhe!.parcela.saldo + pagamento.valor;
+    await FolhaRegistrarPagamento.mostrar(
+      context,
+      cubit: cubit,
+      saldo: saldoMaximo,
+      hoje: estado.hoje,
+      pagamento: pagamento,
+    );
   }
 
   /// Sem [idPagamento], o comprovante mostra o último pagamento da parcela.
@@ -97,46 +107,45 @@ class _ParcelaVista extends StatelessWidget {
     await cubit.carregar();
   }
 
+  /// O pagamento mais recente desta parcela, quando há o que corrigir.
+  static Pagamento? _pagamentoMaisRecente(DetalheParcela detalhe) {
+    final lista = detalhe.pagamentos;
+    if (lista.isEmpty) return null;
+    return lista.reduce((a, b) => a.data.isAfter(b.data) ? a : b);
+  }
+
   Future<void> _opcoes(BuildContext context, DetalheParcela detalhe) async {
     final cubit = context.read<AReceberParcelaCubit>();
+    final pagamento = _pagamentoMaisRecente(detalhe);
     final opcao = await FolhaOpcoesVenda.mostrar(
       context,
+      podeEditar: pagamento != null,
       podeCobrar: !detalhe.parcela.paga,
       temRecibo: detalhe.ultimoPagamento != null,
+      podeCancelar: false,
     );
     if (!context.mounted) return;
     switch (opcao) {
       case null:
         return;
+      case OpcaoVenda.editar:
+        final alvo = pagamento;
+        if (alvo == null) return;
+        await _editarPagamento(context, cubit.state, alvo);
       case OpcaoVenda.cobrar:
         await cubit.cobrar();
       case OpcaoVenda.recibo:
         await _abrirComprovante(context);
       case OpcaoVenda.cancelar:
-        await _confirmarCancelamento(context);
+        return;
     }
-  }
-
-  Future<void> _confirmarCancelamento(BuildContext context) async {
-    final cubit = context.read<AReceberParcelaCubit>();
-    final confirmou = await DialogoConfirmacaoApp.mostrar(
-      context: context,
-      titulo: 'Cancelar esta venda?',
-      mensagem:
-          'Isso apaga a venda, as parcelas e os pagamentos, '
-          'e devolve os produtos ao estoque.',
-      rotuloConfirmar: 'Cancelar venda',
-      rotuloCancelar: 'Voltar',
-      perigo: true,
-    );
-    if (confirmou) await cubit.cancelarVenda();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AReceberParcelaCubit, AReceberParcelaState>(
       listenWhen: (antes, depois) =>
-          antes.aviso != depois.aviso || antes.cancelada != depois.cancelada,
+          antes.aviso != depois.aviso,
       listener: _aoMudarEstado,
       builder: (context, estado) {
         final parcela = estado.detalhe?.parcela;
@@ -167,6 +176,8 @@ class _ParcelaVista extends StatelessWidget {
         onCobrar: context.read<AReceberParcelaCubit>().cobrar,
         onVenda: () => _abrirVenda(context, detalhe.venda.id),
         onParcela: (id) => _abrirParcela(context, id),
+        onEditarPagamento: (pagamento) =>
+            _editarPagamento(context, estado, pagamento),
       );
     }
     final erro = estado.erro;
@@ -190,19 +201,13 @@ class _ParcelaVista extends StatelessWidget {
           if (!detalhe.parcela.paga) ...[
             BotaoApp(
               rotulo: 'Pagar',
-              iconeInicio: const Icon(Icons.check_circle_outline_rounded),
-              onPressed: estado.cancelando
-                  ? null
-                  : () => _pagar(context, estado),
+              onPressed: () => _pagar(context, estado),
             ),
             const SizedBox(height: 12),
           ],
           BotaoApp.secundario(
-            rotulo: estado.cancelando ? 'Cancelando...' : 'Mais opções',
-            iconeInicio: const Icon(Icons.more_horiz_rounded),
-            onPressed: estado.cancelando
-                ? null
-                : () => _opcoes(context, detalhe),
+            rotulo: 'Mais opções',
+            onPressed: () => _opcoes(context, detalhe),
           ),
         ],
       ),
@@ -217,6 +222,7 @@ class _Conteudo extends StatelessWidget {
     required this.onCobrar,
     required this.onVenda,
     required this.onParcela,
+    required this.onEditarPagamento,
   });
 
   final DetalheParcela detalhe;
@@ -224,6 +230,7 @@ class _Conteudo extends StatelessWidget {
   final VoidCallback onCobrar;
   final VoidCallback onVenda;
   final ValueChanged<String> onParcela;
+  final ValueChanged<Pagamento> onEditarPagamento;
 
   @override
   Widget build(BuildContext context) {
@@ -239,6 +246,7 @@ class _Conteudo extends StatelessWidget {
           parcela: parcela,
           pagamentos: detalhe.pagamentos,
           hoje: hoje,
+          onEditar: onEditarPagamento,
         ),
         const SizedBox(height: 24),
         SecaoVendaParcela(
@@ -287,8 +295,8 @@ class _CartaoCliente extends StatelessWidget {
             const SizedBox(width: 8),
             BotaoApp.contorno(
               rotulo: 'Cobrar',
+              tamanho: TamanhoBotao.compacto,
               expande: false,
-              iconeInicio: const Icon(Icons.chat_outlined),
               onPressed: onCobrar,
             ),
           ],

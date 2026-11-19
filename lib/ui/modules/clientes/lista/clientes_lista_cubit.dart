@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/filtro_clientes.dart';
+import 'package:sou_consultora/core/model/ordem_nome.dart';
 import 'package:sou_consultora/core/model/resumo_cliente.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/ui/modules/clientes/lista/clientes_lista_state.dart';
@@ -39,6 +40,8 @@ class ClientesListaCubit extends Cubit<ClientesListaState> {
 
   void alterarStatus(StatusFiltroCliente status) =>
       emit(state.copyWith(status: status));
+
+  void alterarOrdem(OrdemNome ordem) => emit(state.copyWith(ordem: ordem));
 
   void inverterOrdem() => emit(state.copyWith(ordem: state.ordem.inversa));
 

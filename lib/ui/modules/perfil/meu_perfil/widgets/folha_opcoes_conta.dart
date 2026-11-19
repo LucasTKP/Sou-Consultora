@@ -21,6 +21,7 @@ abstract final class FolhaOpcoesConta {
               Icons.logout_rounded,
               CoresApp.primariaSuave,
               CoresApp.primariaEscura,
+              espelhar: true,
             ),
             onTap: () => Navigator.of(contexto).pop(AcaoConta.sair),
           ),
@@ -40,7 +41,14 @@ abstract final class FolhaOpcoesConta {
     );
   }
 
-  static Widget _icone(IconData icone, Color fundo, Color cor) {
+  /// [espelhar] inverte o ícone na horizontal (ex.: sair apontando para a esquerda).
+  static Widget _icone(
+    IconData icone,
+    Color fundo,
+    Color cor, {
+    bool espelhar = false,
+  }) {
+    final desenho = Icon(icone, color: cor);
     return Container(
       width: 52,
       height: 52,
@@ -48,7 +56,7 @@ abstract final class FolhaOpcoesConta {
         color: fundo,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Icon(icone, color: cor),
+      child: espelhar ? Transform.flip(flipX: true, child: desenho) : desenho,
     );
   }
 }

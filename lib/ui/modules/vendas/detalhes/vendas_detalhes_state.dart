@@ -1,4 +1,5 @@
 import 'package:sou_consultora/core/model/detalhe_venda.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 enum AbaVenda { itens, pagamento }
 
@@ -25,7 +26,7 @@ class VendasDetalhesState {
 
   /// A venda foi cancelada: a tela fecha.
   final bool cancelada;
-  final String? aviso;
+  final AvisoToast? aviso;
 
   VendasDetalhesState copyWith({
     DetalheVenda? detalhe,
@@ -34,7 +35,7 @@ class VendasDetalhesState {
     AbaVenda? aba,
     bool? processando,
     bool? cancelada,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
   }) {
     return VendasDetalhesState(
       hoje: hoje,

@@ -55,7 +55,7 @@ class CartaoComprovante extends StatelessWidget {
                 const SizedBox(height: 16),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: SeloStatusApp(
+                  child: SeloStatusApp(tamanho: TamanhoSelo.pagina, 
                     rotulo:
                         'Parcela ${detalhe.parcela.textoNumero} • '
                         '${MensagemComprovante.situacao(detalhe)}',
@@ -104,7 +104,7 @@ class _Topo extends StatelessWidget {
                 const Icon(
                   Icons.check_circle_rounded,
                   color: CoresApp.sucesso,
-                  size: 20,
+                  size: 24,
                 ),
                 const SizedBox(width: 8),
                 Flexible(
@@ -168,14 +168,15 @@ class _Partes extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
+              flex: 3,
               child: _Dado(
-                icone: Icons.person_outline_rounded,
                 rotulo: 'CONSULTORA',
                 valor: consultora?.nome ?? '',
               ),
             ),
             if (chave != null)
               Expanded(
+                flex: 2,
                 child: _Dado(
                   rotulo: 'CHAVE PIX',
                   valor: FormatadorChavePix.formatar(chave),
@@ -189,15 +190,16 @@ class _Partes extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
+              flex: 3,
               child: _Dado(
-                icone: Icons.face_outlined,
                 rotulo: 'CLIENTE',
                 valor: detalhe.parcela.clienteNome,
               ),
             ),
             Expanded(
+              flex: 2,
               child: _Dado(
-                rotulo: 'FORMA DE PAGAMENTO',
+                rotulo: 'PAGAMENTO',
                 valor: pagamento.forma.rotulo,
                 aDireita: true,
               ),
@@ -213,13 +215,11 @@ class _Dado extends StatelessWidget {
   const _Dado({
     required this.rotulo,
     required this.valor,
-    this.icone,
     this.aDireita = false,
   });
 
   final String rotulo;
   final String valor;
-  final IconData? icone;
   final bool aDireita;
 
   @override
@@ -238,21 +238,14 @@ class _Dado extends StatelessWidget {
         ),
         Text(
           valor,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           textAlign: aDireita ? TextAlign.end : TextAlign.start,
           style: estilos.bodyLarge,
         ),
       ],
     );
-    final simbolo = icone;
-    if (simbolo == null) return textos;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(simbolo, color: CoresApp.sobreSuperficieVariante),
-        const SizedBox(width: 8),
-        Expanded(child: textos),
-      ],
-    );
+    return textos;
   }
 }
 
@@ -401,20 +394,26 @@ class _Rodape extends StatelessWidget {
     final estilos = Theme.of(context).textTheme;
     final url = consultora?.urlFoto;
     return Container(
-      color: CoresApp.primariaSuave.withOpacity(0.35),
+      color: CoresApp.primaria,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Comprovante digital', style: estilos.titleSmall),
                 Text(
-                  'SOU CONSULTORA',
-                  style: estilos.labelLarge?.copyWith(
-                    color: CoresApp.primaria,
-                    letterSpacing: 1.5,
+                  'Aplicativo',
+                  textAlign: TextAlign.center,
+                  style: estilos.bodyMedium?.copyWith(
+                    color: CoresApp.sobrePrimaria,
+                  ),
+                ),
+                Text(
+                  'Sou Consultora',
+                  textAlign: TextAlign.center,
+                  style: estilos.titleMedium?.copyWith(
+                    color: CoresApp.sobrePrimaria,
                   ),
                 ),
               ],

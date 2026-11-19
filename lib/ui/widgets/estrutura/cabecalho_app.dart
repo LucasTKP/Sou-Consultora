@@ -64,7 +64,7 @@ class CabecalhoApp extends StatelessWidget {
         icon: const Icon(
           Icons.menu_rounded,
           color: CoresApp.sobrePrimaria,
-          size: 30,
+          size: 24,
         ),
       ),
       AcaoCabecalho.voltar => IconButton(
@@ -73,7 +73,7 @@ class CabecalhoApp extends StatelessWidget {
         icon: const Icon(
           Icons.arrow_back_rounded,
           color: CoresApp.sobrePrimaria,
-          size: 28,
+          size: 24,
         ),
       ),
     };

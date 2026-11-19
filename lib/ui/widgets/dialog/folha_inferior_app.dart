@@ -15,6 +15,7 @@ abstract final class FolhaInferiorApp {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      useRootNavigator: true,
       backgroundColor: CoresApp.superficie,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -42,53 +43,65 @@ class _CorpoFolha extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
+    final consulta = MediaQuery.of(context);
+    final teclado = consulta.viewInsets.bottom;
+    // A folha se ajusta ao conteúdo, limitada a 90% da área visível.
+    final alturaMaxima = (consulta.size.height * 0.9).clamp(
+      0.0,
+      consulta.size.height - teclado,
+    );
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: Container(
-              width: 48,
-              height: 5,
-              decoration: BoxDecoration(
-                color: CoresApp.primariaSuave,
-                borderRadius: BorderRadius.circular(4),
+      padding: EdgeInsets.only(bottom: teclado),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: alturaMaxima),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: CoresApp.primariaSuave,
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 12, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(titulo, style: estilos.headlineSmall),
-                      if (subtitulo != null)
-                        Text(subtitulo!, style: estilos.bodySmall),
-                    ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 12, 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(titulo, style: estilos.headlineSmall),
+                        if (subtitulo != null)
+                          Text(subtitulo!, style: estilos.bodySmall),
+                      ],
+                    ),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Fechar',
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
+                  IconButton(
+                    tooltip: 'Fechar',
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded, size: 24),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          Flexible(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: conteudo,
+            const Divider(height: 1),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                child: conteudo,
+              ),
             ),
-          ),
-        ],
+            // Espaço extra para celulares com botões de navegação na base.
+            SizedBox(height: teclado > 0 ? 24 : 48),
+          ],
+        ),
       ),
     );
   }

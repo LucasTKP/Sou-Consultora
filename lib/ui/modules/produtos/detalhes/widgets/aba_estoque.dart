@@ -1,14 +1,17 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/core/model/lote_produto.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_state.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/widgets/cartao_lote.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/widgets/cartao_saida.dart';
+import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
@@ -76,9 +79,15 @@ abstract final class AbaEstoque {
     ProdutosDetalhesState estado,
   ) {
     if (estado.lotes.isEmpty) {
-      return const [
+      return [
         _Vazio(
-          'Nenhum lote ainda. Toque em Lançar Estoque para registrar uma compra.',
+          'Nenhum lote ainda',
+          mensagem: 'Lance a primeira compra para controlar o estoque.',
+          acao: BotaoApp(
+            rotulo: 'Lançar estoque',
+            expande: false,
+            onPressed: () => _lancar(context),
+          ),
         ),
       ];
     }
@@ -101,6 +110,16 @@ abstract final class AbaEstoque {
         const SizedBox(height: 12),
       ],
     ];
+  }
+
+  static Future<void> _lancar(BuildContext context) async {
+    final cubit = context.read<ProdutosDetalhesCubit>();
+    final id = cubit.state.produto?.id;
+    if (id == null) return;
+    final salvou = await context.push<bool>(
+      RotasApp.lancarEstoque(produtoId: id),
+    );
+    if (salvou == true) await cubit.carregar();
   }
 
   static Future<void> _apagar(BuildContext context, LoteProduto lote) async {
@@ -225,19 +244,40 @@ class _Numero extends StatelessWidget {
 }
 
 class _Vazio extends StatelessWidget {
-  const _Vazio(this.texto);
+  const _Vazio(this.texto, {this.mensagem, this.acao});
 
   final String texto;
+  final String? mensagem;
+  final Widget? acao;
 
   @override
   Widget build(BuildContext context) {
+    final estilos = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Text(
-        texto,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyLarge
-            ?.copyWith(color: CoresApp.sobreSuperficieVariante),
+      child: Column(
+        children: [
+          Text(
+            texto,
+            textAlign: TextAlign.center,
+            style: acao == null
+                ? estilos.bodyLarge?.copyWith(
+                    color: CoresApp.sobreSuperficieVariante,
+                  )
+                : estilos.titleLarge,
+          ),
+          if (mensagem != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              mensagem!,
+              textAlign: TextAlign.center,
+              style: estilos.bodyLarge?.copyWith(
+                color: CoresApp.sobreSuperficieVariante,
+              ),
+            ),
+          ],
+          if (acao != null) ...[const SizedBox(height: 24), acao!],
+        ],
       ),
     );
   }

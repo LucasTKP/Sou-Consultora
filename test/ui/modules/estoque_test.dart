@@ -119,7 +119,7 @@ void main() {
 
       cubit.adicionarItem(item(0));
       expect(cubit.state.itens.length, 2);
-      expect(cubit.state.aviso, LancamentoEstoque.mensagemRepetido);
+      expect(cubit.state.aviso?.mensagem, LancamentoEstoque.mensagemRepetido);
       expect(cubit.jaNaCompra('p1'), isTrue);
       expect(cubit.jaNaCompra('p1', indiceEditado: 0), isFalse);
 
@@ -298,6 +298,8 @@ void main() {
         estoque: ServicoEstoqueFalso(produtos: produtos),
       );
 
+      await tester.tap(find.text('Opções'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Lançar estoque'));
       await tester.pumpAndSettle();
       expect(find.text('Lançar Estoque'), findsOneWidget);

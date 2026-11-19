@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 
-/// Barra inferior fixa: Produtos, Clientes, Início (central), Vendas, Financeiro.
+/// Barra inferior fixa: o círculo rosa fica na aba da página atual.
 class BarraInferior extends StatelessWidget {
   const BarraInferior({
     super.key,
@@ -37,12 +37,7 @@ class BarraInferior extends StatelessWidget {
             children: [
               _item(ItemBarra.produtos, 'Produtos', Icons.inventory_2_outlined),
               _item(ItemBarra.clientes, 'Clientes', Icons.people_alt_outlined),
-              Expanded(
-                child: _ItemCentral(
-                  ativo: itemAtivo == ItemBarra.inicio,
-                  onTap: () => onSelecionar(ItemBarra.inicio),
-                ),
-              ),
+              _item(ItemBarra.inicio, 'Início', Icons.storefront_rounded),
               _item(ItemBarra.vendas, 'Vendas', Icons.receipt_long_outlined),
               _item(
                 ItemBarra.financeiro,
@@ -57,13 +52,19 @@ class BarraInferior extends StatelessWidget {
   }
 
   Widget _item(ItemBarra item, String rotulo, IconData icone) {
+    final ativo = item == itemAtivo;
     return Expanded(
-      child: _ItemBarraSimples(
-        rotulo: rotulo,
-        icone: icone,
-        ativo: item == itemAtivo,
-        onTap: () => onSelecionar(item),
-      ),
+      child: ativo
+          ? _ItemDestaque(
+              rotulo: rotulo,
+              icone: icone,
+              onTap: () => onSelecionar(item),
+            )
+          : _ItemBarraSimples(
+              rotulo: rotulo,
+              icone: icone,
+              onTap: () => onSelecionar(item),
+            ),
     );
   }
 }
@@ -72,20 +73,18 @@ class _ItemBarraSimples extends StatelessWidget {
   const _ItemBarraSimples({
     required this.rotulo,
     required this.icone,
-    required this.ativo,
     required this.onTap,
   });
 
   final String rotulo;
   final IconData icone;
-  final bool ativo;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final cor = ativo ? CoresApp.primaria : CoresApp.sobreSuperficieVariante;
+    const cor = CoresApp.sobreSuperficieVariante;
     return Semantics(
-      selected: ativo,
+      selected: false,
       button: true,
       label: rotulo,
       excludeSemantics: true,
@@ -94,14 +93,14 @@ class _ItemBarraSimples extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icone, color: cor, size: 28),
+            Icon(icone, color: cor, size: 24),
             const SizedBox(height: 4),
             Text(
               rotulo,
-              style: TextStyle(
+              style: const TextStyle(
                 color: cor,
                 fontSize: 13,
-                fontWeight: ativo ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ],
@@ -111,19 +110,24 @@ class _ItemBarraSimples extends StatelessWidget {
   }
 }
 
-/// Botão redondo em destaque do Início, elevado acima da barra.
-class _ItemCentral extends StatelessWidget {
-  const _ItemCentral({required this.ativo, required this.onTap});
+/// Botão redondo da aba atual, elevado acima da barra.
+class _ItemDestaque extends StatelessWidget {
+  const _ItemDestaque({
+    required this.rotulo,
+    required this.icone,
+    required this.onTap,
+  });
 
-  final bool ativo;
+  final String rotulo;
+  final IconData icone;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      selected: ativo,
+      selected: true,
       button: true,
-      label: 'Início',
+      label: rotulo,
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
@@ -149,21 +153,17 @@ class _ItemCentral extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.storefront_rounded,
-                  color: CoresApp.sobrePrimaria,
-                  size: 32,
-                ),
+                child: Icon(icone, color: CoresApp.sobrePrimaria, size: 24),
               ),
               const SizedBox(height: 2),
               Text(
-                'Início',
-                style: TextStyle(
-                  color: ativo
-                      ? CoresApp.primaria
-                      : CoresApp.sobreSuperficieVariante,
+                rotulo,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: CoresApp.primaria,
                   fontSize: 13,
-                  fontWeight: ativo ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 10),

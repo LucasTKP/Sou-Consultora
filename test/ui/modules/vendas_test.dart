@@ -164,13 +164,17 @@ void main() {
     test('avançar exige itens; repetido é recusado', () {
       cubit.avancar();
       expect(cubit.state.passo, 1);
-      expect(cubit.state.erroItens, isNotNull);
+      expect(
+        cubit.state.aviso?.mensagem,
+        'Adicione pelo menos um produto ou serviço',
+      );
+      expect(cubit.state.erroItens, isNull);
 
       cubit
         ..adicionarItem(item(desconto: 1600))
         ..adicionarItem(item());
       expect(cubit.state.itens.length, 1);
-      expect(cubit.state.aviso, 'Este item já está no pedido.');
+      expect(cubit.state.aviso?.mensagem, 'Este item já está no pedido.');
       expect(cubit.state.total, 18000);
     });
 
@@ -216,7 +220,20 @@ void main() {
   });
 
   group('Nova venda (tela)', () {
-    testWidgets('folha: estoque insuficiente bloqueia; encomenda libera', (
+    testWidgets('sem item, avançar mostra o aviso', (tester) async {
+      await _abrir(tester, _Ambiente(), '/vendas/nova?cliente=c1');
+
+      await tester.tap(find.text('Avançar'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Adicione pelo menos um produto ou serviço'),
+        findsOneWidget,
+      );
+      expect(find.text('Como a cliente vai pagar?'), findsNothing);
+    });
+
+    testWidgets('folha: estoque insuficiente avisa no Salvar; sem baixar libera', (
       tester,
     ) async {
       final ambiente = _Ambiente();
@@ -237,20 +254,27 @@ void main() {
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('Baixar do estoque'));
       await tester.pumpAndSettle();
+      // O erro sai em toast, ao tocar em Salvar; a folha continua aberta.
+      await tester.ensureVisible(find.text('Salvar'));
+      await tester.tap(find.text('Salvar'));
+      await tester.pumpAndSettle();
       expect(
         find.text('Estoque insuficiente: 2 un disponíveis'),
         findsOneWidget,
       );
+      expect(find.text('Baixar do estoque'), findsOneWidget);
 
       await tester.ensureVisible(find.text('Baixar do estoque'));
       await tester.tap(find.text('Baixar do estoque'));
+      // O toast do erro fica um tempo na tela antes de sumir sozinho.
+      await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       expect(find.text('Estoque insuficiente: 2 un disponíveis'), findsNothing);
 
       await tester.ensureVisible(find.text('Salvar'));
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
-      expect(find.textContaining('Encomenda'), findsOneWidget);
+      expect(find.textContaining('Encomenda'), findsNothing);
       expect(find.text(FormatadorMoeda.formatar(58800)), findsWidgets);
 
       await tester.tap(find.text('Avançar'));
@@ -279,17 +303,20 @@ void main() {
       );
       await _abrir(tester, ambiente, '/vendas');
 
-      expect(find.text('2 vendas realizadas'), findsOneWidget);
+      expect(find.text('2 vendas'), findsOneWidget);
+      expect(find.text('Nova venda'), findsOneWidget);
       expect(find.text('Quitada'), findsOneWidget);
       await tester.enterText(find.byType(EditableText).first, '12');
       await tester.pumpAndSettle();
-      expect(find.text('1 venda realizada'), findsOneWidget);
+      expect(find.text('1 venda'), findsOneWidget);
       expect(find.text('Juliana Peixoto'), findsNothing);
     });
 
     testWidgets('vazia convida a registrar', (tester) async {
       await _abrir(tester, _Ambiente(), '/vendas');
       expect(find.text('Nenhuma venda ainda'), findsOneWidget);
+      expect(find.text('Registrar venda'), findsOneWidget);
+      expect(find.text('Nova venda'), findsNothing);
     });
   });
 
@@ -385,6 +412,17 @@ void main() {
       expect(find.text('1 quitada'), findsOneWidget);
       expect(find.text('Kit Lily'), findsOneWidget);
       expect(find.text('Nova Venda'), findsOneWidget);
+      expect(find.text('Registrar venda'), findsNothing);
+    });
+
+    testWidgets('sem compras: registrar no vazio e sem o botão de baixo', (
+      tester,
+    ) async {
+      await _abrir(tester, _Ambiente(), '/clientes/c1/compras');
+
+      expect(find.text('Nenhuma compra ainda'), findsOneWidget);
+      expect(find.text('Registrar venda'), findsOneWidget);
+      expect(find.text('Nova Venda'), findsNothing);
     });
   });
 }

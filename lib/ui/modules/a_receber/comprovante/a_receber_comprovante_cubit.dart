@@ -8,6 +8,7 @@ import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/ui/formatadores/mensagem_comprovante.dart';
 import 'package:sou_consultora/ui/modules/a_receber/comprovante/a_receber_comprovante_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Comprovante de um pagamento da parcela: carrega e compartilha a imagem.
 class AReceberComprovanteCubit extends Cubit<AReceberComprovanteState> {
@@ -65,7 +66,7 @@ class AReceberComprovanteCubit extends Cubit<AReceberComprovanteState> {
       state.copyWith(
         compartilhando: false,
         aviso: () => switch (resultado) {
-          Erro(:final falha) => falha.mensagem,
+          Erro(:final falha) => AvisoToast.erro(falha.mensagem),
           Sucesso() => null,
         },
       ),
@@ -76,7 +77,9 @@ class AReceberComprovanteCubit extends Cubit<AReceberComprovanteState> {
   void falharImagem() => emit(
     state.copyWith(
       compartilhando: false,
-      aviso: () => 'Não foi possível gerar a imagem do comprovante.',
+      aviso: () => const AvisoToast.erro(
+        'Não foi possível gerar a imagem do comprovante.',
+      ),
     ),
   );
 

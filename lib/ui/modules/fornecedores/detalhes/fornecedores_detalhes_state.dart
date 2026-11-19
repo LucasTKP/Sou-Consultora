@@ -1,4 +1,5 @@
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class FornecedoresDetalhesState {
   const FornecedoresDetalhesState({
@@ -13,13 +14,13 @@ class FornecedoresDetalhesState {
   final String? erro;
 
   /// Mensagem passageira (ex.: WhatsApp não abriu).
-  final String? aviso;
+  final AvisoToast? aviso;
 
   FornecedoresDetalhesState copyWith({
     ResumoFornecedor? fornecedor,
     bool? carregando,
     String? Function()? erro,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
   }) {
     return FornecedoresDetalhesState(
       fornecedor: fornecedor ?? this.fornecedor,

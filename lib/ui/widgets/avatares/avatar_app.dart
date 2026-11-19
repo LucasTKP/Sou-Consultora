@@ -46,6 +46,10 @@ class AvatarApp extends StatelessWidget {
       // Com src nulo o ShadAvatar mostra o placeholder (iniciais).
       semFoto ? null : urlImagem,
       size: Size.square(lado),
+      // Foto quadrada (cantos levemente arredondados), não redonda.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(lado * 0.2),
+      ),
       backgroundColor: corFundo ?? CoresApp.primariaSuave,
       fit: BoxFit.cover,
       placeholder: Center(child: placeholder),

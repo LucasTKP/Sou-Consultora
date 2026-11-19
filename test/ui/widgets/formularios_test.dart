@@ -74,7 +74,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byType(TextField));
+    await tester.tap(find.byType(CampoSelecaoApp<String>));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).last, 'carla');
     await tester.pumpAndSettle();

@@ -13,6 +13,7 @@ import 'package:sou_consultora/ui/widgets/dialog/folha_foto_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Novo produto ([idProduto] nulo) ou edição, em 2 passos.
 /// Ao salvar, fecha devolvendo `true`.
@@ -67,11 +68,7 @@ class _FormularioVistaState extends State<_FormularioVista> {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     _cubit.limparAviso();
   }
 
@@ -207,15 +204,11 @@ class _Rodape extends StatelessWidget {
           else
             BotaoApp(
               rotulo: estado.salvando ? 'Salvando...' : 'Salvar Produto',
-              iconeInicio: const Icon(Icons.check_rounded),
               onPressed: estado.salvando ? null : cubit.salvar,
             ),
           const SizedBox(height: 12),
           BotaoApp.secundario(
             rotulo: passo1 ? 'Cancelar' : 'Voltar',
-            iconeInicio: Icon(
-              passo1 ? Icons.close_rounded : Icons.arrow_back_rounded,
-            ),
             onPressed: onCancelar,
           ),
         ],

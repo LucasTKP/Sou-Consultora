@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:sou_consultora/core/model/categoria.dart';
 import 'package:sou_consultora/core/model/margem.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class ServicosFormularioState {
   const ServicosFormularioState({
@@ -50,7 +51,7 @@ class ServicosFormularioState {
   final String? erroPreco;
   final bool salvando;
   final bool salvo;
-  final String? aviso;
+  final AvisoToast? aviso;
   final int versaoPreenchimento;
 
   bool get editando => idServico != null;
@@ -90,7 +91,7 @@ class ServicosFormularioState {
     String? Function()? erroPreco,
     bool? salvando,
     bool? salvo,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     int? versaoPreenchimento,
   }) {
     return ServicosFormularioState(

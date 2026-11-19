@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/titulo_secao_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/core/model/chave_pix.dart';
 import 'package:sou_consultora/ui/formatadores/mascaras.dart';
 import 'package:sou_consultora/ui/modules/perfil/editar/editar_perfil_cubit.dart';
@@ -18,10 +19,7 @@ class EditarPerfilScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => EditarPerfilCubit(),
-      child: const _EditarPerfilVista(),
-    );
+    return BlocProvider(create: (_) => EditarPerfilCubit(), child: const _EditarPerfilVista());
   }
 }
 
@@ -33,9 +31,7 @@ class _EditarPerfilVista extends StatefulWidget {
 }
 
 class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
-  late final EditarPerfilState _inicial = context
-      .read<EditarPerfilCubit>()
-      .state;
+  late final EditarPerfilState _inicial = context.read<EditarPerfilCubit>().state;
   late final _nome = TextEditingController(text: _inicial.nome);
   late final _whatsapp = TextEditingController(text: _inicial.whatsapp);
   late final _chave = TextEditingController(text: _inicial.chavePix);
@@ -59,11 +55,7 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
     }
     final mensagem = estado.erroGeral;
     if (mensagem == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.erro(context, mensagem);
     context.read<EditarPerfilCubit>().limparErroGeral();
   }
 
@@ -125,14 +117,6 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
                     onChanged: cubit.alterarChavePix,
                     leading: const Icon(Icons.key_outlined),
                   ),
-                  if (estado.tipoPix != null)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: _removerChave,
-                        child: const Text('Remover chave Pix'),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -142,16 +126,12 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
               child: Column(
                 children: [
                   BotaoApp(
-                    rotulo: estado.salvando
-                        ? 'Salvando...'
-                        : 'Salvar Alterações',
-                    iconeInicio: const Icon(Icons.check_rounded),
+                    rotulo: estado.salvando ? 'Salvando...' : 'Salvar Alterações',
                     onPressed: estado.salvando ? null : cubit.salvar,
                   ),
                   const SizedBox(height: 12),
                   BotaoApp.secundario(
                     rotulo: 'Cancelar',
-                    iconeInicio: const Icon(Icons.close_rounded),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -161,11 +141,6 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
         ),
       ),
     );
-  }
-
-  void _removerChave() {
-    _chave.clear();
-    context.read<EditarPerfilCubit>().removerChavePix();
   }
 
   TextInputType _tecladoDaChave(TipoChavePix? tipo) {
@@ -189,15 +164,9 @@ class _TituloPix extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TituloSecaoApp(
-          titulo: 'Recebimento via Pix',
-          icone: Icons.qr_code_2_rounded,
-        ),
+        const TituloSecaoApp(titulo: 'Recebimento via Pix', icone: Icons.qr_code_2_rounded),
         const SizedBox(height: 8),
-        Text(
-          'Sua chave aparece nos comprovantes enviados às clientes.',
-          style: estilos.bodySmall,
-        ),
+        Text('Sua chave aparece nos comprovantes enviados às clientes.', style: estilos.bodySmall),
       ],
     );
   }

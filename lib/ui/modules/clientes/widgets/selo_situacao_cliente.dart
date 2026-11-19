@@ -9,7 +9,10 @@ class SeloSituacaoCliente extends StatelessWidget {
     super.key,
     required this.cliente,
     required this.hoje,
+    this.tamanho = TamanhoSelo.cartao,
   });
+
+  final TamanhoSelo tamanho;
 
   final ResumoCliente cliente;
   final DateTime hoje;
@@ -28,6 +31,6 @@ class SeloSituacaoCliente extends StatelessWidget {
       SituacaoCliente.aniversario => ('Aniversário', StatusSelo.alerta),
       SituacaoCliente.emDia => ('Em dia', StatusSelo.sucesso),
     };
-    return SeloStatusApp(rotulo: rotulo, status: status);
+    return SeloStatusApp(rotulo: rotulo, status: status, tamanho: tamanho);
   }
 }

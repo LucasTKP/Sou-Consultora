@@ -236,7 +236,7 @@ void main() {
     testWidgets('números, alertas e lembrete', (tester) async {
       await _abrir(tester, _comTudo());
 
-      expect(find.textContaining(', Ana!'), findsOneWidget);
+      expect(find.textContaining(', Ana!'), findsNothing);
       expect(find.text('Vendido no mês'), findsOneWidget);
       expect(find.text('R\$ 3.840,00'), findsOneWidget);
       expect(find.text('pedido feito'), findsOneWidget);
@@ -257,7 +257,7 @@ void main() {
     // dele ligado).
     for (final (rotulo, alvo, destino) in <(String, Finder Function(), String)>[
       ('Ver fatura', () => find.text('Ver fatura'), 'boleto b1'),
-      ('Cobrar agora', () => find.text('Cobrar agora'), 'a receber atrasado'),
+      ('Cobrar', () => find.text('Cobrar'), 'a receber atrasado'),
       (
         'Recebido',
         () => find.bySemanticsLabel(RegExp('^Recebido')),
@@ -295,10 +295,7 @@ void main() {
       await _abrir(tester, _Ambiente());
       expect(find.text('Nada para hoje'), findsOneWidget);
       expect(find.text('R\$ 0,00'), findsOneWidget);
-      expect(
-        find.textContaining('Nenhuma cliente precisando recomprar'),
-        findsOneWidget,
-      );
+      expect(find.text('Nenhum produto perto de acabar.'), findsOneWidget);
     });
   });
 }

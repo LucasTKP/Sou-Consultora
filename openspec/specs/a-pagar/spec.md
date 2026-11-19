@@ -7,7 +7,7 @@ Permite à consultora lançar os boletos que deve às marcas, ver o que vence e 
 ## Requirements
 
 ### Requirement: Listar boletos
-O app SHALL mostrar, em A pagar, os boletos com vencimento no mês escolhido (padrão: mês atual; opção "Todos os meses") em cards com iniciais e nome da marca, o selo de situação e o vencimento com o valor, e a quantidade encontrada ("1 boleto", "4 boletos"). SHALL buscar pela marca ou pela observação (sem diferenciar maiúsculas nem acentos), filtrar por status (Todos, Pendente, Vence hoje, Atrasado, Pago, com contagens) e, quando aberta a partir de um fornecedor, mostrar só os boletos dele.
+O app SHALL mostrar, em A pagar, os boletos com vencimento no mês escolhido (padrão: mês atual; opção "Todos os meses") em cards com iniciais e nome da marca, o selo de situação e o vencimento com o valor, e a quantidade encontrada ("1 boleto", "4 boletos"). SHALL buscar pela marca ou pela observação (sem diferenciar maiúsculas nem acentos), filtrar por status (Todos, Pendente, Vence hoje, Atrasado, Pago, com contagens) e ordenar por vencimento mais próximo (padrão), vencimento mais distante, maior valor ou menor valor. Quando aberta a partir de um fornecedor, SHALL mostrar só os boletos dele.
 
 #### Scenario: Card de boleto atrasado
 - **GIVEN** um boleto de R$ 310,00 da Eudora venceu em 05/11 sem pagamento

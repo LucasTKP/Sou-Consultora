@@ -16,6 +16,7 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Detalhes de um serviço. Não existe exclusão.
 class ServicosDetalhesScreen extends StatelessWidget {
@@ -38,11 +39,7 @@ class _DetalhesVista extends StatelessWidget {
   void _aoAvisar(BuildContext context, ServicosDetalhesState estado) {
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<ServicosDetalhesCubit>().limparAviso();
   }
 
@@ -70,7 +67,6 @@ class _DetalhesVista extends StatelessWidget {
                   minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                   child: BotaoApp(
                     rotulo: 'Editar Serviço',
-                    iconeInicio: const Icon(Icons.edit_outlined),
                     onPressed: () => _editar(context, servico.id),
                   ),
                 ),
@@ -126,7 +122,7 @@ class _Conteudo extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SeloStatusApp(
+                        SeloStatusApp(tamanho: TamanhoSelo.pagina, 
                           rotulo: servico.categoriaNome.toUpperCase(),
                         ),
                         const SizedBox(height: 4),

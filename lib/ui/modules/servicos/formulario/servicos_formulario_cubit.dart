@@ -9,6 +9,7 @@ import 'package:sou_consultora/core/model/servico.dart';
 import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/ui/modules/servicos/formulario/servicos_formulario_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Cadastro de serviço: novo ([idServico] nulo) ou edição.
 class ServicosFormularioCubit extends Cubit<ServicosFormularioState> {
@@ -78,7 +79,7 @@ class ServicosFormularioCubit extends Cubit<ServicosFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(aviso: () => falha.mensagem));
+        emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
       case Sucesso(valor: null):
         return;
       case Sucesso(:final valor?):
@@ -114,7 +115,12 @@ class ServicosFormularioCubit extends Cubit<ServicosFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(salvando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            salvando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso():
         emit(state.copyWith(salvando: false, salvo: true));
     }

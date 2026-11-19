@@ -1,3 +1,5 @@
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
+
 class FornecedoresFormularioState {
   const FornecedoresFormularioState({
     this.idFornecedor,
@@ -35,7 +37,7 @@ class FornecedoresFormularioState {
   final bool salvo;
 
   /// Mensagem passageira (falha ao salvar, nome repetido).
-  final String? aviso;
+  final AvisoToast? aviso;
 
   /// Muda quando o cubit preenche os campos (edição carregada).
   final int versaoPreenchimento;
@@ -55,7 +57,7 @@ class FornecedoresFormularioState {
     String? Function()? erroTelefone,
     bool? salvando,
     bool? salvo,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     int? versaoPreenchimento,
   }) {
     return FornecedoresFormularioState(

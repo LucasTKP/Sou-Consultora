@@ -10,6 +10,7 @@ import 'package:sou_consultora/ui/modules/inicio/widgets/secao_lembretes.dart';
 import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Início (item central da barra): painel do dia. Não cadastra nada; os
 /// números, alertas e lembretes abrem os outros módulos.
@@ -31,11 +32,7 @@ class _InicioVista extends StatelessWidget {
   void _aoAvisar(BuildContext context, InicioState estado) {
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<InicioCubit>().limparAviso();
   }
 
@@ -49,13 +46,13 @@ class _InicioVista extends StatelessWidget {
         return Column(
           children: [
             CabecalhoInicio(
-              cumprimento: estado.cumprimento,
               consultora: estado.consultora,
               resumo: pronto ? estado.resumo : null,
               onMenu: () => CascaPrincipalScreen.abrirMenu(context),
+              onPerfil: () => context.push(RotasApp.perfil),
               onVendas: () => context.go(RotasApp.vendas),
-              onRecebido: () => context.go(RotasApp.aReceberPagas),
-              onBoletos: () => context.go(RotasApp.aPagar),
+              onRecebido: () => context.push(RotasApp.aReceberPagas),
+              onBoletos: () => context.push(RotasApp.aPagar),
             ),
             Expanded(child: _corpo(context, estado)),
           ],
@@ -88,7 +85,7 @@ class _InicioVista extends StatelessWidget {
             SecaoAlertas(
               resumo: estado.resumo,
               onVerFatura: (id) => context.push(RotasApp.detalhesBoleto(id)),
-              onCobrar: () => context.go(RotasApp.aReceberAtrasadas),
+              onCobrar: () => context.push(RotasApp.aReceberAtrasadas),
             ),
             const SizedBox(height: 28),
             SecaoLembretes(

@@ -7,6 +7,7 @@ import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/formulario/a_pagar_formulario_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Lançamento de boleto em 2 passos: novo ([idBoleto] nulo) ou edição.
 /// [fornecedorInicialId] já escolhe a marca (Novo boleto pela lista da marca).
@@ -105,7 +106,12 @@ class APagarFormularioCubit extends Cubit<APagarFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(salvando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            salvando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso():
         emit(state.copyWith(salvando: false, salvo: true));
     }

@@ -151,6 +151,8 @@ void main() {
         '/fornecedores',
       );
       expect(find.text('Nenhum fornecedor ainda'), findsOneWidget);
+      expect(find.text('Cadastrar fornecedor'), findsOneWidget);
+      expect(find.text('Fornecedor'), findsNothing);
     });
 
     testWidgets('busca sem resultado mantém o campo', (tester) async {
@@ -232,7 +234,7 @@ void main() {
 
       await cubit.salvar();
 
-      expect(cubit.state.aviso, Fornecedor.mensagemDuplicado);
+      expect(cubit.state.aviso?.mensagem, Fornecedor.mensagemDuplicado);
       expect(cubit.state.nome, 'natura');
       expect(cubit.state.salvo, isFalse);
       await cubit.close();
@@ -339,6 +341,8 @@ void main() {
       expect(find.text('(11) 98765-4321'), findsOneWidget);
       expect(find.textContaining('Excluir'), findsNothing);
 
+      await tester.ensureVisible(find.text('WhatsApp'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('WhatsApp'));
       await tester.pumpAndSettle();
       expect(whatsapp.aberturas, ['11987654321']);

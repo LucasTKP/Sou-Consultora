@@ -8,6 +8,7 @@ import 'package:sou_consultora/ui/modules/vendas/widgets/selos_venda.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/titulo_secao_app.dart';
+import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 
 /// Seção "Venda": a venda de origem (abre os detalhes) e as parcelas dela
 /// (tocar abre a outra parcela; a atual mostra "Você está aqui").
@@ -146,7 +147,38 @@ class _LinhaParcela extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
-    final conteudo = Container(
+    final info = Row(
+      children: [
+        Icon(
+          _icone,
+          color: parcela.paga ? CoresApp.sucesso : CoresApp.primaria,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${parcela.numero}ª parcela • '
+                '${FormatadorMoeda.formatar(parcela.valor)}',
+                style: estilos.titleSmall,
+              ),
+              Text(
+                _descricao,
+                style: estilos.bodySmall?.copyWith(
+                  color: atual ? CoresApp.primaria : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SeloStatusParcela(
+          tamanho: TamanhoSelo.pagina,
+          status: parcela.status(hoje: hoje),
+        ),
+      ],
+    );
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: atual
@@ -156,44 +188,17 @@ class _LinhaParcela extends StatelessWidget {
               border: Border.all(color: CoresApp.contorno),
             )
           : null,
-      child: Row(
-        children: [
-          Icon(
-            _icone,
-            color: parcela.paga ? CoresApp.sucesso : CoresApp.primaria,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${parcela.numero}ª parcela • '
-                  '${FormatadorMoeda.formatar(parcela.valor)}',
-                  style: estilos.titleSmall,
-                ),
-                Text(
-                  _descricao,
-                  style: estilos.bodySmall?.copyWith(
-                    color: atual ? CoresApp.primaria : null,
-                  ),
-                ),
-              ],
+      child: atual
+          ? info
+          : Semantics(
+              button: true,
+              label: 'Abrir parcela ${parcela.textoNumero}',
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: onTap,
+                child: info,
+              ),
             ),
-          ),
-          SeloStatusParcela(status: parcela.status(hoje: hoje)),
-        ],
-      ),
-    );
-    if (atual) return conteudo;
-    return Semantics(
-      button: true,
-      label: 'Abrir parcela ${parcela.textoNumero}',
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: conteudo,
-      ),
     );
   }
 }

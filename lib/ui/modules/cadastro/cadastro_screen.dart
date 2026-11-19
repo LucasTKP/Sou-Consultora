@@ -7,6 +7,7 @@ import 'package:sou_consultora/ui/modules/cadastro/cadastro_state.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 
 class CadastroScreen extends StatelessWidget {
@@ -27,11 +28,7 @@ class _CadastroVista extends StatelessWidget {
   void _aoMudarEstado(BuildContext context, CadastroState estado) {
     final mensagem = estado.erroGeral;
     if (mensagem == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.erro(context, mensagem);
     context.read<CadastroCubit>().limparErroGeral();
   }
 

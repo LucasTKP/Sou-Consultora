@@ -13,6 +13,7 @@ import 'package:sou_consultora/ui/widgets/formularios/area_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Novo cliente ([idCliente] nulo) ou edição. Ao salvar, fecha devolvendo `true`.
 class ClientesFormularioScreen extends StatelessWidget {
@@ -101,11 +102,7 @@ class _FormularioVistaState extends State<_FormularioVista> {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<ClientesFormularioCubit>().limparAviso();
   }
 
@@ -370,7 +367,6 @@ class _Rodape extends StatelessWidget {
             )
           : BotaoApp(
               rotulo: estado.salvando ? 'Salvando...' : 'Salvar Cliente',
-              iconeInicio: const Icon(Icons.check_circle_outline_rounded),
               onPressed: estado.salvando ? null : cubit.salvar,
             ),
     );

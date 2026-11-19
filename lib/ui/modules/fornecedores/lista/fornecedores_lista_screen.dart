@@ -7,17 +7,18 @@ import 'package:sou_consultora/core/model/ordem_nome.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_cubit.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_state.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/widgets/cartao_fornecedor.dart';
-import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_ordenacao_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
-/// Tela principal de Fornecedores (dentro da casca, aberta pelo menu lateral).
+/// Fornecedores abre pelo menu, sem a barra. Voltar retorna à aba de onde veio.
 class FornecedoresListaScreen extends StatelessWidget {
   const FornecedoresListaScreen({super.key});
 
@@ -37,26 +38,31 @@ class _FornecedoresListaVista extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CabecalhoApp(
-          titulo: 'Fornecedores',
-          acao: AcaoCabecalho.menu,
-          onMenu: () => CascaPrincipalScreen.abrirMenu(context),
-        ),
+        CabecalhoApp(titulo: 'Fornecedores', acao: AcaoCabecalho.voltar),
         Expanded(
           child: Stack(
             children: [
               BlocBuilder<FornecedoresListaCubit, FornecedoresListaState>(
                 builder: _corpo,
               ),
-              Positioned(
-                right: 16,
-                // A casca usa `extendBody`: o fundo da tela fica atrás da
-                // barra inferior, cuja altura chega aqui como padding.
-                bottom: MediaQuery.paddingOf(context).bottom + 16,
-                child: BotaoFlutuanteApp(
-                  rotulo: 'Fornecedor',
-                  onPressed: () => context.push(RotasApp.novoFornecedor),
-                ),
+              BlocBuilder<FornecedoresListaCubit, FornecedoresListaState>(
+                builder: (context, estado) {
+                  final vazio =
+                      estado.carregamento ==
+                          CarregamentoFornecedores.pronto &&
+                      estado.todos.isEmpty;
+                  if (vazio) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 16,
+                    // A casca usa `extendBody`: o fundo da tela fica atrás da
+                    // barra inferior, cuja altura chega aqui como padding.
+                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    child: BotaoFlutuanteApp(
+                      rotulo: 'Fornecedor',
+                      onPressed: () => context.push(RotasApp.novoFornecedor),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -94,7 +100,6 @@ class _ListaVazia extends StatelessWidget {
       acao: BotaoApp(
         rotulo: 'Cadastrar fornecedor',
         expande: false,
-        iconeInicio: const Icon(Icons.add_rounded),
         onPressed: () => context.push(RotasApp.novoFornecedor),
       ),
     );
@@ -140,7 +145,7 @@ class _Lista extends StatelessWidget {
           _Resumo(
             total: estado.todos.length,
             ordem: estado.ordem,
-            onInverter: cubit.inverterOrdem,
+            onChanged: cubit.alterarOrdem,
           ),
           const SizedBox(height: 8),
           if (visiveis.isEmpty) const _SemResultado(),
@@ -162,25 +167,29 @@ class _Resumo extends StatelessWidget {
   const _Resumo({
     required this.total,
     required this.ordem,
-    required this.onInverter,
+    required this.onChanged,
   });
 
   final int total;
   final OrdemNome ordem;
-  final VoidCallback onInverter;
+  final ValueChanged<OrdemNome> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final texto = total == 1 ? '1 fornecedor' : '$total fornecedores';
     return Row(
       children: [
         Expanded(
-          child: Text(texto, style: Theme.of(context).textTheme.titleLarge),
+          child: TextoContagemLista(
+            total: total,
+            singular: 'fornecedor',
+            plural: 'fornecedores',
+          ),
         ),
-        TextButton.icon(
-          onPressed: onInverter,
-          icon: const Icon(Icons.swap_vert_rounded),
-          label: Text(ordem.rotulo),
+        BotaoOrdenacaoApp<OrdemNome>(
+          opcoes: OrdemNome.values,
+          rotuloDe: (item) => item.rotulo,
+          valor: ordem,
+          onChanged: onChanged,
         ),
       ],
     );

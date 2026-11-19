@@ -31,8 +31,8 @@ class BotoesSociaisLogin extends StatelessWidget {
               habilitado: !bloqueado,
               icone: SvgPicture.asset(
                 'assets/imagens/logo_google.svg',
-                width: 22,
-                height: 22,
+                width: 24,
+                height: 24,
               ),
               onPressed: cubit.continuarComGoogle,
             ),
@@ -46,7 +46,7 @@ class BotoesSociaisLogin extends StatelessWidget {
               habilitado: !bloqueado,
               icone: const Icon(
                 Icons.apple,
-                size: 26,
+                size: 24,
                 color: CoresApp.sobrePrimaria,
               ),
               onPressed: cubit.continuarComApple,

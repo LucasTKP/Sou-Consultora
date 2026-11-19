@@ -6,6 +6,7 @@ import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/ui/formatadores/mensagem_cobranca.dart';
 import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Detalhes da venda: carrega itens e parcelas, cobra no WhatsApp e cancela.
 class VendasDetalhesCubit extends Cubit<VendasDetalhesState> {
@@ -44,7 +45,7 @@ class VendasDetalhesCubit extends Cubit<VendasDetalhesState> {
         );
       case Erro(:final falha):
         if (state.detalhe != null) {
-          emit(state.copyWith(aviso: () => falha.mensagem));
+          emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
           return;
         }
         emit(state.copyWith(carregando: false, erro: () => falha.mensagem));
@@ -70,7 +71,7 @@ class VendasDetalhesCubit extends Cubit<VendasDetalhesState> {
     );
     if (isClosed) return;
     if (resultado case Erro(:final falha)) {
-      emit(state.copyWith(aviso: () => falha.mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
     }
   }
 
@@ -81,7 +82,12 @@ class VendasDetalhesCubit extends Cubit<VendasDetalhesState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(processando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            processando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso():
         emit(state.copyWith(processando: false, cancelada: true));
     }

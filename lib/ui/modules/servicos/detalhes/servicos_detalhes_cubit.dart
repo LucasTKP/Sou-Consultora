@@ -4,6 +4,7 @@ import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/resumo_servico.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/ui/modules/servicos/detalhes/servicos_detalhes_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Detalhes do serviço: mostra o que está em cache e atualiza pela rede.
 class ServicosDetalhesCubit extends Cubit<ServicosDetalhesState> {
@@ -49,7 +50,7 @@ class ServicosDetalhesCubit extends Cubit<ServicosDetalhesState> {
 
   void _aoFalhar(String mensagem) {
     if (state.servico != null) {
-      emit(state.copyWith(aviso: () => mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(mensagem)));
       return;
     }
     emit(state.copyWith(carregando: false, erro: () => mensagem));

@@ -8,18 +8,18 @@ import 'package:sou_consultora/ui/formatadores/formatador_data.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/lista/a_pagar_lista_cubit.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/lista/a_pagar_lista_state.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/lista/widgets/cartao_boleto.dart';
-import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_ordenacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
-/// A pagar: na casca (pelo menu) com todos os boletos; com [fornecedorId],
-/// abre por cima (seta de voltar) só com os boletos daquela marca.
+/// A pagar abre sem a barra (pelo menu ou por uma marca). Voltar retorna à aba.
 class APagarListaScreen extends StatelessWidget {
   const APagarListaScreen({super.key, this.fornecedorId});
 
@@ -29,18 +29,13 @@ class APagarListaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => APagarListaCubit(fornecedorId: fornecedorId),
-      child: fornecedorId == null
-          ? const _APagarListaVista(porCima: false)
-          : const Scaffold(body: _APagarListaVista(porCima: true)),
+      child: fornecedorId == null ? const _APagarListaVista() : const Scaffold(body: _APagarListaVista()),
     );
   }
 }
 
 class _APagarListaVista extends StatelessWidget {
-  const _APagarListaVista({required this.porCima});
-
-  /// Aberta por Fornecedores: seta de voltar, sem a barra inferior.
-  final bool porCima;
+  const _APagarListaVista();
 
   void _novo(BuildContext context) {
     final cubit = context.read<APagarListaCubit>();
@@ -54,32 +49,21 @@ class _APagarListaVista extends StatelessWidget {
     return BlocBuilder<APagarListaCubit, APagarListaState>(
       builder: (context, estado) => Column(
         children: [
-          CabecalhoApp(
-            titulo: 'A pagar',
-            subtitulo: estado.nomeFornecedor,
-            acao: porCima ? AcaoCabecalho.voltar : AcaoCabecalho.menu,
-            onMenu: () => CascaPrincipalScreen.abrirMenu(context),
-            fim: IconButton(
-              tooltip: 'Novo boleto',
-              icon: const Icon(
-                Icons.add_rounded,
-                color: CoresApp.sobrePrimaria,
-              ),
-              onPressed: () => _novo(context),
-            ),
-          ),
+          CabecalhoApp(titulo: 'A pagar', subtitulo: estado.nomeFornecedor, acao: AcaoCabecalho.voltar),
           Expanded(
             child: Stack(
               children: [
                 _corpo(context, estado),
-                Positioned(
-                  right: 16,
-                  bottom: baixo + 16,
-                  child: BotaoFlutuanteApp(
-                    rotulo: 'Novo boleto',
-                    onPressed: () => _novo(context),
+                if (estado.carregamento != CarregamentoBoletos.pronto ||
+                    estado.todos.isNotEmpty)
+                  Positioned(
+                    right: 16,
+                    bottom: baixo + 16,
+                    child: BotaoFlutuanteApp(
+                      rotulo: 'Novo boleto',
+                      onPressed: () => _novo(context),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -90,12 +74,9 @@ class _APagarListaVista extends StatelessWidget {
 
   Widget _corpo(BuildContext context, APagarListaState estado) {
     return switch (estado.carregamento) {
-      CarregamentoBoletos.carregando => const EstadoCarregandoApp(
-        mensagem: 'Carregando boletos...',
-      ),
+      CarregamentoBoletos.carregando => const EstadoCarregandoApp(mensagem: 'Carregando boletos...'),
       CarregamentoBoletos.erro => EstadoErroApp(
-        mensagem:
-            estado.mensagemErro ?? 'Não foi possível carregar os boletos.',
+        mensagem: estado.mensagemErro ?? 'Não foi possível carregar os boletos.',
         onTentarNovamente: context.read<APagarListaCubit>().carregar,
       ),
       CarregamentoBoletos.pronto when estado.todos.isEmpty => EstadoVazioApp(
@@ -105,7 +86,6 @@ class _APagarListaVista extends StatelessWidget {
         acao: BotaoApp(
           rotulo: 'Lançar boleto',
           expande: false,
-          iconeInicio: const Icon(Icons.add_rounded),
           onPressed: () => _novo(context),
         ),
       ),
@@ -131,12 +111,7 @@ class _Lista extends StatelessWidget {
       child: ListView(
         // Espaço no fim para a barra inferior e o botão flutuante não
         // cobrirem o último card.
-        padding: EdgeInsets.fromLTRB(
-          16,
-          24,
-          16,
-          MediaQuery.paddingOf(context).bottom + 96,
-        ),
+        padding: EdgeInsets.fromLTRB(16, 24, 16, MediaQuery.paddingOf(context).bottom + 96),
         children: [
           CampoBuscaApp(
             rotulo: 'Buscar contas',
@@ -161,9 +136,7 @@ class _Lista extends StatelessWidget {
                 child: CampoSelecaoApp<MesAno?>(
                   rotulo: 'Mês/Ano',
                   opcoes: [...estado.meses, null],
-                  rotuloDe: (m) => m == null
-                      ? 'Todos os meses'
-                      : FormatadorData.mesAnoAbreviado(m.ano, m.mes),
+                  rotuloDe: (m) => m == null ? 'Todos os meses' : FormatadorData.mesAnoAbreviado(m.ano, m.mes),
                   valor: estado.mes,
                   placeholder: 'Todos os meses',
                   onChanged: cubit.alterarMes,
@@ -171,43 +144,34 @@ class _Lista extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: Text(
-                  'Boletos de Fornecedores',
-                  style: estilos.titleMedium,
+                child: TextoContagemLista(
+                  total: total,
+                  singular: 'boleto',
+                  plural: 'boletos',
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: CoresApp.primariaSuave,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  total == 1 ? '1 boleto' : '$total boletos',
-                  style: estilos.labelLarge?.copyWith(
-                    color: CoresApp.sobreSuperficieVariante,
-                  ),
+              Flexible(
+                child: BotaoOrdenacaoApp<OrdemBoleto>(
+                  opcoes: OrdemBoleto.values,
+                  rotuloDe: (ordem) => ordem.rotulo,
+                  valor: estado.ordem,
+                  onChanged: cubit.alterarOrdem,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           if (visiveis.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 32),
               child: Text(
                 'Nenhum boleto encontrado',
                 textAlign: TextAlign.center,
-                style: estilos.bodyLarge?.copyWith(
-                  color: CoresApp.sobreSuperficieVariante,
-                ),
+                style: estilos.bodyLarge?.copyWith(color: CoresApp.sobreSuperficieVariante),
               ),
             ),
           for (final boleto in visiveis) ...[
@@ -222,4 +186,5 @@ class _Lista extends StatelessWidget {
       ),
     );
   }
+
 }

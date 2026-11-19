@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 
-/// Título de seção com ícone (ex.: "Meus dados", "Recebimento via Pix").
 class TituloSecaoApp extends StatelessWidget {
   const TituloSecaoApp({super.key, required this.titulo, required this.icone});
 
@@ -11,11 +10,11 @@ class TituloSecaoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final estilo = Theme.of(context).textTheme.headlineLarge;
+    final estilo = Theme.of(context).textTheme.headlineSmall;
     return Row(
       children: [
-        Icon(icone, color: CoresApp.primaria, size: 30),
-        const SizedBox(width: 12),
+        Icon(icone, color: CoresApp.primaria, size: 24),
+        const SizedBox(width: 8),
         Flexible(child: Text(titulo, style: estilo)),
       ],
     );

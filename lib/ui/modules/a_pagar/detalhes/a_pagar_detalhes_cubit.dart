@@ -5,6 +5,7 @@ import 'package:sou_consultora/core/model/boleto.dart';
 import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
 import 'package:sou_consultora/core/model/arquivo_comprovante.dart';
 import 'package:sou_consultora/ui/modules/a_pagar/detalhes/a_pagar_detalhes_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Detalhes do boleto: pagar (com a data), desfazer, comprovante e excluir.
 class APagarDetalhesCubit extends Cubit<APagarDetalhesState> {
@@ -81,7 +82,7 @@ class APagarDetalhesCubit extends Cubit<APagarDetalhesState> {
     emit(
       state.copyWith(
         acao: AcaoBoleto.nenhuma,
-        aviso: () => 'Pagamento confirmado.',
+        aviso: () => const AvisoToast.sucesso('Pagamento confirmado.'),
       ),
     );
     await carregar();
@@ -103,7 +104,10 @@ class APagarDetalhesCubit extends Cubit<APagarDetalhesState> {
     switch (resultado) {
       case Erro(:final falha):
         emit(
-          state.copyWith(acao: AcaoBoleto.nenhuma, aviso: () => falha.mensagem),
+          state.copyWith(
+            acao: AcaoBoleto.nenhuma,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
         );
       case Sucesso():
         emit(state.copyWith(acao: AcaoBoleto.nenhuma, excluido: true));
@@ -118,7 +122,7 @@ class APagarDetalhesCubit extends Cubit<APagarDetalhesState> {
     if (isClosed) return;
     switch (escolha) {
       case Erro(:final falha):
-        emit(state.copyWith(aviso: () => falha.mensagem));
+        emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
       case Sucesso(valor: null):
         return;
       case Sucesso(valor: final arquivo?):
@@ -140,7 +144,7 @@ class APagarDetalhesCubit extends Cubit<APagarDetalhesState> {
       state.copyWith(
         acao: AcaoBoleto.nenhuma,
         aviso: () => switch (resultado) {
-          Erro(:final falha) => falha.mensagem,
+          Erro(:final falha) => AvisoToast.erro(falha.mensagem),
           Sucesso() => null,
         },
       ),
@@ -163,8 +167,8 @@ class APagarDetalhesCubit extends Cubit<APagarDetalhesState> {
       state.copyWith(
         acao: AcaoBoleto.nenhuma,
         aviso: () => switch (resultado) {
-          Erro(:final falha) => falha.mensagem,
-          Sucesso() => sucesso,
+          Erro(:final falha) => AvisoToast.erro(falha.mensagem),
+          Sucesso() => AvisoToast.sucesso(sucesso),
         },
       ),
     );
@@ -173,7 +177,7 @@ class APagarDetalhesCubit extends Cubit<APagarDetalhesState> {
 
   void _aoFalharCarregar(String mensagem) {
     if (state.boleto != null) {
-      emit(state.copyWith(aviso: () => mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(mensagem)));
       return;
     }
     emit(state.copyWith(carregando: false, erro: () => mensagem));

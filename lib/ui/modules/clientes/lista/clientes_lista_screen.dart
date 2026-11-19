@@ -11,9 +11,11 @@ import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_ordenacao_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
@@ -48,16 +50,24 @@ class _ClientesListaVista extends StatelessWidget {
               BlocBuilder<ClientesListaCubit, ClientesListaState>(
                 builder: _corpo,
               ),
-              Positioned(
-                right: 16,
-                // A casca usa `extendBody`: o fundo da tela fica atrás da
-                // barra inferior, cuja altura chega aqui como padding.
-                bottom: MediaQuery.paddingOf(context).bottom + 16,
-                child: BotaoFlutuanteApp(
-                  rotulo: 'Novo cliente',
-                  icone: Icons.person_add_alt_1_outlined,
-                  onPressed: () => context.push(RotasApp.novoCliente),
-                ),
+              BlocBuilder<ClientesListaCubit, ClientesListaState>(
+                builder: (context, estado) {
+                  final vazio =
+                      estado.carregamento == CarregamentoClientes.pronto &&
+                      estado.todas.isEmpty;
+                  if (vazio) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 16,
+                    // A casca usa `extendBody`: o fundo da tela fica atrás da
+                    // barra inferior, cuja altura chega aqui como padding.
+                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    child: BotaoFlutuanteApp(
+                      rotulo: 'Novo cliente',
+                      icone: Icons.person_add_alt_1_outlined,
+                      onPressed: () => context.push(RotasApp.novoCliente),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -96,7 +106,6 @@ class _ListaVazia extends StatelessWidget {
       acao: BotaoApp(
         rotulo: 'Cadastrar cliente',
         expande: false,
-        iconeInicio: const Icon(Icons.person_add_alt_1_outlined),
         onPressed: () => context.push(RotasApp.novoCliente),
       ),
     );
@@ -142,7 +151,7 @@ class _Lista extends StatelessWidget {
           _Resumo(
             total: estado.todas.length,
             ordem: estado.ordem,
-            onInverter: cubit.inverterOrdem,
+            onChanged: cubit.alterarOrdem,
           ),
           const SizedBox(height: 8),
           if (visiveis.isEmpty) const _SemResultado(),
@@ -164,31 +173,29 @@ class _Resumo extends StatelessWidget {
   const _Resumo({
     required this.total,
     required this.ordem,
-    required this.onInverter,
+    required this.onChanged,
   });
 
   final int total;
   final OrdemNome ordem;
-  final VoidCallback onInverter;
+  final ValueChanged<OrdemNome> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final texto = total == 1
-        ? '1 cliente cadastrado'
-        : '$total clientes cadastrados';
     return Row(
       children: [
         Expanded(
-          child: Text(
-            texto,
-            style: Theme.of(context).textTheme.titleSmall
-                ?.copyWith(color: CoresApp.sobreSuperficieVariante),
+          child: TextoContagemLista(
+            total: total,
+            singular: 'cliente',
+            plural: 'clientes',
           ),
         ),
-        TextButton.icon(
-          onPressed: onInverter,
-          icon: const Icon(Icons.swap_vert_rounded),
-          label: Text(ordem.rotulo),
+        BotaoOrdenacaoApp<OrdemNome>(
+          opcoes: OrdemNome.values,
+          rotuloDe: (item) => item.rotulo,
+          valor: ordem,
+          onChanged: onChanged,
         ),
       ],
     );

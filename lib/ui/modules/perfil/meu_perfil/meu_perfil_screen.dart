@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/titulo_secao_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_chave_pix.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_telefone.dart';
@@ -14,7 +15,6 @@ import 'package:sou_consultora/ui/modules/perfil/meu_perfil/widgets/linha_dado_p
 import 'package:sou_consultora/ui/modules/perfil/widgets/foto_perfil/foto_perfil.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
-import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_icone_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
@@ -39,14 +39,7 @@ class _MeuPerfilVista extends StatelessWidget {
   Future<void> _copiarPix(BuildContext context, String chave) async {
     await Clipboard.setData(ClipboardData(text: chave));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Chave Pix copiada'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    ToastApp.sucesso(context, 'Chave Pix copiada');
   }
 
   Future<void> _abrirOpcoes(BuildContext context) async {
@@ -86,13 +79,11 @@ class _MeuPerfilVista extends StatelessWidget {
               children: [
                 BotaoApp(
                   rotulo: 'Editar Perfil',
-                  iconeInicio: const Icon(Icons.edit_outlined),
                   onPressed: () => context.push(RotasApp.editarPerfil),
                 ),
                 const SizedBox(height: 12),
                 BotaoApp.secundario(
                   rotulo: 'Mais opções',
-                  iconeInicio: const Icon(Icons.more_horiz_rounded),
                   onPressed: () => _abrirOpcoes(context),
                 ),
               ],
@@ -135,7 +126,7 @@ class _MeuPerfilVista extends StatelessWidget {
               const Divider(height: 1),
               LinhaDadoPerfil(
                 icone: Icons.phone_outlined,
-                rotulo: 'Telefone / WhatsApp',
+                rotulo: 'WhatsApp',
                 valor: FormatadorTelefone.formatar(consultora.whatsapp),
                 corIcone: CoresApp.sucesso,
                 corFundoIcone: CoresApp.sucessoContainer,
@@ -153,18 +144,12 @@ class _MeuPerfilVista extends StatelessWidget {
     final chave = consultora.chavePix;
     return LinhaDadoPerfil(
       icone: Icons.qr_code_2_rounded,
-      rotulo: 'Chave Pix p/ recebimento',
+      rotulo: 'Chave Pix',
       valor: chave == null
           ? 'Não cadastrada'
           : FormatadorChavePix.formatar(chave),
       corIcone: CoresApp.alerta,
       corFundoIcone: CoresApp.alertaContainer,
-      complemento: chave == null
-          ? null
-          : SeloStatusApp(
-              rotulo: 'Tipo: ${chave.tipo.rotulo}',
-              status: StatusSelo.neutro,
-            ),
       acao: chave == null
           ? null
           : BotaoIconeApp(

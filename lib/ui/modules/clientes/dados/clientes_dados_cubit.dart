@@ -4,6 +4,7 @@ import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/cliente.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/ui/modules/clientes/dados/clientes_dados_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class ClientesDadosCubit extends Cubit<ClientesDadosState> {
   ClientesDadosCubit({
@@ -42,7 +43,7 @@ class ClientesDadosCubit extends Cubit<ClientesDadosState> {
     final resultado = await _repositorio.abrirWhatsapp(cliente.whatsapp);
     if (isClosed) return;
     if (resultado case Erro(:final falha)) {
-      emit(state.copyWith(aviso: () => falha.mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
     }
   }
 

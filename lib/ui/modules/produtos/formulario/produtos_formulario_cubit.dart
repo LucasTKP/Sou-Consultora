@@ -11,6 +11,7 @@ import 'package:sou_consultora/core/repository/repositorio_categorias.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Cadastro de produto em 2 passos: novo ([idProduto] nulo) ou edição.
 class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
@@ -82,7 +83,7 @@ class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(aviso: () => falha.mensagem));
+        emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
       case Sucesso(valor: null):
         return;
       case Sucesso(:final valor?):
@@ -134,7 +135,12 @@ class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(salvando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            salvando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso():
         emit(state.copyWith(salvando: false, salvo: true));
     }

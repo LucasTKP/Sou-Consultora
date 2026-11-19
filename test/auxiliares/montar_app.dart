@@ -4,11 +4,30 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:sou_consultora/ui/temas/tema_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:toastification/toastification.dart';
+
+/// Tema Shad do app, com a fonte real nos botões. Sem isso, o texto do
+/// `ShadButton` sai em Ahem (fonte de teste, ~2x mais larga) e os botões
+/// estouram nos testes. Só afeta os testes; o tema de produção não muda.
+ShadThemeData _temaShadDeTeste() {
+  const fonte = ShadButtonTheme(
+    textStyle: TextStyle(fontFamily: 'packages/shadcn_ui/Geist'),
+  );
+  final tema = TemaApp.temaShadClaro;
+  return tema.copyWith(
+    primaryButtonTheme: tema.primaryButtonTheme.merge(fonte),
+    secondaryButtonTheme: tema.secondaryButtonTheme.merge(fonte),
+    destructiveButtonTheme: tema.destructiveButtonTheme.merge(fonte),
+    outlineButtonTheme: tema.outlineButtonTheme.merge(fonte),
+    ghostButtonTheme: tema.ghostButtonTheme.merge(fonte),
+  );
+}
 
 /// Mesmo esqueleto do `main.dart` (ShadApp + MaterialApp), com idioma pt-BR.
 Widget appDeTeste({Widget? home, RouterConfig<Object>? roteador}) {
   return ShadApp.custom(
-    theme: TemaApp.temaShadClaro,
+    theme: _temaShadDeTeste(),
     themeMode: ThemeMode.light,
     appBuilder: (context) {
       const delegados = <LocalizationsDelegate<dynamic>>[
@@ -19,8 +38,12 @@ Widget appDeTeste({Widget? home, RouterConfig<Object>? roteador}) {
       ];
       const idiomas = [Locale('pt', 'BR')];
       final tema = TemaApp.mesclarMaterial(Theme.of(context));
-      ShadAppBuilder construtor(BuildContext _, Widget? filho) =>
-          ShadAppBuilder(child: filho!);
+      Widget construtor(BuildContext contexto, Widget? filho) {
+        return ToastificationConfigProvider(
+          config: ToastApp.configuracao(contexto),
+          child: ShadAppBuilder(child: filho!),
+        );
+      }
 
       if (roteador != null) {
         return MaterialApp.router(

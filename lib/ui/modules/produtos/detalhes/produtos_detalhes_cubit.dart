@@ -5,6 +5,7 @@ import 'package:sou_consultora/core/model/resumo_produto.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Detalhes do produto: mostra o que está em cache e atualiza pela rede.
 /// Carrega também os lotes e as saídas da aba Estoque.
@@ -69,10 +70,12 @@ class ProdutosDetalhesCubit extends Cubit<ProdutosDetalhesState> {
     final resultado = await _estoque.apagarLote(loteId);
     if (isClosed) return;
     if (resultado case Erro(:final falha)) {
-      emit(state.copyWith(aviso: () => falha.mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
       return;
     }
-    emit(state.copyWith(aviso: () => 'Lote apagado.'));
+    emit(
+      state.copyWith(aviso: () => const AvisoToast.sucesso('Lote apagado.')),
+    );
     await carregar();
   }
 
@@ -104,7 +107,7 @@ class ProdutosDetalhesCubit extends Cubit<ProdutosDetalhesState> {
   /// Com o produto já na tela (cache), a falha da atualização vira aviso.
   void _aoFalhar(String mensagem) {
     if (state.produto != null) {
-      emit(state.copyWith(aviso: () => mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(mensagem)));
       return;
     }
     emit(state.copyWith(carregando: false, erro: () => mensagem));

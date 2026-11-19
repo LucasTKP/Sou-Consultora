@@ -12,6 +12,7 @@ import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/ui/formatadores/mensagem_recompra.dart';
 import 'package:sou_consultora/ui/modules/inicio/inicio_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Início: carrega vendas, parcelas, boletos, pagamentos e lembretes em
 /// paralelo e recalcula quando vendas, parcelas ou boletos mudam.
@@ -100,7 +101,7 @@ class InicioCubit extends Cubit<InicioState> {
     );
     if (isClosed) return;
     if (resultado case Erro(:final falha)) {
-      emit(state.copyWith(aviso: () => falha.mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
     }
   }
 

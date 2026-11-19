@@ -11,9 +11,11 @@ import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_ordenacao_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
@@ -38,7 +40,7 @@ class _VendasListaVista extends StatelessWidget {
     return Column(
       children: [
         CabecalhoApp(
-          titulo: 'Vendas & Pedidos',
+          titulo: 'Vendas',
           acao: AcaoCabecalho.menu,
           onMenu: () => CascaPrincipalScreen.abrirMenu(context),
         ),
@@ -46,13 +48,21 @@ class _VendasListaVista extends StatelessWidget {
           child: Stack(
             children: [
               BlocBuilder<VendasListaCubit, VendasListaState>(builder: _corpo),
-              Positioned(
-                right: 16,
-                bottom: MediaQuery.paddingOf(context).bottom + 16,
-                child: BotaoFlutuanteApp(
-                  rotulo: 'Nova venda',
-                  onPressed: () => context.push(RotasApp.novaVenda),
-                ),
+              BlocBuilder<VendasListaCubit, VendasListaState>(
+                builder: (context, estado) {
+                  final vazio =
+                      estado.carregamento == CarregamentoVendas.pronto &&
+                      estado.todas.isEmpty;
+                  if (vazio) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 16,
+                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    child: BotaoFlutuanteApp(
+                      rotulo: 'Nova venda',
+                      onPressed: () => context.push(RotasApp.novaVenda),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -77,7 +87,6 @@ class _VendasListaVista extends StatelessWidget {
         acao: BotaoApp(
           rotulo: 'Registrar venda',
           expande: false,
-          iconeInicio: const Icon(Icons.add_rounded),
           onPressed: () => context.push(RotasApp.novaVenda),
         ),
       ),
@@ -145,15 +154,19 @@ class _Lista extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  total == 1 ? '1 venda realizada' : '$total vendas realizadas',
-                  style: estilos.titleMedium,
+                child: TextoContagemLista(
+                  total: total,
+                  singular: 'venda',
+                  plural: 'vendas',
                 ),
               ),
-              TextButton.icon(
-                onPressed: cubit.inverterOrdem,
-                icon: const Icon(Icons.swap_vert_rounded),
-                label: Text(estado.ordem.rotulo),
+              Flexible(
+                child: BotaoOrdenacaoApp<OrdemData>(
+                  opcoes: OrdemData.values,
+                  rotuloDe: (ordem) => ordem.rotulo,
+                  valor: estado.ordem,
+                  onChanged: cubit.alterarOrdem,
+                ),
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:sou_consultora/core/model/item_lancamento.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class LancarEstoqueState {
   const LancarEstoqueState({
@@ -27,7 +28,7 @@ class LancarEstoqueState {
   final bool salvo;
 
   /// Mensagem passageira (falha ao salvar).
-  final String? aviso;
+  final AvisoToast? aviso;
 
   /// Produto vindo da rota: a folha de item abre com ele escolhido.
   final String? produtoInicialId;
@@ -49,7 +50,7 @@ class LancarEstoqueState {
     String? Function()? erroData,
     bool? salvando,
     bool? salvo,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     String? Function()? produtoInicialId,
   }) {
     return LancarEstoqueState(

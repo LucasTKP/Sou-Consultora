@@ -110,8 +110,8 @@ class _Conteudo extends StatelessWidget {
           CartaoCategorias(
             faturamento: resumo.faturamentoDoMes,
             despesas: resumo.despesasDoMes,
-            onAReceber: () => context.go(RotasApp.aReceber),
-            onAPagar: () => context.go(RotasApp.aPagar),
+            onAReceber: () => context.push(RotasApp.aReceber),
+            onAPagar: () => context.push(RotasApp.aPagar),
           ),
         ],
       ),

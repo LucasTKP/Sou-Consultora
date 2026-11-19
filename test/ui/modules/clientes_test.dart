@@ -177,7 +177,7 @@ void main() {
       );
       await _abrir(tester, repositorioClientesDeTeste(servico), '/clientes');
 
-      expect(find.text('3 clientes cadastrados'), findsOneWidget);
+      expect(find.text('3 clientes'), findsOneWidget);
       expect(find.text('Deve R\$ 120,00'), findsOneWidget);
       expect(find.text('Vence hoje R\$ 85,00'), findsOneWidget);
       expect(find.text('Em dia'), findsOneWidget);
@@ -194,6 +194,8 @@ void main() {
         '/clientes',
       );
       expect(find.text('Nenhuma cliente ainda'), findsOneWidget);
+      expect(find.text('Cadastrar cliente'), findsOneWidget);
+      expect(find.text('Novo cliente'), findsNothing);
     });
 
     testWidgets('busca sem resultado mantém o campo', (tester) async {
@@ -293,7 +295,7 @@ void main() {
 
       await cubit.alterarCep('99999999');
 
-      expect(cubit.state.aviso, 'CEP não encontrado');
+      expect(cubit.state.aviso?.mensagem, 'CEP não encontrado');
       expect(cubit.state.endereco.rua, 'Minha rua');
     });
 

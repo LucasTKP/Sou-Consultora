@@ -48,7 +48,6 @@ class _DetalhesVista extends StatelessWidget {
                   minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                   child: BotaoApp(
                     rotulo: 'Nova Venda',
-                    iconeInicio: const Icon(Icons.add_rounded),
                     onPressed: () =>
                         context.push(RotasApp.novaVendaPara(resumo.id)),
                   ),
@@ -107,7 +106,7 @@ class _Conteudo extends StatelessWidget {
         if (resumo.comSaldo) ...[
           const SizedBox(height: 12),
           Center(
-            child: SeloStatusApp(
+            child: SeloStatusApp(tamanho: TamanhoSelo.pagina, 
               rotulo: 'Deve ${FormatadorMoeda.formatar(resumo.saldoDevedor)}',
               status: StatusSelo.perigo,
             ),

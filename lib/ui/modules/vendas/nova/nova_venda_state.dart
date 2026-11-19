@@ -5,6 +5,7 @@ import 'package:sou_consultora/core/model/plano_parcelas.dart';
 import 'package:sou_consultora/core/model/resumo_cliente.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';
 import 'package:sou_consultora/core/model/resumo_servico.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class NovaVendaState {
   const NovaVendaState({
@@ -61,7 +62,7 @@ class NovaVendaState {
 
   /// Id da venda gravada (a tela fecha com ele).
   final String? idSalvo;
-  final String? aviso;
+  final AvisoToast? aviso;
   final int versaoPreenchimento;
 
   bool get editando => idVenda != null;
@@ -102,7 +103,7 @@ class NovaVendaState {
     String? Function()? erroData,
     bool? salvando,
     String? Function()? idSalvo,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     int? versaoPreenchimento,
   }) {
     return NovaVendaState(

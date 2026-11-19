@@ -131,7 +131,7 @@ class _DicaRecompra extends StatelessWidget {
       children: [
         const Icon(
           Icons.tips_and_updates_outlined,
-          size: 18,
+          size: 24,
           color: CoresApp.primaria,
         ),
         const SizedBox(width: 8),

@@ -160,7 +160,7 @@ void main() {
       );
       await _abrir(tester, servico, '/produtos');
 
-      expect(find.text('3 produtos cadastrados'), findsOneWidget);
+      expect(find.text('3 produtos'), findsOneWidget);
       expect(find.text('4 un em estoque'), findsOneWidget);
       expect(find.text('1 un (Baixo estoque)'), findsOneWidget);
       expect(find.text('Esgotado'), findsOneWidget);
@@ -176,6 +176,7 @@ void main() {
 
       expect(find.text('Nenhum produto ainda'), findsOneWidget);
       expect(find.text('Cadastrar produto'), findsOneWidget);
+      expect(find.text('Opções'), findsNothing);
     });
 
     testWidgets('busca sem resultado mantém o campo', (tester) async {

@@ -12,21 +12,23 @@ import 'package:sou_consultora/ui/widgets/avatares/avatar_app.dart';
 class CabecalhoInicio extends StatelessWidget {
   const CabecalhoInicio({
     super.key,
-    required this.cumprimento,
     required this.consultora,
     required this.resumo,
     required this.onMenu,
+    required this.onPerfil,
     required this.onVendas,
     required this.onRecebido,
     required this.onBoletos,
   });
 
-  final String cumprimento;
   final Consultora? consultora;
 
   /// Null enquanto carrega (os números ficam com "—").
   final ResumoInicio? resumo;
   final VoidCallback onMenu;
+
+  /// Toque na foto: abre o perfil.
+  final VoidCallback onPerfil;
   final VoidCallback onVendas;
   final VoidCallback onRecebido;
   final VoidCallback onBoletos;
@@ -44,41 +46,39 @@ class CabecalhoInicio extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 12, 24),
+          padding: const EdgeInsets.fromLTRB(8, 8, 20, 24),
           child: Column(
             children: [
               Row(
                 children: [
-                  AvatarApp(
-                    urlImagem: consultora?.urlFoto,
-                    iniciais: Cliente.iniciaisDe(consultora?.nome ?? ''),
-                    tamanho: TamanhoAvatar.card,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      cumprimento,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: estilos.titleLarge?.copyWith(color: claro),
+                  IconButton(
+                    tooltip: 'Abrir menu',
+                    onPressed: onMenu,
+                    icon: const Icon(
+                      Icons.menu_rounded,
+                      color: claro,
+                      size: 24,
                     ),
                   ),
-                  Material(
-                    color: claro.withOpacity(0.18),
-                    shape: const CircleBorder(),
-                    child: IconButton(
-                      tooltip: 'Abrir menu',
-                      onPressed: onMenu,
-                      icon: const Icon(Icons.menu_rounded, color: claro),
+                  const Spacer(),
+                  Semantics(
+                    button: true,
+                    label: 'Ver perfil',
+                    child: GestureDetector(
+                      onTap: onPerfil,
+                      child: AvatarApp(
+                        urlImagem: consultora?.urlFoto,
+                        iniciais: Cliente.iniciaisDe(consultora?.nome ?? ''),
+                        tamanho: TamanhoAvatar.card,
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
               Text(
                 'Vendido no mês',
-                style: estilos.titleSmall?.copyWith(
-                  color: claro.withOpacity(0.85),
+                style: estilos.titleLarge?.copyWith(
+                  color: claro.withOpacity(0.9),
                 ),
               ),
               FittedBox(
@@ -86,7 +86,7 @@ class CabecalhoInicio extends StatelessWidget {
                   numeros == null
                       ? '—'
                       : FormatadorMoeda.formatar(numeros.vendidoNoMes),
-                  style: estilos.displaySmall?.copyWith(color: claro),
+                  style: estilos.displayMedium?.copyWith(color: claro),
                 ),
               ),
               const SizedBox(height: 20),
@@ -175,17 +175,12 @@ class _Numero extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
             child: Column(
               children: [
-                Text(
-                  titulo,
-                  style: estilos.bodySmall?.copyWith(
-                    color: claro.withOpacity(0.9),
-                  ),
-                ),
+                Text(titulo, style: estilos.titleSmall?.copyWith(color: claro)),
                 const SizedBox(height: 4),
                 FittedBox(
                   child: Text(
                     valor,
-                    style: estilos.titleMedium?.copyWith(color: claro),
+                    style: estilos.titleLarge?.copyWith(color: claro),
                   ),
                 ),
                 const SizedBox(height: 2),

@@ -10,11 +10,16 @@ import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_ordenacao_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
+import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
+
+enum _AcaoProduto { novo, estoque }
 
 /// Tela principal de Produtos (item da barra inferior).
 class ProdutosListaScreen extends StatelessWidget {
@@ -47,34 +52,58 @@ class _ProdutosListaVista extends StatelessWidget {
               BlocBuilder<ProdutosListaCubit, ProdutosListaState>(
                 builder: _corpo,
               ),
-              Positioned(
-                right: 16,
-                // A casca usa `extendBody`: a altura da barra inferior chega
-                // aqui como padding.
-                bottom: MediaQuery.paddingOf(context).bottom + 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    BotaoFlutuanteApp(
-                      rotulo: 'Lançar estoque',
-                      icone: Icons.add_box_outlined,
-                      secundario: true,
-                      // A lista se atualiza sozinha pelo repositório.
-                      onPressed: () => context.push(RotasApp.lancarEstoque()),
+              BlocBuilder<ProdutosListaCubit, ProdutosListaState>(
+                builder: (context, estado) {
+                  final vazio =
+                      estado.carregamento == CarregamentoProdutos.pronto &&
+                      estado.todos.isEmpty;
+                  if (vazio) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 16,
+                    // A casca usa `extendBody`: a altura da barra inferior chega
+                    // aqui como padding.
+                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    child: BotaoFlutuanteApp(
+                      rotulo: 'Opções',
+                      icone: Icons.more_horiz_rounded,
+                      onPressed: () => _abrirOpcoes(context),
                     ),
-                    const SizedBox(height: 12),
-                    BotaoFlutuanteApp(
-                      rotulo: 'Novo produto',
-                      onPressed: () => context.push(RotasApp.novoProduto),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _abrirOpcoes(BuildContext context) async {
+    final acao = await FolhaInferiorApp.mostrar<_AcaoProduto>(
+      context: context,
+      titulo: 'Opções',
+      conteudo: (contexto) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BotaoApp(
+            rotulo: 'Novo produto',
+            onPressed: () => Navigator.of(contexto).pop(_AcaoProduto.novo),
+          ),
+          const SizedBox(height: 12),
+          BotaoApp.contorno(
+            rotulo: 'Lançar estoque',
+            onPressed: () => Navigator.of(contexto).pop(_AcaoProduto.estoque),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || acao == null) return;
+    switch (acao) {
+      case _AcaoProduto.novo:
+        context.push(RotasApp.novoProduto);
+      case _AcaoProduto.estoque:
+        context.push(RotasApp.lancarEstoque());
+    }
   }
 
   Widget _corpo(BuildContext context, ProdutosListaState estado) {
@@ -106,7 +135,6 @@ class _ListaVazia extends StatelessWidget {
       acao: BotaoApp(
         rotulo: 'Cadastrar produto',
         expande: false,
-        iconeInicio: const Icon(Icons.add_rounded),
         onPressed: () => context.push(RotasApp.novoProduto),
       ),
     );
@@ -145,7 +173,7 @@ class _Lista extends StatelessWidget {
           _Resumo(
             total: estado.todos.length,
             ordem: estado.ordem,
-            onInverter: cubit.inverterOrdem,
+            onChanged: cubit.alterarOrdem,
           ),
           const SizedBox(height: 8),
           if (visiveis.isEmpty) const _SemResultado(),
@@ -203,27 +231,29 @@ class _Resumo extends StatelessWidget {
   const _Resumo({
     required this.total,
     required this.ordem,
-    required this.onInverter,
+    required this.onChanged,
   });
 
   final int total;
   final OrdemPreco ordem;
-  final VoidCallback onInverter;
+  final ValueChanged<OrdemPreco> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final texto = total == 1
-        ? '1 produto cadastrado'
-        : '$total produtos cadastrados';
     return Row(
       children: [
         Expanded(
-          child: Text(texto, style: Theme.of(context).textTheme.titleMedium),
+          child: TextoContagemLista(
+            total: total,
+            singular: 'produto',
+            plural: 'produtos',
+          ),
         ),
-        TextButton.icon(
-          onPressed: onInverter,
-          icon: const Icon(Icons.swap_vert_rounded),
-          label: Text(ordem.rotulo),
+        BotaoOrdenacaoApp<OrdemPreco>(
+          opcoes: OrdemPreco.values,
+          rotuloDe: (item) => item.rotulo,
+          valor: ordem,
+          onChanged: onChanged,
         ),
       ],
     );

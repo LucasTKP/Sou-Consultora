@@ -13,6 +13,7 @@ import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Nova venda (com [clienteInicialId] opcional) ou edição ([idVenda]).
 /// Ao concluir, fecha devolvendo o id da venda.
@@ -107,11 +108,7 @@ class _NovaVendaVistaState extends State<_NovaVendaVista> {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     _cubit.limparAviso();
   }
 
@@ -214,15 +211,11 @@ class _Rodape extends StatelessWidget {
                   : estado.editando
                   ? 'Salvar Venda'
                   : 'Concluir Venda',
-              iconeInicio: const Icon(Icons.check_rounded),
               onPressed: estado.podeConcluir ? cubit.concluir : null,
             ),
           const SizedBox(height: 12),
           BotaoApp.secundario(
             rotulo: passo1 ? 'Cancelar' : 'Voltar para Itens',
-            iconeInicio: Icon(
-              passo1 ? Icons.close_rounded : Icons.arrow_back_rounded,
-            ),
             onPressed: onVoltar,
           ),
         ],

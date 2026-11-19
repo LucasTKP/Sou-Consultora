@@ -6,6 +6,7 @@ import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/modules/vendas/widgets/selos_venda.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
+import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 
 /// Topo dos detalhes: saldo em aberto, barra pago × resta, valor e vencimento.
 class CartaoSaldoParcela extends StatelessWidget {
@@ -48,7 +49,7 @@ class CartaoSaldoParcela extends StatelessWidget {
                   ],
                 ),
               ),
-              SeloStatusParcela(status: status),
+              SeloStatusParcela(tamanho: TamanhoSelo.pagina, status: status),
             ],
           ),
           const SizedBox(height: 16),
@@ -189,7 +190,7 @@ class _Quadro extends StatelessWidget {
             children: [
               Icon(
                 icone,
-                size: 18,
+                size: 24,
                 color: destaque ?? CoresApp.sobreSuperficieVariante,
               ),
               const SizedBox(width: 6),

@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/formatadores/mascaras.dart';
-import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 
 /// Campo de valor em R$. Trabalha sempre com **centavos inteiros**.
@@ -55,16 +54,7 @@ class _CampoMoedaAppState extends State<CampoMoedaApp> {
       teclado: TextInputType.number,
       formatadores: [MascaraMoeda()],
       onChanged: _aoMudar,
-      leading: const Padding(
-        padding: EdgeInsets.only(left: 16, right: 8),
-        child: Text(
-          r'R$',
-          style: TextStyle(
-            fontSize: 17,
-            color: CoresApp.sobreSuperficieVariante,
-          ),
-        ),
-      ),
+      leading: const Icon(Icons.attach_money_rounded),
     );
   }
 }

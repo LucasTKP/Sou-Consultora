@@ -39,6 +39,13 @@ class InterruptorApp extends StatelessWidget {
                 onChanged: onChanged,
                 activeThumbColor: CoresApp.sobrePrimaria,
                 activeTrackColor: CoresApp.primaria,
+                inactiveThumbColor: CoresApp.neutro,
+                inactiveTrackColor: CoresApp.neutroContainer,
+                trackOutlineColor: WidgetStateProperty.resolveWith(
+                  (estados) => estados.contains(WidgetState.selected)
+                      ? Colors.transparent
+                      : CoresApp.neutro,
+                ),
               ),
             ],
           ),

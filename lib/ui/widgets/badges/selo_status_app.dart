@@ -5,16 +5,34 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 /// Status visual dos badges do design system.
 enum StatusSelo { sucesso, alerta, perigo, neutro, primario }
 
+/// Tamanho do selo: [cartao] nas listas e cartões; [pagina] nas telas de detalhe.
+enum TamanhoSelo {
+  cartao(fonte: 14, horizontal: 12, vertical: 4),
+  pagina(fonte: 17, horizontal: 16, vertical: 7);
+
+  const TamanhoSelo({
+    required this.fonte,
+    required this.horizontal,
+    required this.vertical,
+  });
+
+  final double fonte;
+  final double horizontal;
+  final double vertical;
+}
+
 /// Selo/badge de status (wrapper de [ShadBadge] com cores do DS).
 class SeloStatusApp extends StatelessWidget {
   const SeloStatusApp({
     super.key,
     required this.rotulo,
     this.status = StatusSelo.primario,
+    this.tamanho = TamanhoSelo.cartao,
   });
 
   final String rotulo;
   final StatusSelo status;
+  final TamanhoSelo tamanho;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +48,16 @@ class SeloStatusApp extends StatelessWidget {
       backgroundColor: fundo,
       foregroundColor: texto,
       hoverBackgroundColor: fundo,
-      child: Text(rotulo, maxLines: 1, overflow: TextOverflow.ellipsis),
+      padding: EdgeInsets.symmetric(
+        horizontal: tamanho.horizontal,
+        vertical: tamanho.vertical,
+      ),
+      child: Text(
+        rotulo,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontSize: tamanho.fonte, fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

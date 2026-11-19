@@ -60,7 +60,7 @@ class AlternadorSegmentadoApp<T> extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (opcao.icone != null) ...[
-                  Icon(opcao.icone, color: cor, size: 22),
+                  Icon(opcao.icone, color: cor, size: 24),
                   const SizedBox(width: 8),
                 ],
                 // Em tela estreita (ou fonte grande), corta com reticências.

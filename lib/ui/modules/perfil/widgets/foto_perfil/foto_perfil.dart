@@ -6,6 +6,7 @@ import 'package:sou_consultora/ui/widgets/dialog/folha_foto_app.dart';
 import 'package:sou_consultora/ui/modules/perfil/widgets/foto_perfil/foto_perfil_cubit.dart';
 import 'package:sou_consultora/ui/modules/perfil/widgets/foto_perfil/foto_perfil_state.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Foto grande da consultora (ou iniciais) com acesso à folha "Foto do perfil".
 ///
@@ -50,14 +51,7 @@ class _FotoPerfilVista extends StatelessWidget {
   }
 
   void _mostrarErro(BuildContext context, FotoPerfilState estado) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(estado.erro!),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    ToastApp.erro(context, estado.erro!);
     context.read<FotoPerfilCubit>().limparErro();
   }
 
@@ -108,12 +102,12 @@ class _Quadro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 136,
-      height: 136,
+      width: 100,
+      height: 100,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: CoresApp.primariaSuave,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xFFF0D3DD), width: 2),
       ),
       child: Stack(
@@ -143,7 +137,7 @@ class _Quadro extends StatelessWidget {
       child: Text(
         estado.iniciais,
         style: const TextStyle(
-          fontSize: 52,
+          fontSize: 36,
           fontWeight: FontWeight.w800,
           color: CoresApp.primariaEscura,
         ),
@@ -175,7 +169,7 @@ class _SeloCamera extends StatelessWidget {
             child: Icon(
               Icons.photo_camera_outlined,
               color: CoresApp.sobrePrimaria,
-              size: 26,
+              size: 24,
             ),
           ),
         ),

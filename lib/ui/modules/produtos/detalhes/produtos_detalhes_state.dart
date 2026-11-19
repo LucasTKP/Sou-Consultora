@@ -2,6 +2,7 @@ import 'package:sou_consultora/core/model/lote_produto.dart';
 import 'package:sou_consultora/core/model/resumo_estoque.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';
 import 'package:sou_consultora/core/model/saida_produto.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 enum AbaProduto { informacoes, estoque }
 
@@ -27,7 +28,7 @@ class ProdutosDetalhesState {
 
   /// Mensagem passageira (falha ao atualizar com o produto já na tela,
   /// lote apagado, lote com vendas...).
-  final String? aviso;
+  final AvisoToast? aviso;
   final AbaProduto aba;
   final SegmentoEstoque segmento;
   final List<LoteProduto> lotes;
@@ -41,7 +42,7 @@ class ProdutosDetalhesState {
     ResumoProduto? produto,
     bool? carregando,
     String? Function()? erro,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     AbaProduto? aba,
     SegmentoEstoque? segmento,
     List<LoteProduto>? lotes,

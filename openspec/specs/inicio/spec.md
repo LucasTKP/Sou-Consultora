@@ -21,7 +21,7 @@ O Início SHALL mostrar o **Vendido no mês** (soma das vendas com data de venda
 - **THEN** Recebido mostra R$ 170,00
 
 ### Requirement: Alertas de hoje
-O Início SHALL listar, com a quantidade no título, até 3 alertas de boletos não pagos vencidos, vencendo hoje ou amanhã — do mais atrasado ao mais próximo —, cada um com a marca, o valor, o selo ("VENCEU HÁ N DIAS", "VENCE HOJE", "VENCE AMANHÃ") e **Ver fatura** (abre o boleto); e, se houver parcelas atrasadas, um alerta **Vendas atrasadas** com quantas clientes e o total em atraso e **Cobrar agora** (abre A receber em Atrasado, todos os meses). Sem alertas, SHALL mostrar "Nada para hoje".
+O Início SHALL listar, com a quantidade no título, até 3 alertas de boletos não pagos vencidos, vencendo hoje ou amanhã — do mais atrasado ao mais próximo —, cada um com a marca, o valor, o selo ("VENCEU HÁ N DIAS", "VENCE HOJE", "VENCE AMANHÃ") e **Ver fatura** (abre o boleto); e, se houver parcelas atrasadas, um alerta **Vendas atrasadas** com quantas clientes e o total em atraso e **Cobrar** (abre A receber em Atrasado, todos os meses). Sem alertas, SHALL mostrar "Nada para hoje".
 
 #### Scenario: Boleto vence amanhã
 - **GIVEN** o boleto da Natura de R$ 842,50 vence amanhã e não está pago
@@ -29,7 +29,7 @@ O Início SHALL listar, com a quantidade no título, até 3 alertas de boletos n
 
 #### Scenario: Vendas atrasadas
 - **GIVEN** três clientes têm parcelas vencidas que somam R$ 280,00 em aberto
-- **THEN** aparece "3 CLIENTES", "Vendas Atrasadas" e "Total R$ 280,00" com Cobrar agora
+- **THEN** aparece "3 CLIENTES", "Vendas Atrasadas" e "Total R$ 280,00" com Cobrar
 
 ### Requirement: Lembrete de recompra
 Para cada cliente e cada produto com duração prevista, o app SHALL considerar a última compra dela daquele produto: previsão = data da última compra + duração. SHALL mostrar "Ciclo ideal" de 7 dias antes da previsão até a previsão, e "Acabando!" depois dela, até 60 dias após a previsão; comprar o produto de novo MUST trocar a base para a compra nova. O Início SHALL mostrar os 3 mais urgentes (mais dias desde a previsão primeiro) com iniciais, nome, selo e "produto • há N dias" (desde a última compra), o ícone de conversa (abre o WhatsApp da cliente com uma mensagem pronta sobre o produto) e **Ver todos** (abre Clientes). Produto sem duração prevista MUST NOT gerar lembrete.

@@ -1,6 +1,7 @@
 import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/core/model/detalhe_parcela.dart';
 import 'package:sou_consultora/core/model/pagamento.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class AReceberComprovanteState {
   const AReceberComprovanteState({
@@ -23,7 +24,7 @@ class AReceberComprovanteState {
   final bool carregando;
   final String? erro;
   final bool compartilhando;
-  final String? aviso;
+  final AvisoToast? aviso;
 
   bool get pronto => detalhe != null && pagamento != null;
 
@@ -33,7 +34,7 @@ class AReceberComprovanteState {
     bool? carregando,
     String? Function()? erro,
     bool? compartilhando,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
   }) {
     return AReceberComprovanteState(
       detalhe: detalhe ?? this.detalhe,

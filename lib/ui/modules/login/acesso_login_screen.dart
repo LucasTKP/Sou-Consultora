@@ -5,7 +5,7 @@ import 'package:sou_consultora/ui/modules/login/widgets/botoes_sociais_login.dar
 import 'package:sou_consultora/ui/modules/login/widgets/cabecalho_marca_login.dart';
 import 'package:sou_consultora/ui/modules/login/widgets/cartao_boas_vindas_login.dart';
 import 'package:sou_consultora/ui/modules/login/widgets/fundo_acesso.dart';
-import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -67,18 +67,7 @@ class _AcessoLoginVista extends StatelessWidget {
   void _aoMudarEstado(BuildContext context, AcessoLoginState estado) {
     if (estado is! AcessoLoginErro) return;
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            estado.mensagem,
-            style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: CoresApp.sobrePrimaria),
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    ToastApp.erro(context, estado.mensagem);
     context.read<AcessoLoginCubit>().limparErro();
   }
 }

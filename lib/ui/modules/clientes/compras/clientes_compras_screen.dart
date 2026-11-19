@@ -50,16 +50,16 @@ class _ComprasVista extends StatelessWidget {
           children: [
             const CabecalhoApp(titulo: 'Compras da Cliente'),
             Expanded(child: _corpo(context, estado)),
-            SafeArea(
-              top: false,
-              minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-              child: BotaoApp(
-                rotulo: 'Nova Venda',
-                iconeInicio: const Icon(Icons.shopping_bag_outlined),
-                onPressed: () =>
-                    context.push(RotasApp.novaVendaPara(idCliente)),
+            if (estado.compras?.vendas.isEmpty != true)
+              SafeArea(
+                top: false,
+                minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                child: BotaoApp(
+                  rotulo: 'Nova Venda',
+                  onPressed: () =>
+                      context.push(RotasApp.novaVendaPara(idCliente)),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -100,12 +100,32 @@ class _Lista extends StatelessWidget {
         if (compras.vendas.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Text(
-              'Nenhuma compra ainda. Toque em Nova Venda para registrar a primeira.',
-              textAlign: TextAlign.center,
-              style: estilos.bodyLarge?.copyWith(
-                color: CoresApp.sobreSuperficieVariante,
-              ),
+            child: Column(
+              children: [
+                Text(
+                  'Nenhuma compra ainda',
+                  textAlign: TextAlign.center,
+                  style: estilos.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Registre a primeira venda desta cliente.',
+                  textAlign: TextAlign.center,
+                  style: estilos.bodyLarge?.copyWith(
+                    color: CoresApp.sobreSuperficieVariante,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                BotaoApp(
+                  rotulo: 'Registrar venda',
+                  expande: false,
+                  onPressed: () => context.push(
+                    RotasApp.novaVendaPara(
+                      context.read<ClientesComprasCubit>().idCliente,
+                    ),
+                  ),
+                ),
+              ],
             ),
           )
         else ...[

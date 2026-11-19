@@ -83,6 +83,7 @@ class _CampoSelecaoAppState<T> extends State<CampoSelecaoApp<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final estilos = Theme.of(context).textTheme;
     final campo = CampoTextoApp(
       rotulo: widget.rotulo,
       obrigatorio: widget.obrigatorio,
@@ -92,10 +93,29 @@ class _CampoSelecaoAppState<T> extends State<CampoSelecaoApp<T>> {
       placeholder: widget.placeholder,
       controller: _controle,
       onTap: _abrirOpcoes,
+      // 8 px até o texto, 24 da seta e 8 até a borda.
+      restricaoTrailing: const BoxConstraints.tightFor(width: 40, height: 48),
+      estilo: estilos.bodySmall?.copyWith(
+        color: CoresApp.sobreSuperficie,
+        fontWeight: FontWeight.w500,
+      ),
       leading: widget.icone == null
           ? null
-          : Icon(widget.icone, color: CoresApp.primaria),
-      trailing: const Icon(Icons.keyboard_arrow_down_rounded),
+          : Icon(widget.icone, size: 24, color: CoresApp.primaria),
+      trailing: const SizedBox(
+        width: 40,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 24,
+              color: CoresApp.sobreSuperficieVariante,
+            ),
+          ),
+        ),
+      ),
     );
     if (widget.onAtalho == null) return campo;
 
@@ -162,13 +182,39 @@ class _ListaOpcoesState<T> extends State<_ListaOpcoes<T>> {
 
   Widget _item(T opcao) {
     final selecionada = opcao == widget.selecionada;
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(widget.rotuloDe(opcao)),
-      trailing: selecionada
-          ? const Icon(Icons.check_rounded, color: CoresApp.primaria)
-          : null,
-      onTap: () => Navigator.of(context).pop(opcao),
+    final estilos = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: selecionada ? CoresApp.primariaSuave : Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => Navigator.of(context).pop(opcao),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.rotuloDe(opcao),
+                    style: estilos.bodyLarge?.copyWith(
+                      fontWeight: selecionada
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                      color: selecionada ? CoresApp.primariaEscura : null,
+                    ),
+                  ),
+                ),
+                if (selecionada) ...[
+                  const SizedBox(width: 12),
+                  const Icon(Icons.check_rounded, color: CoresApp.primaria),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

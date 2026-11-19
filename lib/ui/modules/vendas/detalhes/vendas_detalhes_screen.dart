@@ -22,6 +22,8 @@ import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 
 /// Detalhes de uma venda: itens, parcelas, editar (sem pagamento) e opções.
 class VendasDetalhesScreen extends StatelessWidget {
@@ -48,11 +50,7 @@ class _DetalhesVista extends StatelessWidget {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<VendasDetalhesCubit>().limparAviso();
   }
 
@@ -79,6 +77,8 @@ class _DetalhesVista extends StatelessWidget {
     if (!context.mounted) return;
     switch (opcao) {
       case null:
+        return;
+      case OpcaoVenda.editar:
         return;
       case OpcaoVenda.cobrar:
         await cubit.cobrar();
@@ -139,7 +139,6 @@ class _DetalhesVista extends StatelessWidget {
                       if (detalhe.venda.podeEditar) ...[
                         BotaoApp(
                           rotulo: 'Editar Venda',
-                          iconeInicio: const Icon(Icons.edit_outlined),
                           onPressed: () => _editar(context, detalhe.venda.id),
                         ),
                         const SizedBox(height: 12),
@@ -148,7 +147,6 @@ class _DetalhesVista extends StatelessWidget {
                         rotulo: estado.processando
                             ? 'Cancelando...'
                             : 'Mais opções',
-                        iconeInicio: const Icon(Icons.more_horiz_rounded),
                         onPressed: estado.processando
                             ? null
                             : () => _opcoes(context, detalhe),
@@ -219,7 +217,7 @@ class _Conteudo extends StatelessWidget {
                 ],
               ),
             ),
-            SeloStatusVenda(status: venda.status),
+            SeloStatusVenda(tamanho: TamanhoSelo.pagina, status: venda.status),
           ],
         ),
         const SizedBox(height: 16),
@@ -320,7 +318,7 @@ class _Abas extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icone, color: cor, size: 20),
+              Icon(icone, color: cor, size: 24),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -347,7 +345,6 @@ class _CartaoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
-    final encomenda = item.tipo == TipoItem.produto && !item.baixarEstoque;
     return CartaoApp(
       filho: Row(
         children: [
@@ -370,8 +367,7 @@ class _CartaoItem extends StatelessWidget {
                 Text(item.nome, style: estilos.titleSmall),
                 Text(
                   '${item.quantidade}x • Desconto: '
-                  '${FormatadorMoeda.formatar(item.desconto)}'
-                  '${encomenda ? ' • Encomenda' : ''}',
+                  '${FormatadorMoeda.formatar(item.desconto)}',
                   style: estilos.bodySmall,
                 ),
               ],
@@ -464,7 +460,7 @@ class _CartaoParcela extends StatelessWidget {
                       style: estilos.titleMedium,
                     ),
                   ),
-                  SeloStatusParcela(status: status),
+                  SeloStatusParcela(tamanho: TamanhoSelo.pagina, status: status),
                 ],
               ),
               const Divider(height: 24, color: CoresApp.primariaSuave),

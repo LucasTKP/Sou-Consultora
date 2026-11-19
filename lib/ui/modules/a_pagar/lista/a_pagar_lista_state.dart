@@ -13,6 +13,7 @@ class APagarListaState {
     this.todos = const [],
     this.status = StatusFiltroBoleto.todos,
     this.busca = '',
+    this.ordem = OrdemBoleto.vencimentoProximo,
     this.mensagemErro,
   });
 
@@ -27,6 +28,7 @@ class APagarListaState {
   /// Null = todos os meses (pelo vencimento).
   final MesAno? mes;
   final String busca;
+  final OrdemBoleto ordem;
   final String? mensagemErro;
 
   List<ResumoBoleto> get visiveis => FiltroBoletos.aplicar(
@@ -34,6 +36,7 @@ class APagarListaState {
     status: status,
     mes: mes,
     busca: busca,
+    ordem: ordem,
     hoje: hoje,
     fornecedorId: fornecedorId,
   );
@@ -63,6 +66,7 @@ class APagarListaState {
     StatusFiltroBoleto? status,
     MesAno? Function()? mes,
     String? busca,
+    OrdemBoleto? ordem,
     String? Function()? mensagemErro,
   }) {
     return APagarListaState(
@@ -73,6 +77,7 @@ class APagarListaState {
       status: status ?? this.status,
       mes: mes != null ? mes() : this.mes,
       busca: busca ?? this.busca,
+      ordem: ordem ?? this.ordem,
       mensagemErro: mensagemErro != null ? mensagemErro() : this.mensagemErro,
     );
   }

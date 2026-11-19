@@ -103,6 +103,11 @@ abstract final class TemaApp {
         displayColor: CoresApp.sobrePrimaria,
       ),
       scaffoldBackgroundColor: CoresApp.fundo,
+      iconTheme: const IconThemeData(size: 24, color: CoresApp.sobreSuperficie),
+      primaryIconTheme: const IconThemeData(
+        size: 24,
+        color: CoresApp.sobrePrimaria,
+      ),
       extensions: const [CoresStatusApp.claro],
       appBarTheme: AppBarTheme(
         backgroundColor: CoresApp.primaria,
@@ -116,12 +121,14 @@ abstract final class TemaApp {
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: CoresApp.primaria,
         foregroundColor: CoresApp.sobrePrimaria,
+        iconSize: 24,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: CoresApp.primaria,
           foregroundColor: CoresApp.sobrePrimaria,
           textStyle: tipografia.labelLarge,
+          iconSize: 24,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -133,16 +140,21 @@ abstract final class TemaApp {
           foregroundColor: CoresApp.primaria,
           side: const BorderSide(color: CoresApp.primaria),
           textStyle: tipografia.labelLarge,
+          iconSize: 24,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(iconSize: 24),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: CoresApp.primaria,
           textStyle: tipografia.labelLarge,
+          iconSize: 24,
         ),
       ),
       cardTheme: CardThemeData(
@@ -173,6 +185,18 @@ abstract final class TemaApp {
         ),
       ),
       dividerTheme: const DividerThemeData(color: CoresApp.contorno),
+      dialogTheme: DialogThemeData(
+        backgroundColor: CoresApp.superficie,
+        surfaceTintColor: Colors.transparent,
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: CoresApp.superficie,
+        surfaceTintColor: Colors.transparent,
+        headerBackgroundColor: CoresApp.superficie,
+        headerForegroundColor: CoresApp.sobreSuperficie,
+        dividerColor: CoresApp.contorno,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: CoresApp.superficie,
         indicatorColor: CoresApp.primariaSuave,
@@ -202,16 +226,21 @@ abstract final class TemaApp {
       textTheme: base.textTheme,
       primaryTextTheme: base.primaryTextTheme,
       scaffoldBackgroundColor: base.scaffoldBackgroundColor,
+      iconTheme: base.iconTheme,
+      primaryIconTheme: base.primaryIconTheme,
       extensions: base.extensions.values,
       appBarTheme: base.appBarTheme,
       floatingActionButtonTheme: base.floatingActionButtonTheme,
       filledButtonTheme: base.filledButtonTheme,
       outlinedButtonTheme: base.outlinedButtonTheme,
       textButtonTheme: base.textButtonTheme,
+      iconButtonTheme: base.iconButtonTheme,
       cardTheme: base.cardTheme,
       inputDecorationTheme: base.inputDecorationTheme,
       dividerTheme: base.dividerTheme,
       navigationBarTheme: base.navigationBarTheme,
+      dialogTheme: base.dialogTheme,
+      datePickerTheme: base.datePickerTheme,
     );
   }
 }

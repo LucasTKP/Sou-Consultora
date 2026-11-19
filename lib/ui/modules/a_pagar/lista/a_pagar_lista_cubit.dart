@@ -53,6 +53,8 @@ class APagarListaCubit extends Cubit<APagarListaState> {
   /// Null = todos os meses.
   void alterarMes(MesAno? mes) => emit(state.copyWith(mes: () => mes));
 
+  void alterarOrdem(OrdemBoleto ordem) => emit(state.copyWith(ordem: ordem));
+
   void _aoMudarLista(List<ResumoBoleto> lista) {
     if (isClosed) return;
     emit(

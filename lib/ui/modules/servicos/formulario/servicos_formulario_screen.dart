@@ -18,6 +18,7 @@ import 'package:sou_consultora/ui/widgets/formularios/campo_foto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Cadastrar ([idServico] nulo) ou editar serviço. Ao salvar, fecha devolvendo `true`.
 class ServicosFormularioScreen extends StatelessWidget {
@@ -66,11 +67,7 @@ class _FormularioVistaState extends State<_FormularioVista> {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     _cubit.limparAviso();
   }
 
@@ -125,7 +122,6 @@ class _FormularioVistaState extends State<_FormularioVista> {
                   minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                   child: BotaoApp(
                     rotulo: estado.salvando ? 'Salvando...' : 'Salvar Serviço',
-                    iconeInicio: const Icon(Icons.check_rounded),
                     onPressed: estado.salvando ? null : _cubit.salvar,
                   ),
                 ),

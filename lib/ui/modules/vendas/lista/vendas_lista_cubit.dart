@@ -43,6 +43,8 @@ class VendasListaCubit extends Cubit<VendasListaState> {
   /// Null = todos os meses.
   void alterarMes(MesAno? mes) => emit(state.copyWith(mes: () => mes));
 
+  void alterarOrdem(OrdemData ordem) => emit(state.copyWith(ordem: ordem));
+
   void inverterOrdem() => emit(state.copyWith(ordem: state.ordem.invertida));
 
   void _aoMudarLista(List<ResumoVenda> lista) {

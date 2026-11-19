@@ -85,7 +85,8 @@ abstract final class RoteadorApp {
         ),
         ShellRoute(
           builder: (_, estado, filho) => CascaPrincipalScreen(
-            caminhoAtual: estado.matchedLocation,
+            // `uri` acompanha também o push (matchedLocation fica na aba de baixo).
+            caminhoAtual: estado.uri.path,
             filho: filho,
           ),
           routes: [

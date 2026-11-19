@@ -15,6 +15,8 @@ import 'package:sou_consultora/ui/widgets/avatares/avatar_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 
 /// Detalhes de um fornecedor. Não existe exclusão: para deixar de usar a
 /// marca, a consultora a coloca em espera na edição.
@@ -38,11 +40,7 @@ class _DetalhesVista extends StatelessWidget {
   void _aoAvisar(BuildContext context, FornecedoresDetalhesState estado) {
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<FornecedoresDetalhesCubit>().limparAviso();
   }
 
@@ -78,7 +76,6 @@ class _DetalhesVista extends StatelessWidget {
                   minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                   child: BotaoApp(
                     rotulo: 'Editar Fornecedor',
-                    iconeInicio: const Icon(Icons.edit_outlined),
                     onPressed: () => _editar(context, fornecedor.id),
                   ),
                 ),
@@ -169,7 +166,7 @@ class _Identidade extends StatelessWidget {
                         ),
                       ),
                     const SizedBox(height: 8),
-                    SeloStatusFornecedor(fornecedor: fornecedor),
+                    SeloStatusFornecedor(tamanho: TamanhoSelo.pagina, fornecedor: fornecedor),
                   ],
                 ),
               ),
@@ -180,7 +177,7 @@ class _Identidade extends StatelessWidget {
             children: [
               const Icon(
                 Icons.calendar_today_outlined,
-                size: 20,
+                size: 24,
                 color: CoresApp.sobreSuperficieVariante,
               ),
               const SizedBox(width: 8),
@@ -224,8 +221,8 @@ class _Contato extends StatelessWidget {
           valor: FormatadorTelefone.formatar(telefone),
           fim: BotaoApp.contorno(
             rotulo: 'WhatsApp',
+            tamanho: TamanhoBotao.compacto,
             expande: false,
-            iconeInicio: const Icon(Icons.chat_outlined),
             onPressed: context.read<FornecedoresDetalhesCubit>().abrirWhatsapp,
           ),
         ),

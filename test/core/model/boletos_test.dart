@@ -168,29 +168,29 @@ void main() {
       StatusFiltroBoleto status = StatusFiltroBoleto.todos,
       MesAno? mes = const MesAno(2026, 11),
       String busca = '',
+      OrdemBoleto ordem = OrdemBoleto.vencimentoProximo,
       String? fornecedorId,
     }) => FiltroBoletos.aplicar(
       boletos,
       status: status,
       mes: mes,
       busca: busca,
+      ordem: ordem,
       hoje: hoje,
       fornecedorId: fornecedorId,
     ).map((b) => b.id).toList();
 
-    test(
-      'mês pelo vencimento e ordem: em aberto do mais urgente, pagos no fim',
-      () {
-        expect(ids(), ['atrasado', 'hoje', 'futuro', 'pago']);
-        expect(ids(mes: null), [
-          'atrasado',
-          'hoje',
-          'futuro',
-          'dezembro',
-          'pago',
-        ]);
-      },
-    );
+    test('mês pelo vencimento, do mais próximo ao mais distante', () {
+      expect(ids(), ['pago', 'atrasado', 'hoje', 'futuro']);
+      expect(ids(mes: null), [
+        'pago',
+        'atrasado',
+        'hoje',
+        'futuro',
+        'dezembro',
+      ]);
+      expect(ids(ordem: OrdemBoleto.vencimentoDistante).first, 'futuro');
+    });
 
     test('status e contagens', () {
       expect(ids(status: StatusFiltroBoleto.atrasado), ['atrasado']);

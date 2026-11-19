@@ -253,6 +253,12 @@ void main() {
 
       expect(find.text('A pagar'), findsOneWidget);
       expect(find.text('2 boletos'), findsOneWidget);
+      expect(find.text('Vencimento: mais próximo'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.swap_vert_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Maior valor'), findsOneWidget);
+      await tester.tap(find.text('Maior valor'));
+      await tester.pumpAndSettle();
       expect(find.text('Fora do Mês'), findsNothing);
       expect(find.text('Vence hoje'), findsOneWidget);
       expect(find.text('R\$ 680,00'), findsOneWidget);
@@ -311,6 +317,7 @@ void main() {
       await _abrir(tester, _Ambiente(), '/a-pagar');
       expect(find.text('Nenhum boleto ainda'), findsOneWidget);
       expect(find.text('Lançar boleto'), findsOneWidget);
+      expect(find.text('Novo boleto'), findsNothing);
     });
   });
 
@@ -635,6 +642,7 @@ void main() {
       await tester.tap(find.text('Baixar / Anexar Comprovante'));
       await tester.pumpAndSettle();
       expect(find.text('Anexar outro substitui o atual.'), findsOneWidget);
+      await tester.ensureVisible(find.text('Escolher PDF'));
       await tester.tap(find.text('Escolher PDF'));
       await tester.pumpAndSettle();
       expect(ambiente.escolher.origens, [OrigemComprovante.pdf]);

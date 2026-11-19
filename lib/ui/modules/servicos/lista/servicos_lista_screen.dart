@@ -7,17 +7,18 @@ import 'package:sou_consultora/core/model/ordem_nome.dart';
 import 'package:sou_consultora/ui/modules/servicos/lista/servicos_lista_cubit.dart';
 import 'package:sou_consultora/ui/modules/servicos/lista/servicos_lista_state.dart';
 import 'package:sou_consultora/ui/modules/servicos/lista/widgets/cartao_servico.dart';
-import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_ordenacao_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
-/// Tela principal de Serviços (dentro da casca, aberta pelo menu lateral).
+/// Serviços abre pelo menu, sem a barra. Voltar retorna à aba de onde veio.
 class ServicosListaScreen extends StatelessWidget {
   const ServicosListaScreen({super.key});
 
@@ -37,25 +38,29 @@ class _ServicosListaVista extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CabecalhoApp(
-          titulo: 'Serviços',
-          acao: AcaoCabecalho.menu,
-          onMenu: () => CascaPrincipalScreen.abrirMenu(context),
-        ),
+        CabecalhoApp(titulo: 'Serviços', acao: AcaoCabecalho.voltar),
         Expanded(
           child: Stack(
             children: [
               BlocBuilder<ServicosListaCubit, ServicosListaState>(
                 builder: _corpo,
               ),
-              Positioned(
-                right: 16,
-                // A casca usa `extendBody`: a altura da barra chega como padding.
-                bottom: MediaQuery.paddingOf(context).bottom + 16,
-                child: BotaoFlutuanteApp(
-                  rotulo: 'Novo serviço',
-                  onPressed: () => context.push(RotasApp.novoServico),
-                ),
+              BlocBuilder<ServicosListaCubit, ServicosListaState>(
+                builder: (context, estado) {
+                  final vazio =
+                      estado.carregamento == CarregamentoServicos.pronto &&
+                      estado.todos.isEmpty;
+                  if (vazio) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 16,
+                    // A casca usa `extendBody`: a altura da barra chega como padding.
+                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    child: BotaoFlutuanteApp(
+                      rotulo: 'Novo serviço',
+                      onPressed: () => context.push(RotasApp.novoServico),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -81,7 +86,6 @@ class _ServicosListaVista extends StatelessWidget {
         acao: BotaoApp(
           rotulo: 'Cadastrar serviço',
           expande: false,
-          iconeInicio: const Icon(Icons.add_rounded),
           onPressed: () => context.push(RotasApp.novoServico),
         ),
       ),
@@ -132,19 +136,17 @@ class _Lista extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  total == 1
-                      ? '1 serviço cadastrado'
-                      : '$total serviços cadastrados',
-                  style: estilos.titleMedium,
+                child: TextoContagemLista(
+                  total: total,
+                  singular: 'serviço',
+                  plural: 'serviços',
                 ),
               ),
-              TextButton.icon(
-                onPressed: cubit.inverterOrdem,
-                icon: const Icon(Icons.swap_vert_rounded),
-                label: Text(
-                  estado.ordem == OrdemNome.aZ ? 'Nome: A–Z' : 'Nome: Z–A',
-                ),
+              BotaoOrdenacaoApp<OrdemNome>(
+                opcoes: OrdemNome.values,
+                rotuloDe: (ordem) => ordem.rotulo,
+                valor: estado.ordem,
+                onChanged: cubit.alterarOrdem,
               ),
             ],
           ),

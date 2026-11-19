@@ -4,6 +4,7 @@ import 'package:sou_consultora/core/model/resumo_inicio.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/titulo_secao_app.dart';
 
 /// "Alertas de hoje": boletos que venceram, vencem hoje ou amanhã (Ver
 /// fatura) e as vendas atrasadas (Cobrar agora).
@@ -37,7 +38,12 @@ class SecaoAlertas extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('Alertas de hoje', style: estilos.titleLarge),
+            const Flexible(
+              child: TituloSecaoApp(
+                titulo: 'Alertas de hoje',
+                icone: Icons.notifications_outlined,
+              ),
+            ),
             if (qtd > 0) ...[
               const SizedBox(width: 10),
               Container(
@@ -81,6 +87,7 @@ class SecaoAlertas extends StatelessWidget {
             subtitulo: FormatadorMoeda.formatar(alerta.boleto.valor),
             acao: BotaoApp.contorno(
               rotulo: 'Ver fatura',
+              tamanho: TamanhoBotao.compacto,
               expande: false,
               onPressed: () => onVerFatura(alerta.boleto.id),
             ),
@@ -99,7 +106,8 @@ class SecaoAlertas extends StatelessWidget {
             titulo: 'Vendas Atrasadas',
             subtitulo: 'Total ${FormatadorMoeda.formatar(atrasadas.total)}',
             acao: BotaoApp(
-              rotulo: 'Cobrar agora',
+              rotulo: 'Cobrar',
+              tamanho: TamanhoBotao.compacto,
               expande: false,
               onPressed: onCobrar,
             ),
@@ -151,7 +159,7 @@ class _Cartao extends StatelessWidget {
               color: fundoIcone,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icone, color: corIcone),
+            child: Icon(icone, color: corIcone, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(

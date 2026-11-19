@@ -1,4 +1,5 @@
 import 'package:sou_consultora/core/model/boleto.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// O que está em andamento na tela (desabilita os botões e muda o texto).
 enum AcaoBoleto { nenhuma, pagando, desfazendo, excluindo, anexando, abrindo }
@@ -20,7 +21,7 @@ class APagarDetalhesState {
   final ResumoBoleto? boleto;
   final bool carregando;
   final String? erro;
-  final String? aviso;
+  final AvisoToast? aviso;
   final AcaoBoleto acao;
 
   /// O boleto foi excluído: a tela fecha.
@@ -38,7 +39,7 @@ class APagarDetalhesState {
     ResumoBoleto? boleto,
     bool? carregando,
     String? Function()? erro,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     AcaoBoleto? acao,
     bool? excluido,
     String? Function()? erroDataPagamento,

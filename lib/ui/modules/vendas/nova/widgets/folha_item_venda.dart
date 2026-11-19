@@ -12,6 +12,7 @@ import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/interruptor_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/seletor_quantidade_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Folha "Adicionar Item à Venda": produto ou serviço do catálogo, quantidade,
 /// desconto e, para produto, se baixa do estoque. Devolve o item ou null.
@@ -142,7 +143,13 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
           ? null
           : ItemPedido.validarDesconto(desconto: _desconto, bruto: item.bruto);
     });
-    if (_erroItem != null || _erroDesconto != null || _erroQuantidade != null) {
+    final erroQuantidade = _erroQuantidade;
+    if (erroQuantidade != null && _erroItem == null && _erroDesconto == null) {
+      // O erro de unidades só aparece ao tocar em Salvar.
+      ToastApp.erro(context, erroQuantidade);
+      return;
+    }
+    if (_erroItem != null || _erroDesconto != null || erroQuantidade != null) {
       return;
     }
     Navigator.of(context).pop(item);
@@ -151,7 +158,6 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
   @override
   Widget build(BuildContext context) {
     final item = _item;
-    final erroQuantidade = _erroQuantidade;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -208,7 +214,7 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
           ),
         const SizedBox(height: 16),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: Column(
@@ -245,27 +251,16 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
           const SizedBox(height: 16),
           InterruptorApp(
             rotulo: 'Baixar do estoque',
-            descricao:
-                '${item.saldoEstoque ?? 0} un disponíveis. '
-                'Desligue para encomenda.',
+            descricao: '${item.saldoEstoque ?? 0} un disponíveis.',
             valor: _baixar,
             onChanged: (valor) => setState(() => _baixar = valor),
-          ),
-        ],
-        if (erroQuantidade != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            erroQuantidade,
-            style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: CoresApp.perigo),
           ),
         ],
         if (item != null) ...[const SizedBox(height: 16), _Resumo(item: item)],
         const SizedBox(height: 24),
         BotaoApp(
           rotulo: 'Salvar',
-          iconeInicio: const Icon(Icons.check_rounded),
-          onPressed: erroQuantidade == null ? _salvar : null,
+          onPressed: _salvar,
         ),
         const SizedBox(height: 12),
         BotaoApp.secundario(

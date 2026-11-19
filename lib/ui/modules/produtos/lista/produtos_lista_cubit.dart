@@ -41,6 +41,8 @@ class ProdutosListaCubit extends Cubit<ProdutosListaState> {
   void alterarEstoque(StatusFiltroEstoque estoque) =>
       emit(state.copyWith(estoque: estoque));
 
+  void alterarOrdem(OrdemPreco ordem) => emit(state.copyWith(ordem: ordem));
+
   void inverterOrdem() => emit(state.copyWith(ordem: state.ordem.invertida));
 
   void _aoMudarLista(List<ResumoProduto> lista) {

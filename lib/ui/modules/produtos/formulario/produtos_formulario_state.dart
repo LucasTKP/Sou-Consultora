@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:sou_consultora/core/model/categoria.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class ProdutosFormularioState {
   const ProdutosFormularioState({
@@ -78,7 +79,7 @@ class ProdutosFormularioState {
   final bool salvo;
 
   /// Mensagem passageira (falha ao salvar, ao escolher foto...).
-  final String? aviso;
+  final AvisoToast? aviso;
 
   /// Muda quando o cubit preenche os campos (edição carregada).
   final int versaoPreenchimento;
@@ -129,7 +130,7 @@ class ProdutosFormularioState {
     String? Function()? erroPrecoVenda,
     bool? salvando,
     bool? salvo,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     int? versaoPreenchimento,
   }) {
     return ProdutosFormularioState(

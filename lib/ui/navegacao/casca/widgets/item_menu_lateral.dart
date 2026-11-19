@@ -19,7 +19,7 @@ class ItemMenuLateral extends StatelessWidget {
   final VoidCallback onTap;
   final bool atual;
 
-  /// Cor especial (ex.: vermelho de "Sair da conta").
+  /// Cor especial do texto e do ícone.
   final Color? cor;
 
   /// Número em destaque à direita (ex.: cobranças atrasadas); null = sem selo.

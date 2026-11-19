@@ -123,14 +123,12 @@ Finder campo(String rotulo) => find.ancestor(
 
 void main() {
   group('Meu perfil', () {
-    testWidgets('mostra dados, WhatsApp formatado e chave Pix com tipo', (
-      tester,
-    ) async {
+    testWidgets('mostra dados, WhatsApp formatado e chave Pix', (tester) async {
       await abrirPerfil(tester, chave: '+5511987654321', tipo: 'telefone');
 
       expect(find.text('Ana Paula Silva'), findsWidgets);
       expect(find.text('(11) 98765-4321'), findsNWidgets(2));
-      expect(find.text('Tipo: Telefone'), findsOneWidget);
+      expect(find.text('Tipo: Telefone'), findsNothing);
       expect(find.text('AS'), findsOneWidget);
     });
 
@@ -147,8 +145,9 @@ void main() {
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
         (chamada) async {
-          if (chamada.method == 'Clipboard.setData')
+          if (chamada.method == 'Clipboard.setData') {
             copiado = (chamada.arguments as Map)['text'] as String;
+          }
           return null;
         },
       );
@@ -279,16 +278,18 @@ void main() {
       expect(find.text('Escolha o tipo da chave'), findsOneWidget);
     });
 
-    testWidgets('remover a chave salva o perfil sem Pix', (tester) async {
+    testWidgets('chave vazia com tipo escolhido pede a chave e não grava', (
+      tester,
+    ) async {
       await abrirEdicao(tester, chave: 'ana@email.com', tipo: 'email');
-      await tocar(tester, find.text('Remover chave Pix'));
+      await digitar(tester, 'Chave Pix', '');
       await tocar(tester, find.text('Salvar Alterações'));
 
+      expect(find.text('Informe a chave Pix'), findsOneWidget);
       expect(
-        _servico.chamadas.last,
-        'atualizar Ana Paula Silva 11987654321 null null',
+        _servico.chamadas.where((c) => c.startsWith('atualizar')),
+        isEmpty,
       );
-      expect(find.text('Não cadastrada'), findsOneWidget);
     });
 
     testWidgets('cancelar descarta as alterações', (tester) async {

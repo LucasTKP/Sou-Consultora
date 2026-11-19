@@ -13,6 +13,7 @@ import 'package:sou_consultora/ui/widgets/avatares/foto_quadrada_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/erro_em_toast.dart';
 
 /// Passo 1: cliente, itens do pedido e totais.
 class PassoItens extends StatelessWidget {
@@ -65,16 +66,9 @@ class PassoItens extends StatelessWidget {
         const SizedBox(height: 12),
         BotaoApp.contorno(
           rotulo: 'Adicionar Produto ou Serviço',
-          iconeInicio: const Icon(Icons.add_circle_outline_rounded),
           onPressed: onAdicionar,
         ),
-        if (estado.erroItens != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            estado.erroItens!,
-            style: estilos.bodyMedium?.copyWith(color: CoresApp.perigo),
-          ),
-        ],
+        ErroEmToast(erro: estado.erroItens),
         const SizedBox(height: 12),
         for (var i = 0; i < estado.itens.length; i++) ...[
           _CartaoItem(
@@ -104,7 +98,6 @@ class _CartaoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
-    final encomenda = item.tipo == TipoItem.produto && !item.baixarEstoque;
     return CartaoApp(
       filho: Row(
         children: [
@@ -132,8 +125,7 @@ class _CartaoItem extends StatelessWidget {
                 ),
                 Text(
                   '${item.quantidade}x • Desconto: '
-                  '${FormatadorMoeda.formatar(item.desconto)}'
-                  '${encomenda ? ' • Encomenda' : ''}',
+                  '${FormatadorMoeda.formatar(item.desconto)}',
                   style: estilos.bodySmall,
                 ),
                 Text(

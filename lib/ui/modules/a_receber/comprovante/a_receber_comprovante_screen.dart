@@ -12,6 +12,7 @@ import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Comprovante de pagamento da parcela, com Compartilhar (imagem + texto).
 class AReceberComprovanteScreen extends StatelessWidget {
@@ -51,11 +52,7 @@ class _ComprovanteVistaState extends State<_ComprovanteVista> {
   void _aoMudarEstado(BuildContext context, AReceberComprovanteState estado) {
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<AReceberComprovanteCubit>().limparAviso();
   }
 
@@ -98,7 +95,6 @@ class _ComprovanteVistaState extends State<_ComprovanteVista> {
                   rotulo: estado.compartilhando
                       ? 'Preparando...'
                       : 'Compartilhar',
-                  iconeInicio: const Icon(Icons.share_outlined),
                   onPressed: estado.compartilhando ? null : _compartilhar,
                 ),
               ),

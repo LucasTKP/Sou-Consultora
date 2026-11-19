@@ -7,6 +7,7 @@ import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_data.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_telefone.dart';
 import 'package:sou_consultora/ui/modules/clientes/formulario/clientes_formulario_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Novo cliente ([idCliente] nulo) ou edição, nos dois passos.
 class ClientesFormularioCubit extends Cubit<ClientesFormularioState> {
@@ -100,10 +101,18 @@ class ClientesFormularioCubit extends Cubit<ClientesFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(buscandoCep: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            buscandoCep: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso(valor: null):
         emit(
-          state.copyWith(buscandoCep: false, aviso: () => 'CEP não encontrado'),
+          state.copyWith(
+            buscandoCep: false,
+            aviso: () => const AvisoToast.aviso('CEP não encontrado'),
+          ),
         );
       case Sucesso(valor: final Endereco encontrado):
         _aplicarCep(encontrado);
@@ -139,7 +148,12 @@ class ClientesFormularioCubit extends Cubit<ClientesFormularioState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(salvando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            salvando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso():
         emit(state.copyWith(salvando: false, salvo: true));
     }

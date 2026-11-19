@@ -87,7 +87,7 @@ void main() {
         '/servicos',
       );
 
-      expect(find.text('2 serviços cadastrados'), findsOneWidget);
+      expect(find.text('2 serviços'), findsOneWidget);
       expect(find.text('UNHAS'), findsOneWidget);
       expect(find.text(FormatadorMoeda.formatar(6500)), findsOneWidget);
 
@@ -111,6 +111,8 @@ void main() {
       await tester.tap(find.text('Tentar novamente'));
       await tester.pumpAndSettle();
       expect(find.text('Nenhum serviço ainda'), findsOneWidget);
+      expect(find.text('Cadastrar serviço'), findsOneWidget);
+      expect(find.text('Novo serviço'), findsNothing);
     });
   });
 

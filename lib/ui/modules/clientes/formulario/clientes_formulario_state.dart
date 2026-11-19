@@ -1,4 +1,5 @@
 import 'package:sou_consultora/core/model/endereco.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Cadastro/edição da cliente em dois passos (dados → endereço).
 class ClientesFormularioState {
@@ -52,7 +53,7 @@ class ClientesFormularioState {
   final bool buscandoCep;
 
   /// Mensagem passageira (falha ao salvar, CEP não encontrado). Exibida uma vez.
-  final String? aviso;
+  final AvisoToast? aviso;
 
   /// Muda quando os campos são preenchidos pelo cubit (edição carregada, CEP):
   /// a tela copia os valores para os campos de texto.
@@ -82,7 +83,7 @@ class ClientesFormularioState {
     String? Function()? erroRua,
     String? Function()? erroNumero,
     bool? buscandoCep,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     int? versaoPreenchimento,
     int? focarNumero,
     bool? salvando,

@@ -79,6 +79,7 @@ class CartaoListaApp extends StatelessWidget {
               if (mostrarSeta && onTap != null)
                 const Icon(
                   Icons.chevron_right_rounded,
+                  size: 24,
                   color: CoresApp.sobreSuperficieVariante,
                 ),
             ],

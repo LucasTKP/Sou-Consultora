@@ -17,6 +17,7 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/titulo_secao_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 class ClientesDadosScreen extends StatelessWidget {
   const ClientesDadosScreen({super.key, required this.idCliente});
@@ -38,11 +39,7 @@ class _DadosVista extends StatelessWidget {
   void _aoAvisar(BuildContext context, ClientesDadosState estado) {
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<ClientesDadosCubit>().limparAviso();
   }
 
@@ -70,7 +67,6 @@ class _DadosVista extends StatelessWidget {
                   minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                   child: BotaoApp(
                     rotulo: 'Editar',
-                    iconeInicio: const Icon(Icons.edit_outlined),
                     onPressed: () => _editar(context, cliente.id),
                   ),
                 ),

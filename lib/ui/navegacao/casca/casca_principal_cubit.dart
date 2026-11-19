@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/core/model/parcela.dart';
@@ -64,21 +63,6 @@ class CascaPrincipalCubit extends Cubit<CascaPrincipalState> {
   ) {
     if (consultora == null) return autenticacao.resumoDaConsultora();
     return ResumoConsultora.daConsultora(consultora);
-  }
-
-  Future<void> carregarVersao() async {
-    final pacote = await PackageInfo.fromPlatform();
-    if (isClosed) return;
-    emit(state.copyWith(versao: pacote.version));
-  }
-
-  /// Encerra a sessão. A navegação para o login é feita pelo roteador.
-  Future<void> sair() async {
-    if (state.saindo) return;
-    emit(state.copyWith(saindo: true));
-    await _autenticacao.sair();
-    if (isClosed) return;
-    emit(state.copyWith(saindo: false));
   }
 
   @override

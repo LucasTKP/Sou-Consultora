@@ -10,6 +10,7 @@ import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/area_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/interruptor_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Novo fornecedor ([idFornecedor] nulo) ou edição. Ao salvar, fecha devolvendo `true`.
 class FornecedoresFormularioScreen extends StatelessWidget {
@@ -75,11 +76,7 @@ class _FormularioVistaState extends State<_FormularioVista> {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<FornecedoresFormularioCubit>().limparAviso();
   }
 
@@ -224,13 +221,11 @@ class _Rodape extends StatelessWidget {
         children: [
           BotaoApp(
             rotulo: estado.salvando ? 'Salvando...' : 'Salvar',
-            iconeInicio: const Icon(Icons.check_rounded),
             onPressed: estado.salvando ? null : cubit.salvar,
           ),
           const SizedBox(height: 12),
           BotaoApp.secundario(
             rotulo: 'Cancelar',
-            iconeInicio: const Icon(Icons.close_rounded),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],

@@ -36,7 +36,7 @@ class BotaoIconeApp extends StatelessWidget {
             child: Icon(
               icone,
               color: CoresApp.primariaEscura,
-              size: 28,
+              size: 24,
               semanticLabel: dica,
             ),
           ),

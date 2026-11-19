@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/erro_em_toast.dart';
 
 /// Campo de texto do app com rótulo sobre a borda (padrão do design system).
 ///
@@ -29,6 +30,9 @@ class CampoTextoApp extends StatelessWidget {
     this.onTap,
     this.leading,
     this.trailing,
+    this.trailingCompacto = false,
+    this.restricaoTrailing,
+    this.estilo,
     this.linhas = 1,
     this.acaoTeclado,
     this.capitalizacao = TextCapitalization.none,
@@ -55,6 +59,15 @@ class CampoTextoApp extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? leading;
   final Widget? trailing;
+
+  /// Encosta [trailing] na borda direita, com pouco espaço até o texto.
+  final bool trailingCompacto;
+
+  /// Largura fixa do [trailing]. O texto vai até essa caixa, sem o recuo padrão.
+  final BoxConstraints? restricaoTrailing;
+
+  /// Estilo do valor. Padrão: `bodyLarge`.
+  final TextStyle? estilo;
   final int linhas;
   final TextInputAction? acaoTeclado;
   final TextCapitalization capitalizacao;
@@ -64,11 +77,19 @@ class CampoTextoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ErroEmToast(
+      erro: erro,
+      child: _campo(context),
+    );
+  }
+
+  Widget _campo(BuildContext context) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
       validator: validador,
-      forceErrorText: erro,
+      // Erro vira toast (ErroEmToast); aqui só a borda fica vermelha.
+      forceErrorText: erro == null ? null : '',
       enabled: habilitado,
       readOnly: somenteLeitura,
       obscureText: obscuro,
@@ -80,13 +101,12 @@ class CampoTextoApp extends StatelessWidget {
       maxLines: obscuro ? 1 : linhas,
       textInputAction: acaoTeclado,
       textCapitalization: capitalizacao,
-      style: Theme.of(context).textTheme.bodyLarge,
+      style: estilo ?? Theme.of(context).textTheme.bodyLarge,
       decoration: _decoracao(context),
     );
   }
 
   InputDecoration _decoracao(BuildContext context) {
-    final estilos = Theme.of(context).textTheme;
     return InputDecoration(
       label: rotulo == null
           ? null
@@ -97,11 +117,22 @@ class CampoTextoApp extends StatelessWidget {
             ),
       floatingLabelBehavior: FloatingLabelBehavior.always,
       hintText: placeholder,
+      hintStyle: estilo?.copyWith(color: CoresApp.sobreSuperficieVariante),
       prefixIcon: leading,
       suffixIcon: trailing,
+      suffixIconConstraints:
+          restricaoTrailing ??
+          (trailingCompacto
+              ? const BoxConstraints.tightFor(width: 32, height: 32)
+              : null),
       alignLabelWithHint: linhas > 1,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      errorStyle: estilos.bodySmall?.copyWith(color: CoresApp.perigo),
+      contentPadding: EdgeInsets.fromLTRB(
+        16,
+        18,
+        restricaoTrailing != null || trailingCompacto ? 0 : 16,
+        18,
+      ),
+      errorStyle: const TextStyle(fontSize: 0, height: 0),
       errorBorder: _borda(CoresApp.perigo),
       focusedErrorBorder: _borda(CoresApp.perigo, largura: 1.5),
       enabledBorder: _borda(CoresApp.primariaSuave, largura: 1.5),

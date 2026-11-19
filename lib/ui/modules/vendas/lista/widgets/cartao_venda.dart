@@ -67,7 +67,7 @@ class CartaoVenda extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.shopping_bag_outlined,
-                    size: 20,
+                    size: 24,
                     color: CoresApp.sobreSuperficieVariante,
                   ),
                   const SizedBox(width: 8),

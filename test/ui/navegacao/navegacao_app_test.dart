@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/dto/resumo_parcela_dto.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/resumo_consultora.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
+import 'package:sou_consultora/ui/navegacao/casca/widgets/barra_inferior.dart';
 import 'package:sou_consultora/ui/navegacao/casca/widgets/item_menu_lateral.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/core/repository/repositorio_boletos.dart';
@@ -173,16 +173,6 @@ bool estaSelecionado(WidgetTester tester, String rotulo) {
 }
 
 void main() {
-  setUp(
-    () => PackageInfo.setMockInitialValues(
-      appName: 'Sou Consultora',
-      packageName: 'sou_consultora',
-      version: '1.0.0',
-      buildNumber: '1',
-      buildSignature: '',
-    ),
-  );
-
   group('controle de acesso', () {
     testWidgets('sem sessão abre o login com a marca e os botões sociais', (
       tester,
@@ -397,7 +387,7 @@ void main() {
         await abrirApp(tester, logado: true);
         await tester.tap(find.bySemanticsLabel('Produtos').last);
         await tester.pumpAndSettle();
-        expect(find.text('1 produto cadastrado'), findsOneWidget);
+        expect(find.text('1 produto'), findsOneWidget);
         expect(estaSelecionado(tester, 'Produtos'), isTrue);
 
         await tester.tap(find.text('Kit Lily'));
@@ -418,13 +408,15 @@ void main() {
       await tester.tap(find.bySemanticsLabel('Produtos').last);
       await tester.pumpAndSettle();
 
+      await tester.tap(find.text('Opções'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Lançar estoque'));
       await tester.pumpAndSettle();
       expect(find.text('Lançar Estoque'), findsOneWidget);
       expect(find.bySemanticsLabel('Início'), findsNothing);
 
       await voltarDoSistema(tester);
-      expect(find.text('1 produto cadastrado'), findsOneWidget);
+      expect(find.text('1 produto'), findsOneWidget);
     });
   });
 
@@ -432,6 +424,19 @@ void main() {
     Future<void> abrirMenu(WidgetTester tester) async {
       await tester.tap(find.byTooltip('Abrir menu'));
       await tester.pumpAndSettle();
+    }
+
+    Future<void> rolarAte(WidgetTester tester, String texto) async {
+      await tester.scrollUntilVisible(
+        find.text(texto).hitTestable(),
+        80,
+        scrollable: find
+            .descendant(
+              of: find.byType(Drawer),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
     }
 
     testWidgets('selo de cobranças atrasadas em A Receber', (tester) async {
@@ -446,17 +451,9 @@ void main() {
         ],
       );
       await abrirMenu(tester);
-      // A seção financeira fica abaixo da dobra do menu.
-      await tester.scrollUntilVisible(
-        find.text('A Receber / Cobranças'),
-        150,
-        scrollable: find
-            .descendant(
-              of: find.byType(Drawer),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
+      await rolarAte(tester, 'Gestão financeira');
+      await tester.tap(find.text('Gestão financeira'));
+      await tester.pumpAndSettle();
 
       final selo = find.descendant(
         of: find.byType(Drawer),
@@ -468,22 +465,24 @@ void main() {
     testWidgets('sem parcelas atrasadas, sem selo', (tester) async {
       await abrirApp(tester, logado: true);
       await abrirMenu(tester);
-      await tester.scrollUntilVisible(
-        find.text('A Receber / Cobranças'),
-        150,
-        scrollable: find
-            .descendant(
-              of: find.byType(Drawer),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
+      await rolarAte(tester, 'Gestão financeira');
+      await tester.tap(find.text('Gestão financeira'));
+      await tester.pumpAndSettle();
       expect(find.bySemanticsLabel(RegExp('atrasadas')), findsNothing);
     });
 
-    testWidgets('mostra a consultora, destaca o item atual e a versão', (
-      tester,
-    ) async {
+    testWidgets('menu abre com navegação principal fechada', (tester) async {
+      await abrirApp(tester, logado: true);
+      await abrirMenu(tester);
+
+      expect(find.text('Navegação principal'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byType(Drawer), matching: find.text('Início')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('mostra a consultora e destaca o item atual', (tester) async {
       await abrirApp(tester, logado: true);
       await abrirMenu(tester);
 
@@ -492,7 +491,10 @@ void main() {
         find.descendant(of: find.byType(Drawer), matching: find.text('AC')),
         findsOneWidget,
       );
-      expect(find.text('Sou Consultora v1.0.0'), findsOneWidget);
+      expect(find.textContaining('Sou Consultora v'), findsNothing);
+      await rolarAte(tester, 'Navegação principal');
+      await tester.tap(find.text('Navegação principal'));
+      await tester.pumpAndSettle();
       final inicio = tester.widget<ItemMenuLateral>(
         find.widgetWithText(ItemMenuLateral, 'Início'),
       );
@@ -504,30 +506,16 @@ void main() {
     ) async {
       await abrirApp(tester, logado: true);
       await abrirMenu(tester);
-      await tester.scrollUntilVisible(
-        find.text('Fornecedores & Marcas').hitTestable(),
-        80,
-        scrollable: find
-            .descendant(
-              of: find.byType(Drawer),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      await tester.tap(find.text('Fornecedores & Marcas'));
+      await rolarAte(tester, 'Navegação principal');
+      await tester.tap(find.text('Navegação principal'));
+      await tester.pumpAndSettle();
+      await rolarAte(tester, 'Fornecedores');
+      await tester.tap(find.text('Fornecedores'));
       await tester.pumpAndSettle();
 
       expect(find.byType(Drawer), findsNothing);
       expect(find.text('1 fornecedor'), findsOneWidget);
-      for (final rotulo in [
-        'Produtos',
-        'Clientes',
-        'Início',
-        'Vendas',
-        'Financeiro',
-      ]) {
-        expect(estaSelecionado(tester, rotulo), isFalse, reason: rotulo);
-      }
+      expect(find.byType(BarraInferior), findsNothing);
     });
 
     testWidgets('Ver perfil e Configurações abrem o Perfil por cima', (
@@ -549,6 +537,7 @@ void main() {
       expect(find.text('Alertas de hoje'), findsOneWidget);
 
       await abrirMenu(tester);
+      await rolarAte(tester, 'Configurações');
       await tester.tap(find.text('Configurações'));
       await tester.pumpAndSettle();
       expect(find.text('Meu Perfil'), findsOneWidget);
@@ -571,12 +560,16 @@ void main() {
       expect(find.text('Ana Paula Souza'), findsOneWidget);
     });
 
-    testWidgets('sair confirmado encerra a sessão e mostra o login', (
+    testWidgets('sair pelo perfil encerra a sessão e mostra o login', (
       tester,
     ) async {
       await abrirApp(tester, logado: true);
       await abrirMenu(tester);
-      await tester.tap(find.text('Sair da conta'));
+      await tester.tap(find.text('Ver perfil'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sair da Conta'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Sair'));
       await tester.pumpAndSettle();
@@ -585,16 +578,21 @@ void main() {
       expect(find.text('Continuar com Google'), findsOneWidget);
     });
 
-    testWidgets('sair cancelado mantém a sessão', (tester) async {
+    testWidgets('sair cancelado no perfil mantém a sessão', (tester) async {
       await abrirApp(tester, logado: true);
       await abrirMenu(tester);
-      await tester.tap(find.text('Sair da conta'));
+      await tester.tap(find.text('Ver perfil'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mais opções'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sair da Conta'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cancelar'));
       await tester.pumpAndSettle();
 
       expect(_repositorio.saidas, 0);
       expect(find.text('Continuar com Google'), findsNothing);
+      expect(find.text('Meu Perfil'), findsOneWidget);
     });
   });
 

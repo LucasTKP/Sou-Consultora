@@ -8,6 +8,7 @@ import 'package:sou_consultora/core/model/resumo_produto.dart';
 import 'package:sou_consultora/core/repository/repositorio_estoque.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/ui/modules/produtos/lancar_estoque/lancar_estoque_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Uma compra para o estoque: data, itens e gravação de tudo de uma vez.
 class LancarEstoqueCubit extends Cubit<LancarEstoqueState> {
@@ -75,7 +76,12 @@ class LancarEstoqueCubit extends Cubit<LancarEstoqueState> {
 
   void adicionarItem(ItemLancamento item) {
     if (jaNaCompra(item.produto.id)) {
-      emit(state.copyWith(aviso: () => LancamentoEstoque.mensagemRepetido));
+      emit(
+        state.copyWith(
+          aviso: () =>
+              const AvisoToast.aviso(LancamentoEstoque.mensagemRepetido),
+        ),
+      );
       return;
     }
     emit(state.copyWith(itens: [...state.itens, item]));
@@ -100,7 +106,12 @@ class LancarEstoqueCubit extends Cubit<LancarEstoqueState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(salvando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            salvando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso():
         emit(state.copyWith(salvando: false, salvo: true));
     }

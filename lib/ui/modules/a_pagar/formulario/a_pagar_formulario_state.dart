@@ -1,5 +1,6 @@
 import 'package:sou_consultora/core/model/forma_pagamento_boleto.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class APagarFormularioState {
   const APagarFormularioState({
@@ -50,7 +51,7 @@ class APagarFormularioState {
   final String? erroVencimento;
   final bool salvando;
   final bool salvo;
-  final String? aviso;
+  final AvisoToast? aviso;
 
   /// Muda quando o cubit preenche os campos (edição carregada).
   final int versaoPreenchimento;
@@ -82,7 +83,7 @@ class APagarFormularioState {
     String? Function()? erroVencimento,
     bool? salvando,
     bool? salvo,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
     int? versaoPreenchimento,
   }) {
     return APagarFormularioState(

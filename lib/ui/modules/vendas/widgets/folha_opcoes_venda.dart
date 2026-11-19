@@ -6,22 +6,38 @@ import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 
 /// O que foi escolhido na folha de opções da venda.
-enum OpcaoVenda { cobrar, recibo, cancelar }
+enum OpcaoVenda { editar, cobrar, recibo, cancelar }
 
 /// Folha "Opções da venda" (Vendas e A receber): cobrar no WhatsApp, gerar
 /// recibo e cancelar.
-/// [podeCobrar] some na venda quitada; [temRecibo] some sem pagamento.
+/// [podeEditar] oferece corrigir o pagamento desta parcela.
+/// [podeCobrar] some na venda quitada; [temRecibo] some sem pagamento;
+/// [podeCancelar] some nas telas que não cancelam a venda (ex.: parcela).
 abstract final class FolhaOpcoesVenda {
   static Future<OpcaoVenda?> mostrar(
     BuildContext context, {
     required bool podeCobrar,
     required bool temRecibo,
+    bool podeEditar = false,
+    bool podeCancelar = true,
   }) {
     return FolhaInferiorApp.mostrar<OpcaoVenda>(
       context: context,
       titulo: 'Opções da Venda',
       conteudo: (contexto) => Column(
         children: [
+          if (podeEditar) ...[
+            _opcao(
+              contexto,
+              OpcaoVenda.editar,
+              Icons.edit_outlined,
+              'Editar pagamento',
+              'Corrige valor, forma e data',
+              CoresApp.primariaSuave,
+              CoresApp.primaria,
+            ),
+            const SizedBox(height: 12),
+          ],
           if (podeCobrar) ...[
             _opcao(
               contexto,
@@ -46,15 +62,16 @@ abstract final class FolhaOpcoesVenda {
             ),
             const SizedBox(height: 12),
           ],
-          _opcao(
-            contexto,
-            OpcaoVenda.cancelar,
-            Icons.delete_outline_rounded,
-            'Cancelar Venda',
-            'Apaga tudo e devolve o estoque',
-            CoresApp.perigoContainer,
-            CoresApp.perigo,
-          ),
+          if (podeCancelar)
+            _opcao(
+              contexto,
+              OpcaoVenda.cancelar,
+              Icons.delete_outline_rounded,
+              'Cancelar Venda',
+              'Apaga tudo e devolve o estoque',
+              CoresApp.perigoContainer,
+              CoresApp.perigo,
+            ),
           const SizedBox(height: 16),
           BotaoApp.secundario(
             rotulo: 'Fechar',

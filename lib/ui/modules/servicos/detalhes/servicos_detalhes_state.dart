@@ -1,4 +1,5 @@
 import 'package:sou_consultora/core/model/resumo_servico.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class ServicosDetalhesState {
   const ServicosDetalhesState({
@@ -13,13 +14,13 @@ class ServicosDetalhesState {
   final String? erro;
 
   /// Mensagem passageira (ex.: falha ao atualizar com o serviço na tela).
-  final String? aviso;
+  final AvisoToast? aviso;
 
   ServicosDetalhesState copyWith({
     ResumoServico? servico,
     bool? carregando,
     String? Function()? erro,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
   }) {
     return ServicosDetalhesState(
       servico: servico ?? this.servico,

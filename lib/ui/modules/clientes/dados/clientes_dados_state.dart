@@ -1,4 +1,5 @@
 import 'package:sou_consultora/core/model/cliente.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 class ClientesDadosState {
   const ClientesDadosState({
@@ -13,13 +14,13 @@ class ClientesDadosState {
   final String? erro;
 
   /// Mensagem passageira (ex.: WhatsApp não abriu). Exibida uma vez.
-  final String? aviso;
+  final AvisoToast? aviso;
 
   ClientesDadosState copyWith({
     Cliente? cliente,
     bool? carregando,
     String? Function()? erro,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
   }) {
     return ClientesDadosState(
       cliente: cliente ?? this.cliente,

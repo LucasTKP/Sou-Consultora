@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/filtro_fornecedores.dart';
+import 'package:sou_consultora/core/model/ordem_nome.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_state.dart';
@@ -37,6 +38,8 @@ class FornecedoresListaCubit extends Cubit<FornecedoresListaState> {
 
   void alterarStatus(StatusFiltroFornecedor status) =>
       emit(state.copyWith(status: status));
+
+  void alterarOrdem(OrdemNome ordem) => emit(state.copyWith(ordem: ordem));
 
   void inverterOrdem() => emit(state.copyWith(ordem: state.ordem.inversa));
 

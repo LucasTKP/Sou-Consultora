@@ -8,15 +8,17 @@ import 'package:sou_consultora/ui/formatadores/formatador_data.dart';
 import 'package:sou_consultora/ui/modules/a_receber/lista/a_receber_lista_cubit.dart';
 import 'package:sou_consultora/ui/modules/a_receber/lista/a_receber_lista_state.dart';
 import 'package:sou_consultora/ui/modules/a_receber/lista/widgets/cartao_parcela.dart';
-import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_ordenacao_app.dart';
+import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
-/// Tela principal de A receber (aberta pelo menu lateral).
+/// A receber abre pelo menu ou pelo Início, sem a barra. Voltar retorna à aba.
 class AReceberListaScreen extends StatelessWidget {
   const AReceberListaScreen({super.key, this.statusInicial});
 
@@ -39,11 +41,7 @@ class _AReceberListaVista extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CabecalhoApp(
-          titulo: 'Recebimentos',
-          acao: AcaoCabecalho.menu,
-          onMenu: () => CascaPrincipalScreen.abrirMenu(context),
-        ),
+        CabecalhoApp(titulo: 'Recebimentos', acao: AcaoCabecalho.voltar),
         Expanded(
           child: BlocBuilder<AReceberListaCubit, AReceberListaState>(
             builder: _corpo,
@@ -64,11 +62,16 @@ class _AReceberListaVista extends StatelessWidget {
         onTentarNovamente: context.read<AReceberListaCubit>().carregar,
       ),
       CarregamentoRecebimentos.pronto when estado.todas.isEmpty =>
-        const EstadoVazioApp(
+        EstadoVazioApp(
           titulo: 'Nada a receber',
           mensagem:
-              'As parcelas das vendas aparecem aqui para você acompanhar.',
+              'Registre uma venda para acompanhar as parcelas por aqui.',
           icone: Icons.payments_outlined,
+          acao: BotaoApp(
+            rotulo: 'Registrar venda',
+            expande: false,
+            onPressed: () => context.push(RotasApp.novaVenda),
+          ),
         ),
       CarregamentoRecebimentos.pronto => _Lista(estado: estado),
     };
@@ -134,18 +137,16 @@ class _Lista extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  total == 1
-                      ? '1 parcela encontrada'
-                      : '$total parcelas encontradas',
-                  style: estilos.titleMedium,
+                child: TextoContagemLista(
+                  total: total,
+                  singular: 'parcela',
+                  plural: 'parcelas',
                 ),
               ),
               Flexible(
-                child: CampoSelecaoApp<OrdemRecebimento>(
-                  rotulo: 'Ordenar',
+                child: BotaoOrdenacaoApp<OrdemRecebimento>(
                   opcoes: OrdemRecebimento.values,
-                  rotuloDe: (o) => o.rotulo,
+                  rotuloDe: (ordem) => ordem.rotulo,
                   valor: estado.ordem,
                   onChanged: cubit.alterarOrdem,
                 ),

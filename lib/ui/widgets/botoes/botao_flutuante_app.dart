@@ -23,6 +23,7 @@ class BotaoFlutuanteApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       heroTag: rotulo,
+      tooltip: rotulo,
       onPressed: onPressed,
       backgroundColor: secundario ? CoresApp.superficie : CoresApp.primaria,
       foregroundColor: secundario ? CoresApp.primaria : CoresApp.sobrePrimaria,
@@ -31,7 +32,7 @@ class BotaoFlutuanteApp extends StatelessWidget {
             ? const BorderSide(color: CoresApp.primariaSuave)
             : BorderSide.none,
       ),
-      icon: Icon(icone),
+      icon: Icon(icone, size: 24),
       label: Text(
         rotulo,
         style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),

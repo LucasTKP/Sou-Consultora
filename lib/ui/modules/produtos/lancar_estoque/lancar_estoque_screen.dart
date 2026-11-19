@@ -16,6 +16,7 @@ import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Lançar Estoque: uma compra com data e produtos. Ao salvar, fecha devolvendo
 /// `true`. Com [produtoInicialId], a folha de item já abre com o produto.
@@ -103,11 +104,7 @@ class _LancarEstoqueVistaState extends State<_LancarEstoqueVista> {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     _cubit.limparAviso();
   }
 
@@ -190,7 +187,6 @@ class _LancarEstoqueVistaState extends State<_LancarEstoqueVista> {
           rotulo: estado.itens.isEmpty
               ? 'Adicionar produto'
               : 'Adicionar outro produto',
-          iconeInicio: const Icon(Icons.add_rounded),
           onPressed: estado.produtos.isEmpty ? null : () => _abrirFolha(),
         ),
         const SizedBox(height: 12),
@@ -282,7 +278,6 @@ class _Rodape extends StatelessWidget {
           const SizedBox(height: 16),
           BotaoApp(
             rotulo: estado.salvando ? 'Salvando...' : 'Salvar lançamento',
-            iconeInicio: const Icon(Icons.check_rounded),
             onPressed: estado.podeSalvar ? cubit.salvar : null,
           ),
           const SizedBox(height: 12),

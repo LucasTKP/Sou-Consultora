@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/categoria.dart';
+import 'package:sou_consultora/core/model/ordem_nome.dart';
 import 'package:sou_consultora/core/model/resumo_servico.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/ui/modules/servicos/lista/servicos_lista_state.dart';
@@ -38,6 +39,8 @@ class ServicosListaCubit extends Cubit<ServicosListaState> {
   /// Nula = todas as categorias.
   void alterarCategoria(Categoria? categoria) =>
       emit(state.copyWith(categoria: () => categoria));
+
+  void alterarOrdem(OrdemNome ordem) => emit(state.copyWith(ordem: ordem));
 
   void inverterOrdem() => emit(state.copyWith(ordem: state.ordem.inversa));
 

@@ -17,6 +17,8 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 
 /// Detalhes do boleto: valor, marca, vencimento, forma, situação, observação
 /// e comprovante; Confirmar pagamento (não pago) e Mais opções.
@@ -44,11 +46,7 @@ class _DetalhesVista extends StatelessWidget {
     }
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<APagarDetalhesCubit>().limparAviso();
   }
 
@@ -181,14 +179,12 @@ class _DetalhesVista extends StatelessWidget {
           if (!boleto.pago) ...[
             BotaoApp(
               rotulo: 'Confirmar Pagamento',
-              iconeInicio: const Icon(Icons.check_circle_outline_rounded),
               onPressed: estado.ocupado ? null : () => _pagar(context, estado),
             ),
             const SizedBox(height: 12),
           ],
           BotaoApp.secundario(
             rotulo: _rotuloOpcoes(estado.acao),
-            iconeInicio: const Icon(Icons.more_horiz_rounded),
             onPressed: estado.ocupado ? null : () => _opcoes(context, boleto),
           ),
         ],
@@ -237,7 +233,7 @@ class _Conteudo extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.storefront_outlined,
-                  size: 18,
+                  size: 24,
                   color: CoresApp.primaria,
                 ),
                 const SizedBox(width: 8),
@@ -297,7 +293,7 @@ class _Conteudo extends StatelessWidget {
             _Linha(
               icone: Icons.info_outline_rounded,
               rotulo: 'Status',
-              valor: SeloStatusBoleto(status: status),
+              valor: SeloStatusBoleto(tamanho: TamanhoSelo.pagina, status: status),
             ),
             if (pagoEm != null)
               _Linha(

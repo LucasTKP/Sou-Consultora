@@ -14,6 +14,7 @@ import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
 import 'package:sou_consultora/ui/modules/vendas/nova/nova_venda_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Pedido em 2 passos: itens e pagamento. Nova venda ou edição ([idVenda]).
 class NovaVendaCubit extends Cubit<NovaVendaState> {
@@ -109,7 +110,11 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
 
   void adicionarItem(ItemPedido item) {
     if (jaNoPedido(item.chave)) {
-      emit(state.copyWith(aviso: () => 'Este item já está no pedido.'));
+      emit(
+        state.copyWith(
+          aviso: () => const AvisoToast.aviso('Este item já está no pedido.'),
+        ),
+      );
       return;
     }
     emit(state.copyWith(itens: [...state.itens, item], erroItens: () => null));
@@ -125,9 +130,19 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
   /// total mudou desde a última vez.
   void avancar() {
     final erroCliente = state.clienteId == null ? 'Escolha a cliente' : null;
-    final erroItens = state.itens.isEmpty
-        ? 'Adicione pelo menos um produto ou serviço'
-        : state.total <= 0
+    if (state.itens.isEmpty) {
+      emit(
+        state.copyWith(
+          erroCliente: () => erroCliente,
+          erroItens: () => null,
+          aviso: () => const AvisoToast.aviso(
+            'Adicione pelo menos um produto ou serviço',
+          ),
+        ),
+      );
+      return;
+    }
+    final erroItens = state.total <= 0
         ? 'O total do pedido precisa ser maior que zero'
         : null;
     emit(
@@ -201,7 +216,12 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
     if (isClosed) return;
     switch (resultado) {
       case Erro(:final falha):
-        emit(state.copyWith(salvando: false, aviso: () => falha.mensagem));
+        emit(
+          state.copyWith(
+            salvando: false,
+            aviso: () => AvisoToast.erro(falha.mensagem),
+          ),
+        );
       case Sucesso(:final valor):
         emit(state.copyWith(salvando: false, idSalvo: () => valor));
     }

@@ -5,6 +5,7 @@ import 'package:sou_consultora/core/model/pagamento.dart';
 import 'package:sou_consultora/core/model/parcela.dart';
 import 'package:sou_consultora/core/model/resumo_inicio.dart';
 import 'package:sou_consultora/core/model/venda.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 enum CarregamentoInicio { carregando, pronto, erro }
 
@@ -33,7 +34,7 @@ class InicioState {
   final List<ResumoBoleto> boletos;
   final List<LembreteRecompra> lembretes;
   final String? mensagemErro;
-  final String? aviso;
+  final AvisoToast? aviso;
 
   ResumoInicio get resumo => ResumoInicio.calcular(
     vendas: vendas,
@@ -67,7 +68,7 @@ class InicioState {
     List<ResumoBoleto>? boletos,
     List<LembreteRecompra>? lembretes,
     String? Function()? mensagemErro,
-    String? Function()? aviso,
+    AvisoToast? Function()? aviso,
   }) {
     return InicioState(
       hoje: hoje,

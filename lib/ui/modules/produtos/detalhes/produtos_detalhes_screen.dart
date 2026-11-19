@@ -17,6 +17,7 @@ import 'package:sou_consultora/ui/widgets/avatares/foto_quadrada_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Detalhes de um produto (aba Informações). A aba Estoque chega no change
 /// `estoque`. Não existe exclusão de produto.
@@ -40,11 +41,7 @@ class _DetalhesVista extends StatelessWidget {
   void _aoAvisar(BuildContext context, ProdutosDetalhesState estado) {
     final aviso = estado.aviso;
     if (aviso == null) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(aviso), behavior: SnackBarBehavior.floating),
-      );
+    ToastApp.mostrar(context, aviso);
     context.read<ProdutosDetalhesCubit>().limparAviso();
   }
 
@@ -62,6 +59,16 @@ class _DetalhesVista extends StatelessWidget {
     if (salvou == true) await cubit.carregar();
   }
 
+  /// Sem lotes, o botão de lançar fica no vazio da aba. O rodapé volta
+  /// quando já existe entrada, ou na aba de saídas.
+  bool _entradaVazia(ProdutosDetalhesState estado) {
+    return estado.aba == AbaProduto.estoque &&
+        estado.segmento == SegmentoEstoque.entradas &&
+        !estado.carregandoEstoque &&
+        estado.erroEstoque == null &&
+        estado.lotes.isEmpty;
+  }
+
   Widget _rodape(BuildContext context, ProdutosDetalhesState estado) {
     final id = estado.produto!.id;
     final estoque = estado.aba == AbaProduto.estoque;
@@ -71,12 +78,10 @@ class _DetalhesVista extends StatelessWidget {
       child: estoque
           ? BotaoApp(
               rotulo: 'Lançar Estoque',
-              iconeInicio: const Icon(Icons.add_box_outlined),
               onPressed: () => _lancarEstoque(context, id),
             )
           : BotaoApp(
               rotulo: 'Editar Produto',
-              iconeInicio: const Icon(Icons.edit_outlined),
               onPressed: () => _editar(context, id),
             ),
     );
@@ -94,7 +99,8 @@ class _DetalhesVista extends StatelessWidget {
             children: [
               const CabecalhoApp(titulo: 'Detalhes do Produto'),
               Expanded(child: _corpo(context, estado)),
-              if (produto != null) _rodape(context, estado),
+              if (produto != null && !_entradaVazia(estado))
+                _rodape(context, estado),
             ],
           ),
         );
@@ -284,7 +290,7 @@ class _Abas extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icone, color: cor, size: 20),
+              Icon(icone, color: cor, size: 24),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(

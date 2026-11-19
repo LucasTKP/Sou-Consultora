@@ -17,16 +17,24 @@ class SecaoPagamentosParcela extends StatelessWidget {
     required this.parcela,
     required this.pagamentos,
     required this.hoje,
+    this.onEditar,
   });
 
   final ResumoParcela parcela;
   final List<Pagamento> pagamentos;
   final DateTime hoje;
 
+  /// Corrige um pagamento anotado errado (valor, forma, data). Null: sem botão.
+  final ValueChanged<Pagamento>? onEditar;
+
   @override
   Widget build(BuildContext context) {
     final linhas = <Widget>[
-      for (final pagamento in pagamentos) _LinhaPagamento(pagamento: pagamento),
+      for (final pagamento in pagamentos)
+        _LinhaPagamento(
+          pagamento: pagamento,
+          onEditar: onEditar == null ? null : () => onEditar!(pagamento),
+        ),
       if (!parcela.paga) _LinhaSaldo(parcela: parcela, hoje: hoje),
     ];
     return Column(
@@ -62,13 +70,15 @@ class SecaoPagamentosParcela extends StatelessWidget {
 }
 
 class _LinhaPagamento extends StatelessWidget {
-  const _LinhaPagamento({required this.pagamento});
+  const _LinhaPagamento({required this.pagamento, this.onEditar});
 
   final Pagamento pagamento;
+  final VoidCallback? onEditar;
 
   @override
   Widget build(BuildContext context) {
     final observacao = pagamento.observacao;
+    final editar = onEditar;
     return _Linha(
       icone: Icons.check_circle_rounded,
       corIcone: CoresApp.sucesso,
@@ -78,7 +88,19 @@ class _LinhaPagamento extends StatelessWidget {
           'Via ${pagamento.forma.rotulo} • '
           '${FormatadorData.diaMesNumerico(pagamento.data)}'
           '${observacao == null ? '' : ' • $observacao'}',
-      selo: const SeloStatusApp(rotulo: 'Recebido', status: StatusSelo.sucesso),
+      selo: const SeloStatusApp(
+        tamanho: TamanhoSelo.pagina,
+        rotulo: 'Recebido',
+        status: StatusSelo.sucesso,
+      ),
+      acao: editar == null
+          ? null
+          : IconButton(
+              tooltip: 'Editar pagamento',
+              icon: const Icon(Icons.edit_outlined),
+              color: CoresApp.primaria,
+              onPressed: editar,
+            ),
     );
   }
 }
@@ -105,7 +127,7 @@ class _LinhaSaldo extends StatelessWidget {
           ? 'Saldo restante • venceu $dia'
           : 'Saldo restante • vence $dia',
       corDescricao: atrasada ? CoresApp.perigo : null,
-      selo: SeloStatusParcela(status: status),
+      selo: SeloStatusParcela(tamanho: TamanhoSelo.pagina, status: status),
     );
   }
 }
@@ -119,6 +141,7 @@ class _Linha extends StatelessWidget {
     required this.descricao,
     required this.selo,
     this.corDescricao,
+    this.acao,
   });
 
   final IconData icone;
@@ -128,6 +151,7 @@ class _Linha extends StatelessWidget {
   final String descricao;
   final Color? corDescricao;
   final Widget selo;
+  final Widget? acao;
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +182,7 @@ class _Linha extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         selo,
+        ?acao,
       ],
     );
   }

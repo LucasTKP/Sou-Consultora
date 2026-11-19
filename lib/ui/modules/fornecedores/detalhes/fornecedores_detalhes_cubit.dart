@@ -4,6 +4,7 @@ import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/core/repository/repositorio_fornecedores.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/detalhes/fornecedores_detalhes_state.dart';
+import 'package:sou_consultora/ui/widgets/feedback/aviso_toast.dart';
 
 /// Detalhes do fornecedor: mostra o que está em cache e atualiza pela rede.
 class FornecedoresDetalhesCubit extends Cubit<FornecedoresDetalhesState> {
@@ -55,7 +56,7 @@ class FornecedoresDetalhesCubit extends Cubit<FornecedoresDetalhesState> {
     final resultado = await _repositorio.abrirWhatsapp(telefone);
     if (isClosed) return;
     if (resultado case Erro(:final falha)) {
-      emit(state.copyWith(aviso: () => falha.mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(falha.mensagem)));
     }
   }
 
@@ -64,7 +65,7 @@ class FornecedoresDetalhesCubit extends Cubit<FornecedoresDetalhesState> {
   /// Com o fornecedor já na tela (cache), a falha da atualização vira aviso.
   void _aoFalhar(String mensagem) {
     if (state.fornecedor != null) {
-      emit(state.copyWith(aviso: () => mensagem));
+      emit(state.copyWith(aviso: () => AvisoToast.erro(mensagem)));
       return;
     }
     emit(state.copyWith(carregando: false, erro: () => mensagem));
