@@ -58,7 +58,7 @@ Marque tudo antes de publicar:
 - [ ] **Cadastrar pela lista de opções:** no cadastro de produto, no de boleto (A pagar) e na nova venda, o campo de marca/cliente **não** tem mais a seta ao lado; ao abrir a lista aparece, fixo no rodapé, **Cadastrar fornecedor** (ou **Cadastrar cliente**); tocar fecha a lista e abre o cadastro, e ao voltar a nova marca/cliente já está na lista. Buscar algo inexistente mostra "Nenhum resultado." com o botão ainda visível.
 - [ ] **Passo a passo da importação (1ª vez):** com uma conta que nunca viu (ou após limpar os dados do app), abrir **Novo produto**: o balão "Cadastre mais rápido" destaca o botão Importar; tocar fora avança. Na tela de importar, os 3 balões (busca, marca, primeiro produto) em sequência. Importar um produto e ver "Quase pronto!" no Continuar. Fechar e abrir o app: **nenhum** balão volta. Em outra conta no mesmo aparelho, o passo a passo aparece de novo. O E2E marca tudo como visto (`abrirApp`), então este item só se confere à mão.
 - [ ] **CEP sem internet:** com o aparelho offline, digitar o CEP avisa e deixa preencher à mão.
-- [ ] **Apagar conta:** hoje **não faz nada** (decisão de produto). **Obrigatório implementar antes da App Store.**
+- [ ] **Apagar conta:** Meu Perfil, Mais opções, **Apagar Conta** abre o WhatsApp do suporte (+55 16 99161-4062) com a mensagem `Quero apagar minha conta no app "Sou Consultora"` pronta. Não sai da conta nem apaga nada no app: quem apaga é o suporte (no banco, a função `apagar_minha_conta()` remove a conta e todos os dados; apague também os arquivos do Storage).
 
 ### 4. Se algo falhar
 
@@ -133,7 +133,7 @@ flutter test integration_test/app_e2e_test.dart -d <dispositivo> --plain-name "c
 - **Financeiro:** o E2E-12 cria uma venda do "E2E Serviço" e um boleto do "E2E Fornecedor" e os apaga no fim.
 - **A pagar:** o E2E-11 lança um boleto do "E2E Fornecedor", paga, desfaz e o exclui no fim (sem comprovante).
 - **Clientes:** a cliente "E2E Cliente" é criada uma única vez e reaproveitada (o app não apaga clientes). As observações editadas são restauradas.
-- **Cadastro:** numa conta sem cadastro, o E2E-01 cria o registro (com `E2E_WHATSAPP`). Como "Apagar conta" ainda não funciona, o registro permanece.
+- **Cadastro:** numa conta sem cadastro, o E2E-01 cria o registro (com `E2E_WHATSAPP`). Como "Apagar conta" é um pedido ao suporte (o app não apaga sozinho), o registro permanece.
 
 ---
 

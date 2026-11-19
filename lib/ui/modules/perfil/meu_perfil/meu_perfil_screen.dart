@@ -46,7 +46,11 @@ class _MeuPerfilVista extends StatelessWidget {
   Future<void> _abrirOpcoes(BuildContext context) async {
     final cubit = context.read<MeuPerfilCubit>();
     final acao = await FolhaOpcoesConta.mostrar(context);
-    // Apagar conta ainda não faz nada (decisão do produto; obrigatório antes da App Store).
+    if (acao == AcaoConta.apagar) {
+      // A exclusão é pedida ao suporte pelo WhatsApp, com a mensagem pronta.
+      await cubit.pedirParaApagarConta();
+      return;
+    }
     if (acao != AcaoConta.sair || !context.mounted) return;
     final confirmou = await DialogoConfirmacaoApp.mostrar(
       context: context,
@@ -58,8 +62,23 @@ class _MeuPerfilVista extends StatelessWidget {
     if (confirmou) await cubit.sair();
   }
 
+  void _aoAvisar(BuildContext context, MeuPerfilState estado) {
+    final aviso = estado.aviso;
+    if (aviso == null) return;
+    ToastApp.mostrar(context, aviso);
+    context.read<MeuPerfilCubit>().limparAviso();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return BlocListener<MeuPerfilCubit, MeuPerfilState>(
+      listenWhen: (antes, depois) => antes.aviso != depois.aviso,
+      listener: _aoAvisar,
+      child: _tela(context),
+    );
+  }
+
+  Widget _tela(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [

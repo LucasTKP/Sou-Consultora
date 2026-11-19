@@ -3,6 +3,13 @@ import 'package:sou_consultora/core/model/versoes_minimas.dart';
 import 'package:sou_consultora/ui/formatadores/mensagem_suporte.dart';
 
 void main() {
+  test('o pedido de apagar a conta é a mensagem combinada', () {
+    expect(
+      MensagemSuporte.apagarConta,
+      'Quero apagar minha conta no app "Sou Consultora"',
+    );
+  });
+
   test('leva o nome, a versão e o sistema do aparelho', () {
     final texto = MensagemSuporte.montar(
       nomeConsultora: ' Ana Paula ',

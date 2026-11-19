@@ -8,9 +8,11 @@ import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
+import 'package:sou_consultora/core/repository/repositorio_suporte.dart';
 import 'package:sou_consultora/ui/modules/perfil/editar/editar_perfil_screen.dart';
 import 'package:sou_consultora/ui/modules/perfil/meu_perfil/meu_perfil_screen.dart';
 
+import '../../auxiliares/falsos_clientes.dart';
 import '../../auxiliares/falsos_consultora.dart';
 import '../../auxiliares/montar_app.dart';
 
@@ -31,6 +33,7 @@ late ServicoConsultoraFalso _servico;
 late FotoDispositivoFalsa _fotos;
 late RepositorioConsultora _repositorio;
 late _AutenticacaoFalsa _autenticacao;
+late ServicoWhatsappFalso _whatsapp;
 
 Future<void> abrirPerfil(
   WidgetTester tester, {
@@ -50,10 +53,14 @@ Future<void> abrirPerfil(
   _fotos = FotoDispositivoFalsa();
   _repositorio = repositorioDeTeste(_servico, _fotos);
   _autenticacao = _AutenticacaoFalsa();
+  _whatsapp = ServicoWhatsappFalso();
   await _repositorio.buscarMinha();
   injetor
     ..registerSingleton<RepositorioConsultora>(_repositorio)
-    ..registerSingleton<RepositorioAutenticacao>(_autenticacao);
+    ..registerSingleton<RepositorioAutenticacao>(_autenticacao)
+    ..registerSingleton<RepositorioSuporte>(
+      RepositorioSuporte(whatsapp: _whatsapp),
+    );
 
   final roteador = GoRouter(
     initialLocation: '/perfil',
@@ -175,14 +182,41 @@ void main() {
       expect(_autenticacao.saidas, 1);
     });
 
-    testWidgets('Apagar conta ainda não faz nada', (tester) async {
+    testWidgets('Apagar conta abre o WhatsApp do suporte com o pedido', (
+      tester,
+    ) async {
       await abrirPerfil(tester);
+      await tocar(tester, find.text('Mais opções'));
+      expect(
+        find.text('Pedir a exclusão ao suporte pelo WhatsApp'),
+        findsOneWidget,
+      );
+      await tocar(tester, find.text('Apagar Conta'));
+
+      expect(_whatsapp.aberturas, ['16991614062']);
+      expect(
+        _whatsapp.mensagens.single,
+        'Quero apagar minha conta no app "Sou Consultora"',
+      );
+      // Não sai da conta nem apaga nada no app: quem apaga é o suporte.
+      expect(_autenticacao.saidas, 0);
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Meu Perfil'), findsOneWidget);
+    });
+
+    testWidgets('sem conseguir abrir o WhatsApp mostra o aviso', (
+      tester,
+    ) async {
+      await abrirPerfil(tester);
+      _whatsapp.abre = false;
       await tocar(tester, find.text('Mais opções'));
       await tocar(tester, find.text('Apagar Conta'));
 
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Não foi possível abrir o WhatsApp'), findsOneWidget);
       expect(_autenticacao.saidas, 0);
-      expect(find.text('Meu Perfil'), findsOneWidget);
+      // O aviso some sozinho depois de um tempo.
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
     });
   });
 

@@ -81,3 +81,17 @@ O app SHALL permitir tirar uma foto com a câmera ou escolher uma da galeria (JP
 - **GIVEN** a conexão cai durante o envio
 - **WHEN** a consultora confirma a nova foto
 - **THEN** aparece uma mensagem de erro e a foto anterior continua
+
+### Requirement: Apagar a conta pedindo ao suporte
+A folha "Opções da Conta" SHALL ter **Apagar Conta**, que MUST abrir o WhatsApp do suporte com a mensagem pronta `Quero apagar minha conta no app "Sou Consultora"`. O app MUST NOT apagar dados nem encerrar a sessão por conta própria: o pedido é atendido pelo suporte. Se o WhatsApp não puder ser aberto, o app MUST mostrar um aviso.
+
+#### Scenario: Pedir a exclusão
+- **GIVEN** a consultora está em Meu Perfil
+- **WHEN** ela abre Mais opções e toca em **Apagar Conta**
+- **THEN** o WhatsApp abre na conversa com o suporte, com a mensagem pronta, e ela continua logada
+
+#### Scenario: WhatsApp indisponível
+- **GIVEN** o aparelho não consegue abrir o WhatsApp
+- **WHEN** ela toca em **Apagar Conta**
+- **THEN** aparece "Não foi possível abrir o WhatsApp" e nada é apagado
+

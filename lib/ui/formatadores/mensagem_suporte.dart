@@ -3,6 +3,9 @@ import 'package:sou_consultora/core/model/versoes_minimas.dart';
 /// Mensagem que abre a conversa com o suporte no WhatsApp: já leva quem é a
 /// consultora e a versão do app, para o suporte entender o problema.
 abstract final class MensagemSuporte {
+  /// Pedido de exclusão da conta, enviado ao suporte pelo WhatsApp.
+  static const apagarConta = 'Quero apagar minha conta no app "Sou Consultora"';
+
   /// Olá! Preciso de ajuda com o app Sou Consultora.
   ///
   /// Nome: Ana Paula

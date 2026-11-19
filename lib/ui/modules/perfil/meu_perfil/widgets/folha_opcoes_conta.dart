@@ -28,7 +28,7 @@ abstract final class FolhaOpcoesConta {
           const SizedBox(height: 12),
           CartaoListaApp(
             titulo: 'Apagar Conta',
-            subtitulo: 'Excluir permanentemente meus dados',
+            subtitulo: 'Pedir a exclusão ao suporte pelo WhatsApp',
             inicio: _icone(
               Icons.delete_forever_outlined,
               CoresApp.perigoContainer,

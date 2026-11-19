@@ -3,6 +3,7 @@ import 'package:sou_consultora/core/api/api_supabase.dart';
 import 'package:sou_consultora/core/repository/repositorio_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/core/repository/repositorio_dicas.dart';
+import 'package:sou_consultora/core/repository/repositorio_suporte.dart';
 import 'package:sou_consultora/core/service/servico_dicas.dart';
 import 'package:sou_consultora/core/service/servico_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
@@ -100,12 +101,25 @@ void configurarDependencias() {
   }
 
   _registrarVersao();
+  _registrarSuporte();
   _registrarClientes();
   _registrarFornecedores();
   _registrarBoletos();
   _registrarProdutos();
   _registrarVendas();
   _registrarInicio();
+}
+
+void _registrarSuporte() {
+  if (!injetor.isRegistered<ServicoWhatsapp>()) {
+    injetor.registerLazySingleton<ServicoWhatsapp>(ServicoWhatsappNativo.new);
+  }
+
+  if (!injetor.isRegistered<RepositorioSuporte>()) {
+    injetor.registerLazySingleton<RepositorioSuporte>(
+      () => RepositorioSuporte(whatsapp: injetor()),
+    );
+  }
 }
 
 void _registrarVersao() {
