@@ -300,8 +300,13 @@ void main() {
         estoque: ServicoEstoqueFalso(produtos: produtos),
       );
 
-      await tester.tap(find.text('Opções'));
+      await tester.tap(find.text('Adicionar'));
       await tester.pumpAndSettle();
+      // Lançar estoque é o mais usado: vem antes de Novo produto.
+      expect(
+        tester.getTopLeft(find.text('Lançar estoque')).dy,
+        lessThan(tester.getTopLeft(find.text('Novo produto')).dy),
+      );
       await tester.tap(find.text('Lançar estoque'));
       await tester.pumpAndSettle();
       expect(find.text('Lançar Estoque'), findsOneWidget);

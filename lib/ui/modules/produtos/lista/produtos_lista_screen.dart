@@ -64,8 +64,8 @@ class _ProdutosListaVista extends StatelessWidget {
                     // aqui como padding.
                     bottom: MediaQuery.paddingOf(context).bottom + 16,
                     child: BotaoFlutuanteApp(
-                      rotulo: 'Opções',
-                      icone: Icons.more_horiz_rounded,
+                      rotulo: 'Adicionar',
+                      destaque: true,
                       onPressed: () => _abrirOpcoes(context),
                     ),
                   );
@@ -81,18 +81,19 @@ class _ProdutosListaVista extends StatelessWidget {
   Future<void> _abrirOpcoes(BuildContext context) async {
     final acao = await FolhaInferiorApp.mostrar<_AcaoProduto>(
       context: context,
-      titulo: 'Opções',
+      titulo: 'Adicionar',
       conteudo: (contexto) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Lançar estoque é o mais usado: vem primeiro e em destaque.
           BotaoApp(
-            rotulo: 'Novo produto',
-            onPressed: () => Navigator.of(contexto).pop(_AcaoProduto.novo),
+            rotulo: 'Lançar estoque',
+            onPressed: () => Navigator.of(contexto).pop(_AcaoProduto.estoque),
           ),
           const SizedBox(height: 12),
           BotaoApp.contorno(
-            rotulo: 'Lançar estoque',
-            onPressed: () => Navigator.of(contexto).pop(_AcaoProduto.estoque),
+            rotulo: 'Novo produto',
+            onPressed: () => Navigator.of(contexto).pop(_AcaoProduto.novo),
           ),
         ],
       ),

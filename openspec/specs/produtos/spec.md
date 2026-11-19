@@ -7,7 +7,7 @@ Permite à consultora manter o catálogo do que vende (foto, marca, categoria, p
 ## Requirements
 
 ### Requirement: Listar produtos
-O app SHALL mostrar, na tela Produtos (item da barra inferior), todos os produtos da consultora em cards com foto, nome, preço de venda e a situação do estoque, e MUST informar o total cadastrado (ex.: "42 produtos cadastrados"). Tocar no card SHALL abrir os detalhes do produto. Sem foto, o card MUST mostrar o ícone de reserva. A tela SHALL oferecer **Novo produto** e o atalho **Lançar estoque**, que abre o lançamento vazio e volta à lista atualizada.
+O app SHALL mostrar, na tela Produtos (item da barra inferior), todos os produtos da consultora em cards com foto, nome, preço de venda e a situação do estoque, e MUST informar o total cadastrado (ex.: "42 produtos cadastrados"). Tocar no card SHALL abrir os detalhes do produto. Sem foto, o card MUST mostrar o ícone de reserva. A tela SHALL oferecer um botão flutuante **Adicionar**, maior e com fundo de destaque, que abre uma folha com **Lançar estoque** (a ação principal, em primeiro lugar; abre o lançamento vazio e volta à lista atualizada) e **Novo produto**.
 
 #### Scenario: Lista com produtos
 - **GIVEN** a consultora tem 3 produtos

@@ -196,7 +196,7 @@ void main() {
 
       expect(find.text('Nenhum produto ainda'), findsOneWidget);
       expect(find.text('Cadastrar produto'), findsOneWidget);
-      expect(find.text('Opções'), findsNothing);
+      expect(find.text('Adicionar'), findsNothing);
     });
 
     testWidgets('busca sem resultado mantém o campo', (tester) async {

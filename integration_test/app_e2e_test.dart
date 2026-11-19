@@ -571,7 +571,7 @@ void main() {
       if (vazia) {
         await tocar(tester, find.text('Cadastrar produto'));
       } else {
-        await tocar(tester, find.text('Opções'));
+        await tocar(tester, find.text('Adicionar'));
         await tocar(tester, find.text('Novo produto'));
       }
       await esperarAte(tester, find.text('Continuar'));

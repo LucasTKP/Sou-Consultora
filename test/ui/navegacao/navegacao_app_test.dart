@@ -408,7 +408,7 @@ void main() {
       await tester.tap(find.bySemanticsLabel('Produtos').last);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Opções'));
+      await tester.tap(find.text('Adicionar'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Lançar estoque'));
       await tester.pumpAndSettle();
