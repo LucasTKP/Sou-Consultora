@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
-import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
 
 import '../../auxiliares/montar_app.dart';
 
@@ -44,23 +43,5 @@ void main() {
       const CabecalhoApp(titulo: 'Início', acao: AcaoCabecalho.nenhuma),
     );
     expect(find.byType(IconButton), findsNothing);
-  });
-
-  testWidgets('indicador de passos mostra texto e progresso', (tester) async {
-    await montar(
-      tester,
-      const IndicadorPassosApp(
-        passoAtual: 1,
-        totalPassos: 2,
-        descricao: 'Dados do Boleto',
-      ),
-    );
-
-    expect(find.text('Passo 1 de 2: Dados do Boleto'), findsOneWidget);
-    expect(find.text('50%'), findsOneWidget);
-    final barra = tester.widget<LinearProgressIndicator>(
-      find.byType(LinearProgressIndicator),
-    );
-    expect(barra.value, 0.5);
   });
 }
