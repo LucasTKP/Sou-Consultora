@@ -142,7 +142,7 @@ void main() {
     test('marca em espera não é duplicada nem escolhida: avisa', () async {
       final fornecedores = ServicoFornecedoresFalso(
         resumos: [fornecedorDto('m2', 'Avon', ativo: false)],
-      )..falhaAoSalvar = const FalhaValidacao(Fornecedor.mensagemDuplicado);
+      );
       final cubit = _formulario(
         catalogo: _catalogo(),
         fornecedores: fornecedores,
@@ -158,9 +158,59 @@ void main() {
         ),
       );
 
+      expect(fornecedores.salvos, isEmpty); // não criou outra "Avon"
       expect(cubit.state.fornecedorId, isNull);
       expect(cubit.state.nome, 'Batom Avon');
-      expect(cubit.state.aviso, isNotNull);
+      expect(cubit.state.aviso?.mensagem, contains('em espera'));
+      await cubit.close();
+    });
+
+    test(
+      '"O Boticário" do catálogo casa com "Boticário" da consultora',
+      () async {
+        final fornecedores = ServicoFornecedoresFalso(
+          resumos: [fornecedorDto('m3', 'Boticário')],
+        );
+        final cubit = _formulario(
+          catalogo: _catalogo(),
+          fornecedores: fornecedores,
+        );
+        await _pronto();
+
+        await cubit.importar(
+          const ProdutoCatalogo(
+            id: 'x',
+            marca: 'O Boticário',
+            codigo: '9',
+            nome: 'Colônia X',
+          ),
+        );
+
+        expect(fornecedores.salvos, isEmpty); // reaproveitou a marca dela
+        expect(cubit.state.fornecedorId, 'm3');
+        await cubit.close();
+      },
+    );
+
+    test('falha ao cadastrar a marca avisa e mantém os campos', () async {
+      final fornecedores = ServicoFornecedoresFalso()..falharRede = true;
+      final cubit = _formulario(
+        catalogo: _catalogo(),
+        fornecedores: fornecedores,
+      );
+      await _pronto();
+      // O cubit já carregou; só o cadastro da marca falha.
+      await cubit.importar(
+        const ProdutoCatalogo(
+          id: 'x',
+          marca: 'Eudora',
+          codigo: '7',
+          nome: 'Batom Eudora',
+        ),
+      );
+      expect(cubit.state.nome, 'Batom Eudora');
+      expect(cubit.state.fornecedorId, isNull);
+      expect(cubit.state.aviso?.mensagem, contains('Eudora'));
       await cubit.close();
     });
 

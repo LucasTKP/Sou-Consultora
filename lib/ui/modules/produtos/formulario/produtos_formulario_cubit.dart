@@ -135,14 +135,25 @@ class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
     await _importarFoto(item);
   }
 
-  /// Id da marca ativa da consultora com o nome de [marca]; cria se não existir.
+  /// Id da marca ativa da consultora com o nome de [marca].
+  ///
+  /// - Não tem a marca: cadastra como fornecedor (o campo é obrigatório) e usa.
+  /// - Tem, mas em espera: não cria outra nem usa; avisa para reativar.
+  /// - Falha ao cadastrar: avisa e deixa a escolha para ela.
   Future<String?> _marcaDoCatalogo(String marca) async {
-    String normal(String texto) => TextoBusca.normalizar(texto);
-    ResumoFornecedor? achar() => state.marcasDisponiveis
-        .where((m) => normal(m.nome) == normal(marca))
-        .firstOrNull;
+    // "O Boticário" e "Boticário" são a mesma marca.
+    String normal(String texto) =>
+        TextoBusca.normalizar(texto).replaceFirst(RegExp(r'^(o|a) '), '');
+    bool mesma(ResumoFornecedor m) => normal(m.nome) == normal(marca);
 
-    if (achar() case final existente?) return existente.id;
+    if (state.marcasDisponiveis.where(mesma).firstOrNull case final ativa?) {
+      return ativa.id;
+    }
+    if (state.marcas.any(mesma)) {
+      _avisar('A marca "$marca" está em espera. Reative-a em Fornecedores.');
+      return null;
+    }
+
     final modelo = MarcaPadrao.values
         .where((m) => normal(m.nome) == normal(marca))
         .firstOrNull;
@@ -150,20 +161,19 @@ class ProdutosFormularioCubit extends Cubit<ProdutosFormularioState> {
       modelo?.paraFornecedor() ?? Fornecedor(nome: marca),
     );
     if (criada is Erro) {
-      // Já existe com esse nome, só em espera, ou falhou: não cria outra.
-      if (!isClosed) {
-        emit(
-          state.copyWith(
-            aviso: () => AvisoToast.erro(
-              'Não foi possível cadastrar a marca "$marca". Escolha-a na lista.',
-            ),
-          ),
-        );
-      }
+      _avisar(
+        'Não foi possível cadastrar a marca "$marca". Escolha-a na lista.',
+      );
       return null;
     }
     await recarregarMarcas();
-    return achar()?.id;
+    return state.marcasDisponiveis.where(mesma).firstOrNull?.id;
+  }
+
+  void _avisar(String mensagem) {
+    if (!isClosed) {
+      emit(state.copyWith(aviso: () => AvisoToast.erro(mensagem)));
+    }
   }
 
   Future<void> _importarFoto(ProdutoCatalogo item) async {

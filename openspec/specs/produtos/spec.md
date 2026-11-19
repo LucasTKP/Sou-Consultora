@@ -205,6 +205,16 @@ O cadastro de produto novo SHALL ter o botão "Importar do catálogo", que abre 
 - **WHEN** ela importa o produto
 - **THEN** o app cadastra a marca como fornecedor e a seleciona no produto
 
+#### Scenario: Marca em espera
+- **GIVEN** a consultora tem a marca do produto escolhido, mas em espera
+- **WHEN** ela importa o produto
+- **THEN** o app não cadastra outra marca igual, mantém a marca vazia e avisa para reativá-la em Fornecedores
+
+#### Scenario: Nome da marca um pouco diferente
+- **GIVEN** a consultora tem a marca "Boticário" e o catálogo traz "O Boticário"
+- **WHEN** ela importa o produto
+- **THEN** o app usa a marca que ela já tem, sem criar outra
+
 #### Scenario: Categoria sem equivalente
 - **GIVEN** a categoria sugerida pelo catálogo não existe para a consultora
 - **WHEN** ela importa o produto
