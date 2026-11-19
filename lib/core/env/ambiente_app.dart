@@ -16,4 +16,12 @@ abstract final class AmbienteApp {
 
   @EnviedField(varName: 'GOOGLE_IOS_CLIENT_ID')
   static final String idClienteGoogleIos = _AmbienteApp.idClienteGoogleIos;
+
+  /// Página do app na Play Store (aberta na tela de atualização obrigatória).
+  @EnviedField(varName: 'URL_LOJA_ANDROID')
+  static final String urlLojaAndroid = _AmbienteApp.urlLojaAndroid;
+
+  /// Página do app na App Store (aberta na tela de atualização obrigatória).
+  @EnviedField(varName: 'URL_LOJA_IOS')
+  static final String urlLojaIos = _AmbienteApp.urlLojaIos;
 }

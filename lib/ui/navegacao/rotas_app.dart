@@ -27,6 +27,7 @@ abstract final class RotasApp {
   static const login = '/login';
   static const carregando = '/carregando';
   static const cadastro = '/cadastro';
+  static const atualizacao = '/atualizar';
   static const inicio = '/inicio';
   static const produtos = '/produtos';
   static const clientes = '/clientes';

@@ -1,5 +1,7 @@
 -- Varredura do catálogo: falha se qualquer tabela/função/view do schema public
 -- não seguir .claude/rules/seguranca.md. Pega tabelas novas esquecidas.
+-- EXCEÇÃO (decisão do dono, 2026-11-19): `configuracoes` é global (sem consultora_id) e o anon
+-- lê. Ela é excluída só dos checks 2 a 6; o 16_configuracoes.sql prova que ninguém grava.
 begin;
 select plan(8);
 
@@ -16,7 +18,7 @@ select is(
   (with tabelas as (
      select c.relname::text as tabela
        from pg_class c join pg_namespace n on n.oid = c.relnamespace
-      where n.nspname = 'public' and c.relkind in ('r', 'p')
+      where n.nspname = 'public' and c.relkind in ('r', 'p') and c.relname <> 'configuracoes'
    ), exigidas as (
      select t.tabela, x.cmd
        from tabelas t cross join unnest(array['SELECT', 'INSERT', 'UPDATE', 'DELETE']) as x (cmd)
@@ -35,7 +37,8 @@ select is(
 select is(
   (select array_agg(p.tablename || '.' || p.policyname order by 1)
      from pg_policies p
-    where p.schemaname = 'public' and p.roles && array['anon', 'public']::name[]),
+    where p.schemaname = 'public' and p.tablename <> 'configuracoes'
+      and p.roles && array['anon', 'public']::name[]),
   null,
   'nenhuma policy para anon ou public'
 );
@@ -43,7 +46,7 @@ select is(
 select is(
   (select array_agg(p.tablename || '.' || p.policyname order by 1)
      from pg_policies p
-    where p.schemaname = 'public'
+    where p.schemaname = 'public' and p.tablename <> 'configuracoes'
       and coalesce(p.qual, '') || coalesce(p.with_check, '') not like '%auth.uid()%'),
   null,
   'toda policy compara com auth.uid()'
@@ -52,7 +55,7 @@ select is(
 select is(
   (select array_agg(distinct g.table_name::text)
      from information_schema.role_table_grants g
-    where g.grantee = 'anon' and g.table_schema = 'public'),
+    where g.grantee = 'anon' and g.table_schema = 'public' and g.table_name <> 'configuracoes'),
   null,
   'anon não tem privilégio em nenhuma tabela'
 );
@@ -60,7 +63,7 @@ select is(
 select is(
   (select array_agg(c.relname::text order by c.relname)
      from pg_class c join pg_namespace n on n.oid = c.relnamespace
-    where n.nspname = 'public' and c.relkind in ('r', 'p') and c.relname <> 'consultoras'
+    where n.nspname = 'public' and c.relkind in ('r', 'p') and c.relname not in ('consultoras', 'configuracoes')
       and not exists (
         select 1 from information_schema.columns col
          where col.table_schema = 'public' and col.table_name = c.relname

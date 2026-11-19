@@ -5,6 +5,7 @@ import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 ///
 /// | Estado                          | Única rota possível |
 /// |---------------------------------|---------------------|
+/// | atualizacaoObrigatoria          | /atualizar          |
 /// | desconectado                    | /login              |
 /// | verificando / erroVerificacao   | /carregando         |
 /// | semCadastro                     | /cadastro           |
@@ -14,6 +15,7 @@ String? destinoPermitido({
   required String destino,
 }) {
   final rotaObrigatoria = switch (estado) {
+    EstadoAcesso.atualizacaoObrigatoria => RotasApp.atualizacao,
     EstadoAcesso.desconectado => RotasApp.login,
     EstadoAcesso.verificando ||
     EstadoAcesso.erroVerificacao => RotasApp.carregando,
@@ -28,6 +30,7 @@ String? destinoPermitido({
     RotasApp.login,
     RotasApp.cadastro,
     RotasApp.carregando,
+    RotasApp.atualizacao,
   };
   return rotasDeEntrada.contains(destino) ? RotasApp.inicio : null;
 }

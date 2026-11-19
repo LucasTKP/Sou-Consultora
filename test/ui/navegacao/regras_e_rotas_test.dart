@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sou_consultora/core/erros/falha_app.dart';
+import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
+import 'package:sou_consultora/core/repository/repositorio_versao.dart';
 import 'package:sou_consultora/ui/navegacao/notificador_acesso.dart';
 import 'package:sou_consultora/ui/navegacao/regras_de_acesso.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
@@ -22,12 +25,43 @@ class _AutenticacaoFalsa implements RepositorioAutenticacao {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _VersaoFalsa implements RepositorioVersao {
+  _VersaoFalsa(this.resultado);
+  final Resultado<bool> resultado;
+
+  @override
+  Future<Resultado<bool>> atualizacaoObrigatoria() async => resultado;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 Future<void> _esperar() => Future<void>.delayed(Duration.zero);
 
 void main() {
   group('destinoPermitido', () {
     String? destino(EstadoAcesso estado, String rota) =>
         destinoPermitido(estado: estado, destino: rota);
+
+    test('atualização obrigatória: só a tela de atualização', () {
+      for (final rota in [RotasApp.inicio, RotasApp.login, RotasApp.cadastro]) {
+        expect(
+          destino(EstadoAcesso.atualizacaoObrigatoria, rota),
+          RotasApp.atualizacao,
+        );
+      }
+      expect(
+        destino(EstadoAcesso.atualizacaoObrigatoria, RotasApp.atualizacao),
+        isNull,
+      );
+    });
+
+    test('pronto: a tela de atualização leva ao Início', () {
+      expect(
+        destino(EstadoAcesso.pronto, RotasApp.atualizacao),
+        RotasApp.inicio,
+      );
+    });
 
     test('desconectado: só o login', () {
       expect(
@@ -107,6 +141,55 @@ void main() {
         RotasApp.vendas,
         RotasApp.financeiro,
       ]);
+    });
+  });
+
+  group('NotificadorAcesso com versão mínima', () {
+    NotificadorAcesso criar({
+      required Resultado<bool> versao,
+      required bool logado,
+    }) {
+      return NotificadorAcesso(
+        autenticacao: _AutenticacaoFalsa(estaLogado: logado),
+        consultoras: repositorioDeTeste(
+          ServicoConsultoraFalso(registro: dtoDeTeste()),
+        ),
+        versao: _VersaoFalsa(versao),
+      );
+    }
+
+    test('abaixo do mínimo bloqueia, mesmo sem sessão', () async {
+      final acesso = criar(versao: const Sucesso(true), logado: false);
+      expect(acesso.estado, EstadoAcesso.verificando);
+      await _esperar();
+      expect(acesso.estado, EstadoAcesso.atualizacaoObrigatoria);
+    });
+
+    test('abaixo do mínimo bloqueia, mesmo com sessão e cadastro', () async {
+      final acesso = criar(versao: const Sucesso(true), logado: true);
+      await _esperar();
+      expect(acesso.estado, EstadoAcesso.atualizacaoObrigatoria);
+    });
+
+    test('versão ok sem sessão vai ao login', () async {
+      final acesso = criar(versao: const Sucesso(false), logado: false);
+      await _esperar();
+      expect(acesso.estado, EstadoAcesso.desconectado);
+    });
+
+    test('versão ok com sessão segue a verificação normal', () async {
+      final acesso = criar(versao: const Sucesso(false), logado: true);
+      await _esperar();
+      expect(acesso.estado, EstadoAcesso.pronto);
+    });
+
+    test('falha ao conferir a versão libera o app', () async {
+      final acesso = criar(
+        versao: Erro(const FalhaRede('sem rede')),
+        logado: false,
+      );
+      await _esperar();
+      expect(acesso.estado, EstadoAcesso.desconectado);
     });
   });
 

@@ -64,6 +64,7 @@ class _MeuAppState extends State<MeuApp> {
   late final _acesso = NotificadorAcesso(
     autenticacao: injetor(),
     consultoras: injetor(),
+    versao: injetor(),
   );
   late final _roteador = RoteadorApp.criar(acesso: _acesso);
 

@@ -8,6 +8,7 @@ import 'package:sou_consultora/ui/modules/a_pagar/lista/a_pagar_lista_screen.dar
 import 'package:sou_consultora/ui/modules/a_receber/comprovante/a_receber_comprovante_screen.dart';
 import 'package:sou_consultora/ui/modules/a_receber/lista/a_receber_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/a_receber/parcela/a_receber_parcela_screen.dart';
+import 'package:sou_consultora/ui/modules/atualizacao/atualizacao_screen.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/compras/clientes_compras_screen.dart';
 import 'package:sou_consultora/ui/modules/clientes/dados/clientes_dados_screen.dart';
@@ -66,6 +67,10 @@ abstract final class RoteadorApp {
         GoRoute(
           path: RotasApp.carregando,
           builder: (_, _) => CarregandoScreen(acesso: acesso),
+        ),
+        GoRoute(
+          path: RotasApp.atualizacao,
+          builder: (_, _) => const AtualizacaoScreen(),
         ),
         GoRoute(
           path: RotasApp.cadastro,

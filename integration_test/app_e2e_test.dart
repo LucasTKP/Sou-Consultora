@@ -29,6 +29,8 @@ import 'package:sou_consultora/core/model/item_venda.dart';
 import 'package:sou_consultora/core/model/pedido_venda.dart';
 import 'package:sou_consultora/core/model/plano_parcelas.dart';
 import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
+import 'package:sou_consultora/core/repository/repositorio_versao.dart';
+import 'package:sou_consultora/core/service/servico_configuracoes.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
@@ -1468,4 +1470,31 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-13'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-14 · Versão mínima
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-14 Versão mínima', () {
+    testWidgets(
+      'o banco expõe as duas versões mínimas e esta versão do app é aceita',
+      (tester) async {
+        await abrirApp(tester);
+
+        final configuracoes = await injetor<ServicoConfiguracoes>().listar();
+        final chaves = (configuracoes as Sucesso).valor
+            .map((c) => c.chave as String)
+            .toSet();
+        expect(
+          chaves,
+          containsAll(['versao_minima_android', 'versao_minima_ios']),
+        );
+
+        // O app abriu até aqui, então a versão instalada já passou pelo portão.
+        final resultado = await injetor<RepositorioVersao>()
+            .atualizacaoObrigatoria();
+        expect((resultado as Sucesso<bool>).valor, isFalse);
+        expect(find.text('Atualização necessária'), findsNothing);
+      },
+    );
+  }, skip: pularGrupo('E2E-14'));
 }

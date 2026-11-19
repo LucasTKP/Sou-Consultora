@@ -6,9 +6,12 @@ import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
+import 'package:sou_consultora/core/repository/repositorio_versao.dart';
 
 /// Situação de acesso ao app (sessão + cadastro da consultora).
 enum EstadoAcesso {
+  /// Versão instalada abaixo do mínimo exigido: só a tela de atualização.
+  atualizacaoObrigatoria,
   desconectado,
   verificando,
   erroVerificacao,
@@ -17,17 +20,34 @@ enum EstadoAcesso {
 }
 
 /// Fonte única da situação de acesso. O roteador escuta este notificador.
+///
+/// Com [versao], o app confere a versão mínima antes de tudo (até do login);
+/// sem ela, a conferência é pulada.
 class NotificadorAcesso extends ChangeNotifier {
   NotificadorAcesso({
     required RepositorioAutenticacao autenticacao,
     required this._consultoras,
-  }) : _estado = EstadoAcesso.desconectado {
+    RepositorioVersao? versao,
+  }) : _autenticacao = autenticacao,
+       _estado = versao == null
+           ? EstadoAcesso.desconectado
+           : EstadoAcesso.verificando {
     _assinaturaSessao = autenticacao.sessaoAtiva.listen(_aoMudarSessao);
     _assinaturaConsultora = _consultoras.mudancas.listen(_aoMudarConsultora);
-    if (autenticacao.estaLogado) _verificar();
+    if (versao == null) {
+      _liberado = true;
+      if (autenticacao.estaLogado) _verificar();
+    } else {
+      _conferirVersao(versao);
+    }
   }
 
+  final RepositorioAutenticacao _autenticacao;
   final RepositorioConsultora _consultoras;
+
+  /// Falso enquanto a versão é conferida e quando ela está abaixo do mínimo.
+  bool _liberado = false;
+  bool _descartado = false;
   late final StreamSubscription<bool> _assinaturaSessao;
   late final StreamSubscription<Consultora?> _assinaturaConsultora;
 
@@ -47,7 +67,25 @@ class NotificadorAcesso extends ChangeNotifier {
     await _verificar();
   }
 
+  /// Falha ao conferir (sem rede, tabela indisponível) libera o app: não
+  /// travamos ninguém por causa disso.
+  Future<void> _conferirVersao(RepositorioVersao versao) async {
+    final resultado = await versao.atualizacaoObrigatoria();
+    if (_descartado) return;
+    if (resultado case Sucesso(valor: true)) {
+      _mudar(EstadoAcesso.atualizacaoObrigatoria);
+      return;
+    }
+    _liberado = true;
+    if (_autenticacao.estaLogado) {
+      await _verificar();
+    } else {
+      _mudar(EstadoAcesso.desconectado);
+    }
+  }
+
   void _aoMudarSessao(bool logado) {
+    if (!_liberado) return;
     if (!logado) {
       _verificacaoAtual++;
       _consultoras.limpar();
@@ -60,7 +98,9 @@ class NotificadorAcesso extends ChangeNotifier {
 
   /// O cadastro concluído publica a consultora: libera o app sem nova consulta.
   void _aoMudarConsultora(Consultora? consultora) {
-    if (consultora != null && _estado == EstadoAcesso.semCadastro) {
+    if (_liberado &&
+        consultora != null &&
+        _estado == EstadoAcesso.semCadastro) {
       _mudar(EstadoAcesso.pronto);
     }
   }
@@ -90,6 +130,7 @@ class NotificadorAcesso extends ChangeNotifier {
 
   @override
   void dispose() {
+    _descartado = true;
     _assinaturaSessao.cancel();
     _assinaturaConsultora.cancel();
     super.dispose();

@@ -12,6 +12,10 @@ import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_recebimentos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
 import 'package:sou_consultora/core/repository/repositorio_vendas.dart';
+import 'package:sou_consultora/core/repository/repositorio_versao.dart';
+import 'package:sou_consultora/core/env/ambiente_app.dart';
+import 'package:sou_consultora/core/service/servico_configuracoes.dart';
+import 'package:sou_consultora/core/service/servico_info_app.dart';
 import 'package:sou_consultora/core/service/servico_abrir_link.dart';
 import 'package:sou_consultora/core/service/servico_boletos.dart';
 import 'package:sou_consultora/core/service/servico_cep.dart';
@@ -69,12 +73,41 @@ void configurarDependencias() {
     );
   }
 
+  _registrarVersao();
   _registrarClientes();
   _registrarFornecedores();
   _registrarBoletos();
   _registrarProdutos();
   _registrarVendas();
   _registrarInicio();
+}
+
+void _registrarVersao() {
+  if (!injetor.isRegistered<ServicoConfiguracoes>()) {
+    injetor.registerLazySingleton<ServicoConfiguracoes>(
+      () => ServicoConfiguracoes(api: injetor()),
+    );
+  }
+
+  if (!injetor.isRegistered<ServicoInfoApp>()) {
+    injetor.registerLazySingleton<ServicoInfoApp>(ServicoInfoAppNativo.new);
+  }
+
+  if (!injetor.isRegistered<ServicoAbrirLink>()) {
+    injetor.registerLazySingleton<ServicoAbrirLink>(ServicoAbrirLinkNativo.new);
+  }
+
+  if (!injetor.isRegistered<RepositorioVersao>()) {
+    injetor.registerLazySingleton<RepositorioVersao>(
+      () => RepositorioVersao(
+        configuracoes: injetor(),
+        infoApp: injetor(),
+        abrirLink: injetor(),
+        urlLojaAndroid: AmbienteApp.urlLojaAndroid,
+        urlLojaIos: AmbienteApp.urlLojaIos,
+      ),
+    );
+  }
 }
 
 void _registrarClientes() {
