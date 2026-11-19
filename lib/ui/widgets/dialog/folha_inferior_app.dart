@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 
 /// Folha inferior do app: alça, título, subtítulo, botão fechar e conteúdo.
+/// O [rodape], quando informado, fica fixo abaixo do conteúdo rolável
+/// (ex.: botão "Cadastrar").
 abstract final class FolhaInferiorApp {
   /// Abre a folha e devolve o valor passado ao `Navigator.pop` (ou null ao fechar).
   static Future<T?> mostrar<T>({
@@ -10,6 +12,7 @@ abstract final class FolhaInferiorApp {
     required String titulo,
     required WidgetBuilder conteudo,
     String? subtitulo,
+    Widget? rodape,
   }) {
     return showModalBottomSheet<T>(
       context: context,
@@ -24,6 +27,7 @@ abstract final class FolhaInferiorApp {
         titulo: titulo,
         subtitulo: subtitulo,
         conteudo: conteudo(contexto),
+        rodape: rodape,
       ),
     );
   }
@@ -34,11 +38,13 @@ class _CorpoFolha extends StatelessWidget {
     required this.titulo,
     required this.conteudo,
     this.subtitulo,
+    this.rodape,
   });
 
   final String titulo;
   final String? subtitulo;
   final Widget conteudo;
+  final Widget? rodape;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +104,11 @@ class _CorpoFolha extends StatelessWidget {
                 child: conteudo,
               ),
             ),
+            if (rodape != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                child: rodape,
+              ),
             // Espaço extra para celulares com botões de navegação na base.
             SizedBox(height: teclado > 0 ? 24 : 48),
           ],

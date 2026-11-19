@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
-import 'package:sou_consultora/ui/widgets/botoes/botao_icone_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
@@ -9,7 +9,8 @@ import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 /// Seleção de um item de uma lista (cliente, fornecedor, produto...).
 ///
 /// O toque abre uma folha com as opções (e busca, se [buscavel]).
-/// [onAtalho] mostra o botão ">" ao lado (ex.: abrir o cadastro do item).
+/// [onCadastrar] põe um botão "Cadastrar..." no rodapé da folha (ex.: abrir o
+/// cadastro do item que não está na lista); [rotuloCadastrar] é o texto dele.
 class CampoSelecaoApp<T> extends StatefulWidget {
   const CampoSelecaoApp({
     super.key,
@@ -24,8 +25,8 @@ class CampoSelecaoApp<T> extends StatefulWidget {
     this.obrigatorio = false,
     this.opcional = false,
     this.erro,
-    this.onAtalho,
-    this.dicaAtalho = 'Abrir cadastro',
+    this.onCadastrar,
+    this.rotuloCadastrar = 'Cadastrar',
   });
 
   final String rotulo;
@@ -39,8 +40,8 @@ class CampoSelecaoApp<T> extends StatefulWidget {
   final bool obrigatorio;
   final bool opcional;
   final String? erro;
-  final VoidCallback? onAtalho;
-  final String dicaAtalho;
+  final VoidCallback? onCadastrar;
+  final String rotuloCadastrar;
 
   @override
   State<CampoSelecaoApp<T>> createState() => _CampoSelecaoAppState<T>();
@@ -68,7 +69,8 @@ class _CampoSelecaoAppState<T> extends State<CampoSelecaoApp<T>> {
   String _texto(T? valor) => valor == null ? '' : widget.rotuloDe(valor);
 
   Future<void> _abrirOpcoes() async {
-    final escolhida = await FolhaInferiorApp.mostrar<T>(
+    final onCadastrar = widget.onCadastrar;
+    final resultado = await FolhaInferiorApp.mostrar<Object>(
       context: context,
       titulo: widget.rotulo,
       conteudo: (_) => _ListaOpcoes<T>(
@@ -77,14 +79,29 @@ class _CampoSelecaoAppState<T> extends State<CampoSelecaoApp<T>> {
         selecionada: widget.valor,
         buscavel: widget.buscavel,
       ),
+      rodape: onCadastrar == null
+          ? null
+          : Builder(
+              builder: (contexto) => BotaoApp.contorno(
+                rotulo: widget.rotuloCadastrar,
+                iconeFim: const Icon(Icons.add_rounded),
+                onPressed: () =>
+                    Navigator.of(contexto).pop(const _PedidoDeCadastro()),
+              ),
+            ),
     );
-    if (escolhida != null) widget.onChanged(escolhida);
+    // O cadastro só abre depois de a folha fechar.
+    if (resultado is _PedidoDeCadastro) {
+      widget.onCadastrar?.call();
+    } else if (resultado is T) {
+      widget.onChanged(resultado);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
-    final campo = CampoTextoApp(
+    return CampoTextoApp(
       rotulo: widget.rotulo,
       obrigatorio: widget.obrigatorio,
       opcional: widget.opcional,
@@ -117,23 +134,12 @@ class _CampoSelecaoAppState<T> extends State<CampoSelecaoApp<T>> {
         ),
       ),
     );
-    if (widget.onAtalho == null) return campo;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: campo),
-        const SizedBox(width: 12),
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: BotaoIconeApp(
-            dica: widget.dicaAtalho,
-            onPressed: widget.onAtalho,
-          ),
-        ),
-      ],
-    );
   }
+}
+
+/// O botão "Cadastrar" da folha fecha-a devolvendo este marcador.
+class _PedidoDeCadastro {
+  const _PedidoDeCadastro();
 }
 
 class _ListaOpcoes<T> extends StatefulWidget {
@@ -175,6 +181,15 @@ class _ListaOpcoesState<T> extends State<_ListaOpcoes<T>> {
           CampoBuscaApp(placeholder: 'Buscar...', onChanged: _aoBuscar),
           const SizedBox(height: 12),
         ],
+        if (_filtradas.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'Nenhum resultado.',
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: CoresApp.sobreSuperficieVariante),
+            ),
+          ),
         for (final opcao in _filtradas) _item(opcao),
       ],
     );

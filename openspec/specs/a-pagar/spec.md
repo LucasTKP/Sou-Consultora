@@ -34,7 +34,7 @@ A situação MUST ser calculada e nunca gravada: "Pago" quando há data de pagam
 - **THEN** a situação é "Vence hoje", não "Pendente" nem "Atrasado"
 
 ### Requirement: Lançar e editar boleto
-O cadastro SHALL ter 2 passos. Passo 1: fornecedor (só os ativos; na edição, o atual mesmo em espera), valor e vencimento, todos obrigatórios, com atalho para cadastrar uma marca. Passo 2: confere marca, vencimento e valor; forma de pagamento opcional (Pix, boleto ou transferência) e observação opcional. O valor MUST ser maior que zero. **Salvar boleto** SHALL gravar e voltar; na edição, SHALL voltar aos detalhes recarregados.
+O cadastro SHALL ter 2 passos. Passo 1: fornecedor (só os ativos; na edição, o atual mesmo em espera), valor e vencimento, todos obrigatórios; a lista de fornecedores traz um botão **Cadastrar fornecedor** para cadastrar uma marca. Passo 2: confere marca, vencimento e valor; forma de pagamento opcional (Pix, boleto ou transferência) e observação opcional. O valor MUST ser maior que zero. **Salvar boleto** SHALL gravar e voltar; na edição, SHALL voltar aos detalhes recarregados.
 
 #### Scenario: Campos obrigatórios
 - **WHEN** ela toca em Continuar sem escolher a marca e sem valor

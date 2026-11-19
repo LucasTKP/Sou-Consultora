@@ -27,7 +27,7 @@ O status MUST ser calculado das parcelas e pagamentos, nunca gravado: "Quitada" 
 - **THEN** a venda aparece "Atrasada"
 
 ### Requirement: Montar o pedido (passo 1)
-O passo 1 SHALL pedir a cliente (obrigatória, com busca e atalho para cadastrar) e um ou mais itens. A folha do item SHALL alternar entre Produto e Serviço, escolher o item do catálogo, a quantidade (≥ 1) e o desconto em R$ (opcional, até o subtotal do item), mostrando valor unitário, desconto e subtotal. O preço MUST ser o do catálogo. Para produto, **Baixar do estoque** SHALL vir ligado: ligado, a quantidade MUST NOT passar do saldo ("Estoque insuficiente: X un disponíveis"); desligado, o item não mexe no estoque. Um mesmo produto ou serviço MUST aparecer uma vez só no pedido. O rodapé SHALL somar subtotal, descontos e total. **Avançar** MUST exigir cliente, ao menos um item e total maior que zero.
+O passo 1 SHALL pedir a cliente (obrigatória, com busca; a lista traz um botão **Cadastrar cliente**) e um ou mais itens. A folha do item SHALL alternar entre Produto e Serviço, escolher o item do catálogo, a quantidade (≥ 1) e o desconto em R$ (opcional, até o subtotal do item), mostrando valor unitário, desconto e subtotal. O preço MUST ser o do catálogo. Para produto, **Baixar do estoque** SHALL vir ligado: ligado, a quantidade MUST NOT passar do saldo ("Estoque insuficiente: X un disponíveis"); desligado, o item não mexe no estoque. Um mesmo produto ou serviço MUST aparecer uma vez só no pedido. O rodapé SHALL somar subtotal, descontos e total. **Avançar** MUST exigir cliente, ao menos um item e total maior que zero.
 
 #### Scenario: Estoque insuficiente
 - **GIVEN** o produto tem 2 un disponíveis

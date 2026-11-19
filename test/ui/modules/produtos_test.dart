@@ -69,6 +69,11 @@ Future<void> _abrir(
         builder: (_, _) => const ProdutosFormularioScreen(),
       ),
       GoRoute(
+        path: '/fornecedores/novo',
+        builder: (_, _) =>
+            const Scaffold(body: Text('tela de novo fornecedor')),
+      ),
+      GoRoute(
         path: '/produtos/importar',
         builder: (_, _) => const ProdutosImportarScreen(),
       ),
@@ -356,7 +361,10 @@ void main() {
       );
 
       expect(find.text('Importar do catálogo'), findsOneWidget);
-      expect(find.text('Adicionar foto'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('Adicionar foto do produto'),
+        findsOneWidget,
+      );
 
       await tester.tap(find.text('Importar do catálogo'));
       await tester.pumpAndSettle();
@@ -369,8 +377,26 @@ void main() {
       expect(find.text('174918'), findsOneWidget);
       expect(find.text('Natura'), findsOneWidget);
       expect(find.text('Maquiagem'), findsOneWidget);
-      expect(find.text('Trocar foto'), findsOneWidget);
+      expect(find.bySemanticsLabel('Trocar foto do produto'), findsOneWidget);
       expect(catalogo.fotosBaixadas, ['natura/174918.jpg']);
+    });
+
+    testWidgets('marca: o botão Cadastrar fornecedor fica na folha, sem seta', (
+      tester,
+    ) async {
+      await _abrir(tester, ServicoProdutosFalso(), '/produtos/novo');
+
+      // Nada de seta ao lado do campo: o atalho agora é um botão na folha.
+      expect(find.byTooltip('Cadastrar fornecedor'), findsNothing);
+      expect(find.text('Cadastrar fornecedor'), findsNothing);
+
+      await tester.tap(find.text('Escolha a marca'));
+      await tester.pumpAndSettle();
+      expect(find.text('Cadastrar fornecedor'), findsOneWidget);
+
+      await tester.tap(find.text('Cadastrar fornecedor'));
+      await tester.pumpAndSettle();
+      expect(find.text('tela de novo fornecedor'), findsOneWidget);
     });
 
     testWidgets('editar não mostra o botão de importar', (tester) async {
@@ -388,7 +414,7 @@ void main() {
       await _abrir(tester, servico, '/produtos/novo');
 
       expect(find.text('Novo Produto'), findsOneWidget);
-      expect(find.text('Passo 1 de 2: Dados do Produto'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
 
       await tester.enterText(find.byType(EditableText).first, 'Kit Lily');
       await tester.tap(find.text('Escolha a marca'));
@@ -402,16 +428,16 @@ void main() {
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Passo 2 de 2: Preços e Durabilidade'), findsOneWidget);
+      expect(find.text('PASSO 2 DE 2'), findsOneWidget);
       expect(find.text('CONFIGURANDO PRODUTO'), findsOneWidget);
       expect(find.text('Natura • Perfumaria'), findsOneWidget);
 
-      await tester.tap(find.text('Voltar'));
+      await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
-      expect(find.text('Passo 1 de 2: Dados do Produto'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
       expect(find.text('Kit Lily'), findsOneWidget);
 
-      await tester.tap(find.text('Cancelar'));
+      await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
       expect(find.text('anterior'), findsOneWidget);
       expect(servico.salvos, isEmpty);

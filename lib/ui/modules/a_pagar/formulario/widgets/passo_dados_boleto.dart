@@ -36,8 +36,8 @@ class PassoDadosBoleto extends StatelessWidget {
           erro: estado.erroMarca,
           icone: Icons.storefront_outlined,
           onChanged: cubit.alterarMarca,
-          onAtalho: onNovaMarca,
-          dicaAtalho: 'Cadastrar fornecedor',
+          onCadastrar: onNovaMarca,
+          rotuloCadastrar: 'Cadastrar fornecedor',
         ),
         const SizedBox(height: 24),
         CampoMoedaApp(

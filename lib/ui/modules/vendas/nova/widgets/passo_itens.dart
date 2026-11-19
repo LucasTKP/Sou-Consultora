@@ -49,8 +49,8 @@ class PassoItens extends StatelessWidget {
           erro: estado.erroCliente,
           icone: Icons.person_outline_rounded,
           onChanged: cubit.alterarCliente,
-          onAtalho: onNovaCliente,
-          dicaAtalho: 'Cadastrar cliente',
+          onCadastrar: onNovaCliente,
+          rotuloCadastrar: 'Cadastrar cliente',
         ),
         const SizedBox(height: 24),
         Row(

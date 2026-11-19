@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_icone_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/alternador_segmentado_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
@@ -85,22 +86,96 @@ void main() {
     expect(escolhido, 'Dona Carla');
   });
 
-  testWidgets('seleção com atalho mostra o botão ao lado', (tester) async {
-    var atalho = false;
-    await montar(
+  group('seleção com cadastro', () {
+    Future<void> montarCampo(
+      WidgetTester tester, {
+      VoidCallback? onCadastrar,
+      ValueChanged<String>? onChanged,
+    }) => montar(
       tester,
       CampoSelecaoApp<String>(
         rotulo: 'Fornecedor',
-        opcoes: const ['Natura'],
+        opcoes: const ['Natura', 'Avon'],
         rotuloDe: (opcao) => opcao,
-        onChanged: (_) {},
-        onAtalho: () => atalho = true,
-        dicaAtalho: 'Abrir fornecedores',
+        buscavel: true,
+        onChanged: onChanged ?? (_) {},
+        onCadastrar: onCadastrar,
+        rotuloCadastrar: 'Cadastrar fornecedor',
       ),
     );
 
-    await tester.tap(find.byTooltip('Abrir fornecedores'));
-    expect(atalho, isTrue);
+    testWidgets('não há mais a seta de atalho ao lado do campo', (
+      tester,
+    ) async {
+      await montarCampo(tester, onCadastrar: () {});
+
+      expect(find.byType(BotaoIconeApp), findsNothing);
+      expect(find.text('Cadastrar fornecedor'), findsNothing); // só na folha
+    });
+
+    testWidgets('a folha tem o botão Cadastrar, que fecha e abre o cadastro', (
+      tester,
+    ) async {
+      var cadastrou = 0;
+      String? escolhido;
+      await montarCampo(
+        tester,
+        onCadastrar: () => cadastrou++,
+        onChanged: (v) => escolhido = v,
+      );
+
+      await tester.tap(find.byType(CampoSelecaoApp<String>));
+      await tester.pumpAndSettle();
+      expect(find.text('Cadastrar fornecedor'), findsOneWidget);
+      expect(cadastrou, 0);
+
+      await tester.tap(find.text('Cadastrar fornecedor'));
+      await tester.pumpAndSettle();
+
+      expect(cadastrou, 1);
+      expect(escolhido, isNull); // não escolheu nenhuma opção
+      expect(find.text('Natura'), findsNothing); // a folha fechou
+    });
+
+    testWidgets('escolher uma opção não aciona o cadastro', (tester) async {
+      var cadastrou = 0;
+      String? escolhido;
+      await montarCampo(
+        tester,
+        onCadastrar: () => cadastrou++,
+        onChanged: (v) => escolhido = v,
+      );
+
+      await tester.tap(find.byType(CampoSelecaoApp<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Avon'));
+      await tester.pumpAndSettle();
+
+      expect(escolhido, 'Avon');
+      expect(cadastrou, 0);
+    });
+
+    testWidgets('sem resultado na busca, o botão continua ali', (tester) async {
+      await montarCampo(tester, onCadastrar: () {});
+
+      await tester.tap(find.byType(CampoSelecaoApp<String>));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, 'zzz');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nenhum resultado.'), findsOneWidget);
+      expect(find.text('Cadastrar fornecedor'), findsOneWidget);
+    });
+
+    testWidgets('sem onCadastrar a folha não mostra o botão', (tester) async {
+      await montarCampo(tester);
+
+      await tester.tap(find.byType(CampoSelecaoApp<String>));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Natura'), findsOneWidget);
+      expect(find.text('Cadastrar fornecedor'), findsNothing);
+    });
   });
 
   testWidgets('quantidade respeita mínimo e máximo', (tester) async {

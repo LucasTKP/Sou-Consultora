@@ -99,8 +99,8 @@ O app SHALL cadastrar o produto em 2 passos com indicador de progresso. O passo 
 - **WHEN** ela abre o seletor de marca de um produto novo
 - **THEN** "Avon" não aparece
 
-#### Scenario: Cadastrar marca pelo atalho
-- **WHEN** ela toca no atalho ao lado da marca, cadastra o fornecedor "Eudora" e volta
+#### Scenario: Cadastrar marca pela lista
+- **WHEN** ela abre a lista de marcas, toca em **Cadastrar fornecedor**, cadastra o fornecedor "Eudora" e volta
 - **THEN** "Eudora" aparece no seletor de marca, e o que ela tinha digitado continua na tela
 
 #### Scenario: Falha ao salvar
@@ -270,3 +270,16 @@ A busca do catálogo SHALL ignorar acentos e maiúsculas e procurar cada palavra
 #### Scenario: Buscar sem acento
 - **WHEN** a consultora digita "colonia"
 - **THEN** os produtos com "colônia" no nome aparecem
+
+### Requirement: Cadastrar a partir da lista de opções
+Nos campos de seleção que permitem cadastrar o item que falta (marca no cadastro de produto e de boleto, cliente na nova venda), o app MUST NOT mostrar uma seta de atalho ao lado do campo. A lista de opções (folha inferior) SHALL ter, fixo no rodapé, um botão com o nome do cadastro ("Cadastrar fornecedor", "Cadastrar cliente"), que fecha a lista e abre o cadastro. Quando a busca não encontrar nada, a lista SHALL mostrar "Nenhum resultado." e manter o botão.
+
+#### Scenario: Marca que não está na lista
+- **GIVEN** a consultora abre o seletor de marca no cadastro de produto
+- **WHEN** ela toca em **Cadastrar fornecedor**
+- **THEN** a lista fecha e a tela de novo fornecedor abre
+
+#### Scenario: Busca sem resultado
+- **GIVEN** a lista de clientes da nova venda está aberta
+- **WHEN** ela busca um nome que não existe
+- **THEN** aparece "Nenhum resultado." e o botão **Cadastrar cliente** continua visível
