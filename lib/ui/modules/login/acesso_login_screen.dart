@@ -42,14 +42,16 @@ class _AcessoLoginVista extends StatelessWidget {
                     ),
                     child: const IntrinsicHeight(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(height: 36),
+                          Spacer(flex: 3),
                           CabecalhoMarcaLogin(),
-                          Spacer(flex: 1),
+                          SizedBox(height: 28),
                           CartaoBoasVindasLogin(),
                           SizedBox(height: 24),
                           BotoesSociaisLogin(),
-                          Spacer(flex: 2),
+                          Spacer(flex: 4),
                         ],
                       ),
                     ),

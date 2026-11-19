@@ -18,7 +18,10 @@ class BarraGrafico {
 
 /// Gráfico de barras simples (sem pacote de gráfico). A barra [destaque] fica
 /// na cor primária com [rotuloDestaque] em cima; as outras, em tom suave.
-class GraficoBarrasApp extends StatelessWidget {
+///
+/// Cada barra tem uma largura mínima. Se não couberem na tela, o gráfico rola
+/// no eixo X e abre mostrando as mais recentes, à direita.
+class GraficoBarrasApp extends StatefulWidget {
   const GraficoBarrasApp({
     super.key,
     required this.barras,
@@ -37,26 +40,91 @@ class GraficoBarrasApp extends StatelessWidget {
   /// Barras com valor > 0 ficam com pelo menos esta altura, para aparecer.
   static const _alturaMinima = 4.0;
 
+  /// Largura para o mês e o valor caberem sem encolher.
+  static const _larguraMinimaBarra = 52.0;
+
+  @override
+  State<GraficoBarrasApp> createState() => _GraficoBarrasAppEstado();
+}
+
+class _GraficoBarrasAppEstado extends State<GraficoBarrasApp> {
+  final _controle = ScrollController();
+  var _posicionado = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _agendarFim();
+  }
+
+  /// O mês em destaque é o último. A rolagem começa nele.
+  void _agendarFim() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _posicionado || !_controle.hasClients) return;
+      final maximo = _controle.position.maxScrollExtent;
+      if (maximo <= 0) return;
+      _controle.jumpTo(maximo);
+      _posicionado = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    _controle.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final barras = widget.barras;
     final maior = barras.fold(0, (m, b) => b.valor > m ? b.valor : m);
-    return SizedBox(
-      height: altura + 44,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (var i = 0; i < barras.length; i++)
-            Expanded(
-              child: _Barra(
-                barra: barras[i],
-                fracao: maior == 0 ? 0 : barras[i].valor / maior,
-                alturaMaxima: altura,
-                emDestaque: i == destaque,
-                rotuloEmCima: i == destaque ? rotuloDestaque : null,
-              ),
+    final alturaTotal = widget.altura + 44;
+
+    if (barras.isEmpty) return SizedBox(height: alturaTotal);
+
+    return LayoutBuilder(
+      builder: (context, limites) {
+        final disponivel = limites.maxWidth;
+        final minima = barras.length * GraficoBarrasApp._larguraMinimaBarra;
+        final cabe = disponivel.isFinite && disponivel > minima;
+        final largura = cabe ? disponivel : minima;
+        final rola = disponivel.isFinite && !cabe;
+        final grafico = SizedBox(
+          width: largura.isFinite ? largura : null,
+          height: alturaTotal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (var i = 0; i < barras.length; i++)
+                Expanded(
+                  child: _Barra(
+                    barra: barras[i],
+                    fracao: maior == 0 ? 0 : barras[i].valor / maior,
+                    alturaMaxima: widget.altura,
+                    emDestaque: i == widget.destaque,
+                    rotuloEmCima: i == widget.destaque
+                        ? widget.rotuloDestaque
+                        : null,
+                  ),
+                ),
+            ],
+          ),
+        );
+
+        if (!rola) return grafico;
+
+        return SizedBox(
+          height: alturaTotal,
+          child: Scrollbar(
+            controller: _controle,
+            child: SingleChildScrollView(
+              controller: _controle,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(width: minima, child: grafico),
             ),
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 }

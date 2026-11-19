@@ -107,7 +107,8 @@ class _Conteudo extends StatelessWidget {
         if (resumo.comSaldo) ...[
           const SizedBox(height: 12),
           Center(
-            child: SeloStatusApp(tamanho: TamanhoSelo.pagina, 
+            child: SeloStatusApp(
+              tamanho: TamanhoSelo.pagina,
               rotulo: 'Deve ${FormatadorMoeda.formatar(resumo.saldoDevedor)}',
               status: StatusSelo.perigo,
             ),

@@ -49,8 +49,7 @@ class _FornecedoresListaVista extends StatelessWidget {
               BlocBuilder<FornecedoresListaCubit, FornecedoresListaState>(
                 builder: (context, estado) {
                   final vazio =
-                      estado.carregamento ==
-                          CarregamentoFornecedores.pronto &&
+                      estado.carregamento == CarregamentoFornecedores.pronto &&
                       estado.todos.isEmpty;
                   if (vazio) return const SizedBox.shrink();
                   return Positioned(

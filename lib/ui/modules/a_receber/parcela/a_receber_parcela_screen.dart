@@ -145,8 +145,7 @@ class _ParcelaVista extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AReceberParcelaCubit, AReceberParcelaState>(
-      listenWhen: (antes, depois) =>
-          antes.aviso != depois.aviso,
+      listenWhen: (antes, depois) => antes.aviso != depois.aviso,
       listener: _aoMudarEstado,
       builder: (context, estado) {
         final parcela = estado.detalhe?.parcela;
@@ -200,10 +199,7 @@ class _ParcelaVista extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (!detalhe.parcela.paga) ...[
-            BotaoApp(
-              rotulo: 'Pagar',
-              onPressed: () => _pagar(context, estado),
-            ),
+            BotaoApp(rotulo: 'Pagar', onPressed: () => _pagar(context, estado)),
             const SizedBox(height: 12),
           ],
           BotaoApp.secundario(

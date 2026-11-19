@@ -184,7 +184,7 @@ class _LancarEstoqueVistaState extends State<_LancarEstoqueVista> {
           ),
           const SizedBox(height: 12),
         ],
-        BotaoApp.contorno(
+        BotaoApp.secundario(
           rotulo: estado.itens.isEmpty
               ? 'Adicionar produto'
               : 'Adicionar outro produto',

@@ -55,7 +55,8 @@ class CartaoComprovante extends StatelessWidget {
                 const SizedBox(height: 16),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: SeloStatusApp(tamanho: TamanhoSelo.pagina, 
+                  child: SeloStatusApp(
+                    tamanho: TamanhoSelo.pagina,
                     rotulo:
                         'Parcela ${detalhe.parcela.textoNumero} • '
                         '${MensagemComprovante.situacao(detalhe)}',
@@ -169,10 +170,7 @@ class _Partes extends StatelessWidget {
           children: [
             Expanded(
               flex: 3,
-              child: _Dado(
-                rotulo: 'CONSULTORA',
-                valor: consultora?.nome ?? '',
-              ),
+              child: _Dado(rotulo: 'CONSULTORA', valor: consultora?.nome ?? ''),
             ),
             if (chave != null)
               Expanded(

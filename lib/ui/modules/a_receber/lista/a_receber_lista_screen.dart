@@ -64,8 +64,7 @@ class _AReceberListaVista extends StatelessWidget {
       CarregamentoRecebimentos.pronto when estado.todas.isEmpty =>
         EstadoVazioApp(
           titulo: 'Nada a receber',
-          mensagem:
-              'Registre uma venda para acompanhar as parcelas por aqui.',
+          mensagem: 'Registre uma venda para acompanhar as parcelas por aqui.',
           icone: Icons.payments_outlined,
           acao: BotaoApp(
             rotulo: 'Registrar venda',

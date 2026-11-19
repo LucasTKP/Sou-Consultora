@@ -123,7 +123,8 @@ class _Conteudo extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SeloStatusApp(tamanho: TamanhoSelo.pagina, 
+                        SeloStatusApp(
+                          tamanho: TamanhoSelo.pagina,
                           rotulo: servico.categoriaNome.toUpperCase(),
                         ),
                         const SizedBox(height: 4),

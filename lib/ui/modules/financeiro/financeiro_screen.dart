@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,13 +9,13 @@ import 'package:sou_consultora/ui/modules/financeiro/widgets/cartao_categorias.d
 import 'package:sou_consultora/ui/modules/financeiro/widgets/cartao_faturamento.dart';
 import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
-import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 
 /// Financeiro (item da barra): período, faturamento dos últimos 12 meses e as
-/// categorias do mês (A receber e A pagar). O botão do topo abre Nova venda.
+/// categorias do mês (A receber e A pagar). O botão flutuante abre Nova venda.
 class FinanceiroScreen extends StatelessWidget {
   const FinanceiroScreen({super.key});
 
@@ -34,18 +33,28 @@ class _FinanceiroVista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baixo = MediaQuery.paddingOf(context).bottom;
     return Column(
       children: [
         CabecalhoApp(
           titulo: 'Financeiro',
           acao: AcaoCabecalho.menu,
           onMenu: () => CascaPrincipalScreen.abrirMenu(context),
-          fim: _BotaoNovaVenda(
-            onPressed: () => context.push(RotasApp.novaVenda),
-          ),
         ),
         Expanded(
-          child: BlocBuilder<FinanceiroCubit, FinanceiroState>(builder: _corpo),
+          child: Stack(
+            children: [
+              BlocBuilder<FinanceiroCubit, FinanceiroState>(builder: _corpo),
+              Positioned(
+                right: 16,
+                bottom: baixo + 16,
+                child: BotaoFlutuanteApp(
+                  rotulo: 'Nova venda',
+                  onPressed: () => context.push(RotasApp.novaVenda),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -87,8 +96,9 @@ class _Conteudo extends StatelessWidget {
           16,
           24,
           16,
-          // A casca usa `extendBody`: a barra inferior chega como padding.
-          MediaQuery.paddingOf(context).bottom + 24,
+          // Espaço no fim para a barra inferior e o botão flutuante não
+          // cobrirem o último card.
+          MediaQuery.paddingOf(context).bottom + 96,
         ),
         children: [
           CampoSelecaoApp<MesAno>(
@@ -114,29 +124,6 @@ class _Conteudo extends StatelessWidget {
             onAPagar: () => context.push(RotasApp.aPagar),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Botão redondo do topo: começa uma nova venda.
-class _BotaoNovaVenda extends StatelessWidget {
-  const _BotaoNovaVenda({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: CoresApp.sobrePrimaria.withOpacity(0.18),
-      shape: const CircleBorder(),
-      child: IconButton(
-        tooltip: 'Nova venda',
-        onPressed: onPressed,
-        icon: const Icon(
-          Icons.add_shopping_cart_rounded,
-          color: CoresApp.sobrePrimaria,
-        ),
       ),
     );
   }

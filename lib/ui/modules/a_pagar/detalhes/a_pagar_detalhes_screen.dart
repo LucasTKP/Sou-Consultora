@@ -294,7 +294,10 @@ class _Conteudo extends StatelessWidget {
             _Linha(
               icone: Icons.info_outline_rounded,
               rotulo: 'Status',
-              valor: SeloStatusBoleto(tamanho: TamanhoSelo.pagina, status: status),
+              valor: SeloStatusBoleto(
+                tamanho: TamanhoSelo.pagina,
+                status: status,
+              ),
             ),
             if (pagoEm != null)
               _Linha(

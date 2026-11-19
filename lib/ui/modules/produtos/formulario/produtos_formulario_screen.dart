@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sou_consultora/core/model/dica_app.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
 import 'package:sou_consultora/core/model/produto_catalogo.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_cubit.dart';
@@ -11,13 +12,14 @@ import 'package:sou_consultora/ui/modules/produtos/formulario/widgets/passo_prec
 import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_foto_app.dart';
+import 'package:sou_consultora/ui/widgets/dicas/passo_de_dica.dart';
+import 'package:sou_consultora/ui/widgets/dicas/roteiro_dicas.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
-import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Novo produto ([idProduto] nulo) ou edição, em 2 passos.
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 /// Ao salvar, fecha devolvendo `true`.
 class ProdutosFormularioScreen extends StatelessWidget {
   const ProdutosFormularioScreen({super.key, this.idProduto});
@@ -46,8 +48,24 @@ class _FormularioVistaState extends State<_FormularioVista> {
   final _codigo = TextEditingController();
   final _observacoes = TextEditingController();
 
+  // Passo a passo da primeira vez (só no produto novo e uma vez só).
+  final _chaveImportar = GlobalKey();
+  final _chaveContinuar = GlobalKey();
+  late final RoteiroDicas _dicaImportar;
+  late final RoteiroDicas _dicaContinuar;
+
+  @override
+  void initState() {
+    super.initState();
+    // Precisam existir antes de os PassoDeDica serem montados.
+    _dicaImportar = RoteiroDicas(DicaApp.importarNoFormulario);
+    _dicaContinuar = RoteiroDicas(DicaApp.continuarAposImportar);
+  }
+
   @override
   void dispose() {
+    _dicaImportar.encerrar();
+    _dicaContinuar.encerrar();
     _nome.dispose();
     _codigo.dispose();
     _observacoes.dispose();
@@ -106,6 +124,14 @@ class _FormularioVistaState extends State<_FormularioVista> {
     final item = await context.push<ProdutoCatalogo>(RotasApp.importarProduto);
     if (item == null || !mounted) return;
     await _cubit.importar(item);
+    // Já preenchido: mostra o que falta (só na primeira vez).
+    if (mounted) _dicaContinuar.iniciar([_chaveContinuar], () => mounted);
+  }
+
+  /// Ao abrir um produto novo, apresenta o botão de importar (só na primeira vez).
+  void _aoCarregar(BuildContext context, ProdutosFormularioState estado) {
+    if (estado.editando || estado.erroCarregar != null) return;
+    _dicaImportar.iniciar([_chaveImportar], () => mounted);
   }
 
   Future<void> _novaMarca() async {
@@ -124,6 +150,10 @@ class _FormularioVistaState extends State<_FormularioVista> {
           listener: (_, estado) => _copiarParaCampos(estado),
         ),
         BlocListener<ProdutosFormularioCubit, ProdutosFormularioState>(
+          listenWhen: (antes, depois) => antes.carregando && !depois.carregando,
+          listener: _aoCarregar,
+        ),
+        BlocListener<ProdutosFormularioCubit, ProdutosFormularioState>(
           listenWhen: (antes, depois) =>
               antes.aviso != depois.aviso || antes.salvo != depois.salvo,
           listener: _aoMudarEstado,
@@ -140,11 +170,18 @@ class _FormularioVistaState extends State<_FormularioVista> {
               children: [
                 CabecalhoApp(
                   titulo: estado.editando ? 'Editar Produto' : 'Novo Produto',
+                  subtitulo:
+                      'Passo ${estado.passo} de ${ProdutosFormularioState.totalPassos}',
                   onVoltar: _voltar,
                 ),
                 Expanded(child: _corpo(estado)),
                 if (!estado.carregando && estado.erroCarregar == null)
-                  _Rodape(estado: estado, onCancelar: _voltar),
+                  _Rodape(
+                    estado: estado,
+                    onImportar: _importar,
+                    chaveImportar: _chaveImportar,
+                    chaveContinuar: _chaveContinuar,
+                  ),
               ],
             ),
           ),
@@ -164,14 +201,6 @@ class _FormularioVistaState extends State<_FormularioVista> {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        IndicadorPassosApp(
-          passoAtual: estado.passo,
-          totalPassos: ProdutosFormularioState.totalPassos,
-          descricao: estado.passo == 1
-              ? 'Dados do Produto'
-              : 'Preços e Durabilidade',
-        ),
-        const SizedBox(height: 24),
         if (estado.passo == 1)
           PassoDados(
             estado: estado,
@@ -179,7 +208,6 @@ class _FormularioVistaState extends State<_FormularioVista> {
             codigo: _codigo,
             onFoto: _escolherFoto,
             onNovaMarca: _novaMarca,
-            onImportar: _importar,
           )
         else
           PassoPrecos(estado: estado, observacoes: _observacoes),
@@ -189,10 +217,19 @@ class _FormularioVistaState extends State<_FormularioVista> {
 }
 
 class _Rodape extends StatelessWidget {
-  const _Rodape({required this.estado, required this.onCancelar});
+  const _Rodape({
+    required this.estado,
+    required this.onImportar,
+    required this.chaveImportar,
+    required this.chaveContinuar,
+  });
 
   final ProdutosFormularioState estado;
-  final VoidCallback onCancelar;
+  final VoidCallback onImportar;
+
+  /// Alvos do passo a passo da primeira vez.
+  final GlobalKey chaveImportar;
+  final GlobalKey chaveContinuar;
 
   @override
   Widget build(BuildContext context) {
@@ -204,22 +241,41 @@ class _Rodape extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (passo1 && !estado.editando) ...[
+            PassoDeDica(
+              chave: chaveImportar,
+              dica: DicaApp.importarNoFormulario,
+              titulo: 'Cadastre mais rápido',
+              descricao:
+                  'Importe o produto do catálogo das marcas. Nome, foto, '
+                  'marca e categoria já vêm preenchidos.',
+              raio: 28,
+              child: BotaoApp.secundario(
+                rotulo: 'Importar do catálogo',
+                iconeFim: const Icon(Icons.download_rounded),
+                onPressed: onImportar,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           if (passo1)
-            BotaoApp(
-              rotulo: 'Continuar',
-              iconeFim: const Icon(Icons.arrow_forward_rounded),
-              onPressed: cubit.continuar,
+            PassoDeDica(
+              chave: chaveContinuar,
+              dica: DicaApp.continuarAposImportar,
+              titulo: 'Quase pronto!',
+              descricao: 'Confira os dados e toque em Continuar para informar o preço.',
+              raio: 28,
+              child: BotaoApp(
+                rotulo: 'Continuar',
+                iconeFim: const Icon(Icons.arrow_forward_rounded),
+                onPressed: cubit.continuar,
+              ),
             )
           else
             BotaoApp(
               rotulo: estado.salvando ? 'Salvando...' : 'Salvar Produto',
               onPressed: estado.salvando ? null : cubit.salvar,
             ),
-          const SizedBox(height: 12),
-          BotaoApp.secundario(
-            rotulo: passo1 ? 'Cancelar' : 'Voltar',
-            onPressed: onCancelar,
-          ),
         ],
       ),
     );

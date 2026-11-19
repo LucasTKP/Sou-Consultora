@@ -180,10 +180,13 @@ void main() {
       await abrirApp(tester, logado: false);
       expect(
         find.image(const AssetImage('assets/imagens/logo.png')),
-        findsWidgets,
+        findsOneWidget,
       );
+      expect(find.text('Boas-vindas!'), findsOneWidget);
       expect(
-        find.text('O app da consultora de beleza independente'),
+        find.text(
+          'Acesse suas vendas, clientes e pedidos com facilidade e segurança.',
+        ),
         findsOneWidget,
       );
       expect(find.text('Continuar com Google'), findsOneWidget);

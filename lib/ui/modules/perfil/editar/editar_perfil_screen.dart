@@ -20,7 +20,10 @@ class EditarPerfilScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => EditarPerfilCubit(), child: const _EditarPerfilVista());
+    return BlocProvider(
+      create: (_) => EditarPerfilCubit(),
+      child: const _EditarPerfilVista(),
+    );
   }
 }
 
@@ -32,7 +35,9 @@ class _EditarPerfilVista extends StatefulWidget {
 }
 
 class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
-  late final EditarPerfilState _inicial = context.read<EditarPerfilCubit>().state;
+  late final EditarPerfilState _inicial = context
+      .read<EditarPerfilCubit>()
+      .state;
   late final _nome = TextEditingController(text: _inicial.nome);
   late final _whatsapp = TextEditingController(text: _inicial.whatsapp);
   late final _chave = TextEditingController(text: _inicial.chavePix);
@@ -156,9 +161,15 @@ class _TituloPix extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TituloSecaoApp(titulo: 'Recebimento via Pix', icone: Icons.qr_code_2_rounded),
+        const TituloSecaoApp(
+          titulo: 'Recebimento via Pix',
+          icone: Icons.qr_code_2_rounded,
+        ),
         const SizedBox(height: 8),
-        Text('Sua chave aparece nos comprovantes enviados às clientes.', style: estilos.bodySmall),
+        Text(
+          'Sua chave aparece nos comprovantes enviados às clientes.',
+          style: estilos.bodySmall,
+        ),
       ],
     );
   }

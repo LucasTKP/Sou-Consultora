@@ -5,7 +5,6 @@ import 'package:sou_consultora/core/model/categoria.dart';
 import 'package:sou_consultora/core/model/resumo_fornecedor.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_cubit.dart';
 import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_state.dart';
-import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_foto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
@@ -19,7 +18,6 @@ class PassoDados extends StatelessWidget {
     required this.codigo,
     required this.onFoto,
     required this.onNovaMarca,
-    required this.onImportar,
   });
 
   final ProdutosFormularioState estado;
@@ -27,7 +25,6 @@ class PassoDados extends StatelessWidget {
   final TextEditingController codigo;
   final VoidCallback onFoto;
   final VoidCallback onNovaMarca;
-  final VoidCallback onImportar;
 
   @override
   Widget build(BuildContext context) {
@@ -35,20 +32,6 @@ class PassoDados extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Importar só faz sentido num produto novo; na edição o produto já existe.
-        if (!estado.editando) ...[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: BotaoApp.secundario(
-              rotulo: 'Importar do catálogo',
-              iconeFim: const Icon(Icons.download_rounded),
-              expande: false,
-              tamanho: TamanhoBotao.compacto,
-              onPressed: onImportar,
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
         CampoFotoApp(
           compacto: true,
           rotuloAcessivel: 'foto do produto',

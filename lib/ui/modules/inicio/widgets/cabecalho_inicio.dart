@@ -75,63 +75,70 @@ class CabecalhoInicio extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                'Vendido no mês',
-                style: estilos.titleLarge?.copyWith(
-                  color: claro.withOpacity(0.9),
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Column(
+                  children: [
+                    Text(
+                      'Vendido no mês',
+                      style: estilos.titleLarge?.copyWith(
+                        color: claro.withOpacity(0.9),
+                      ),
+                    ),
+                    FittedBox(
+                      child: Text(
+                        numeros == null
+                            ? '—'
+                            : FormatadorMoeda.formatar(numeros.vendidoNoMes),
+                        style: estilos.displayMedium?.copyWith(color: claro),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _Numero(
+                            titulo: 'Vendas',
+                            valor: numeros == null
+                                ? '—'
+                                : '${numeros.qtdVendasNoMes}',
+                            legenda: numeros?.qtdVendasNoMes == 1
+                                ? 'pedido feito'
+                                : 'pedidos feitos',
+                            onTap: onVendas,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _Numero(
+                            titulo: 'Recebido',
+                            valor: numeros == null
+                                ? '—'
+                                : FormatadorMoeda.formatarSemCentavos(
+                                    numeros.recebidoNoMes,
+                                  ),
+                            legenda: 'neste mês',
+                            onTap: onRecebido,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _Numero(
+                            titulo: 'Boletos',
+                            valor: numeros == null
+                                ? '—'
+                                : FormatadorMoeda.formatarSemCentavos(
+                                    numeros.boletosNoMes,
+                                  ),
+                            legenda: 'vencem no mês',
+                            onTap: onBoletos,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-              FittedBox(
-                child: Text(
-                  numeros == null
-                      ? '—'
-                      : FormatadorMoeda.formatar(numeros.vendidoNoMes),
-                  style: estilos.displayMedium?.copyWith(color: claro),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _Numero(
-                      titulo: 'Vendas',
-                      valor: numeros == null
-                          ? '—'
-                          : '${numeros.qtdVendasNoMes}',
-                      legenda: numeros?.qtdVendasNoMes == 1
-                          ? 'pedido feito'
-                          : 'pedidos feitos',
-                      onTap: onVendas,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _Numero(
-                      titulo: 'Recebido',
-                      valor: numeros == null
-                          ? '—'
-                          : FormatadorMoeda.formatarSemCentavos(
-                              numeros.recebidoNoMes,
-                            ),
-                      legenda: 'neste mês',
-                      onTap: onRecebido,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _Numero(
-                      titulo: 'Boletos',
-                      valor: numeros == null
-                          ? '—'
-                          : FormatadorMoeda.formatarSemCentavos(
-                              numeros.boletosNoMes,
-                            ),
-                      legenda: 'vencem no mês',
-                      onTap: onBoletos,
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
@@ -175,11 +182,16 @@ class _Numero extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
             child: Column(
               children: [
-                Text(titulo, style: estilos.titleSmall?.copyWith(color: claro)),
+                Text(
+                  titulo,
+                  textAlign: TextAlign.center,
+                  style: estilos.titleSmall?.copyWith(color: claro),
+                ),
                 const SizedBox(height: 4),
                 FittedBox(
                   child: Text(
                     valor,
+                    textAlign: TextAlign.center,
                     style: estilos.titleLarge?.copyWith(color: claro),
                   ),
                 ),
@@ -187,6 +199,7 @@ class _Numero extends StatelessWidget {
                 FittedBox(
                   child: Text(
                     legenda,
+                    textAlign: TextAlign.center,
                     style: estilos.labelSmall?.copyWith(
                       color: claro.withOpacity(0.8),
                     ),

@@ -167,7 +167,10 @@ class _Identidade extends StatelessWidget {
                         ),
                       ),
                     const SizedBox(height: 8),
-                    SeloStatusFornecedor(tamanho: TamanhoSelo.pagina, fornecedor: fornecedor),
+                    SeloStatusFornecedor(
+                      tamanho: TamanhoSelo.pagina,
+                      fornecedor: fornecedor,
+                    ),
                   ],
                 ),
               ),

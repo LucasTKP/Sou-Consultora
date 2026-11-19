@@ -77,10 +77,7 @@ class CampoTextoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ErroEmToast(
-      erro: erro,
-      child: _campo(context),
-    );
+    return ErroEmToast(erro: erro, child: _campo(context));
   }
 
   Widget _campo(BuildContext context) {

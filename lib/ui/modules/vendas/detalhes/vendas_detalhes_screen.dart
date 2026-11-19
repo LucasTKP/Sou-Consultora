@@ -461,7 +461,10 @@ class _CartaoParcela extends StatelessWidget {
                       style: estilos.titleMedium,
                     ),
                   ),
-                  SeloStatusParcela(tamanho: TamanhoSelo.pagina, status: status),
+                  SeloStatusParcela(
+                    tamanho: TamanhoSelo.pagina,
+                    status: status,
+                  ),
                 ],
               ),
               const Divider(height: 24, color: CoresApp.primariaSuave),

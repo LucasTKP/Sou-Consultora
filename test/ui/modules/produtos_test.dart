@@ -364,7 +364,7 @@ void main() {
 
       expect(find.text('Importar do catálogo'), findsOneWidget);
       expect(
-        find.text('Adicionar foto'),
+        find.bySemanticsLabel('Adicionar foto do produto'),
         findsOneWidget,
       );
 
@@ -379,7 +379,7 @@ void main() {
       expect(find.text('174918'), findsOneWidget);
       expect(find.text('Natura'), findsOneWidget);
       expect(find.text('Maquiagem'), findsOneWidget);
-      expect(find.text('Trocar foto'), findsOneWidget);
+      expect(find.bySemanticsLabel('Trocar foto do produto'), findsOneWidget);
       expect(catalogo.fotosBaixadas, ['natura/174918.jpg']);
     });
 
@@ -416,7 +416,7 @@ void main() {
       await _abrir(tester, servico, '/produtos/novo');
 
       expect(find.text('Novo Produto'), findsOneWidget);
-      expect(find.text('Passo 1 de 2: Dados do Produto'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
 
       await tester.enterText(find.byType(EditableText).first, 'Kit Lily');
       await tester.tap(find.text('Escolha a marca'));
@@ -430,16 +430,16 @@ void main() {
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Passo 2 de 2: Preços e Durabilidade'), findsOneWidget);
+      expect(find.text('PASSO 2 DE 2'), findsOneWidget);
       expect(find.text('CONFIGURANDO PRODUTO'), findsOneWidget);
       expect(find.text('Natura • Perfumaria'), findsOneWidget);
 
-      await tester.tap(find.text('Voltar'));
+      await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
-      expect(find.text('Passo 1 de 2: Dados do Produto'), findsOneWidget);
+      expect(find.text('PASSO 1 DE 2'), findsOneWidget);
       expect(find.text('Kit Lily'), findsOneWidget);
 
-      await tester.tap(find.text('Cancelar'));
+      await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
       expect(find.text('anterior'), findsOneWidget);
       expect(servico.salvos, isEmpty);

@@ -102,14 +102,18 @@ class BotaoApp extends StatelessWidget {
     final rotuloWidget = Flexible(fit: FlexFit.loose, child: texto);
 
     final estiloTema = switch (_variante) {
-      ShadButtonVariant.primary =>
-        ShadTheme.of(context).primaryButtonTheme.textStyle,
-      ShadButtonVariant.outline =>
-        ShadTheme.of(context).outlineButtonTheme.textStyle,
-      ShadButtonVariant.secondary =>
-        ShadTheme.of(context).secondaryButtonTheme.textStyle,
-      ShadButtonVariant.destructive =>
-        ShadTheme.of(context).destructiveButtonTheme.textStyle,
+      ShadButtonVariant.primary => ShadTheme.of(
+        context,
+      ).primaryButtonTheme.textStyle,
+      ShadButtonVariant.outline => ShadTheme.of(
+        context,
+      ).outlineButtonTheme.textStyle,
+      ShadButtonVariant.secondary => ShadTheme.of(
+        context,
+      ).secondaryButtonTheme.textStyle,
+      ShadButtonVariant.destructive => ShadTheme.of(
+        context,
+      ).destructiveButtonTheme.textStyle,
       _ => null,
     };
 

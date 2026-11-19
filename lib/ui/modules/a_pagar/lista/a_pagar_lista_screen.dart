@@ -29,7 +29,9 @@ class APagarListaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => APagarListaCubit(fornecedorId: fornecedorId),
-      child: fornecedorId == null ? const _APagarListaVista() : const Scaffold(body: _APagarListaVista()),
+      child: fornecedorId == null
+          ? const _APagarListaVista()
+          : const Scaffold(body: _APagarListaVista()),
     );
   }
 }
@@ -49,7 +51,11 @@ class _APagarListaVista extends StatelessWidget {
     return BlocBuilder<APagarListaCubit, APagarListaState>(
       builder: (context, estado) => Column(
         children: [
-          CabecalhoApp(titulo: 'A pagar', subtitulo: estado.nomeFornecedor, acao: AcaoCabecalho.voltar),
+          CabecalhoApp(
+            titulo: 'A pagar',
+            subtitulo: estado.nomeFornecedor,
+            acao: AcaoCabecalho.voltar,
+          ),
           Expanded(
             child: Stack(
               children: [
@@ -74,9 +80,12 @@ class _APagarListaVista extends StatelessWidget {
 
   Widget _corpo(BuildContext context, APagarListaState estado) {
     return switch (estado.carregamento) {
-      CarregamentoBoletos.carregando => const EstadoCarregandoApp(mensagem: 'Carregando boletos...'),
+      CarregamentoBoletos.carregando => const EstadoCarregandoApp(
+        mensagem: 'Carregando boletos...',
+      ),
       CarregamentoBoletos.erro => EstadoErroApp(
-        mensagem: estado.mensagemErro ?? 'Não foi possível carregar os boletos.',
+        mensagem:
+            estado.mensagemErro ?? 'Não foi possível carregar os boletos.',
         onTentarNovamente: context.read<APagarListaCubit>().carregar,
       ),
       CarregamentoBoletos.pronto when estado.todos.isEmpty => EstadoVazioApp(
@@ -111,7 +120,12 @@ class _Lista extends StatelessWidget {
       child: ListView(
         // Espaço no fim para a barra inferior e o botão flutuante não
         // cobrirem o último card.
-        padding: EdgeInsets.fromLTRB(16, 24, 16, MediaQuery.paddingOf(context).bottom + 96),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          24,
+          16,
+          MediaQuery.paddingOf(context).bottom + 96,
+        ),
         children: [
           CampoBuscaApp(
             rotulo: 'Buscar contas',
@@ -136,7 +150,9 @@ class _Lista extends StatelessWidget {
                 child: CampoSelecaoApp<MesAno?>(
                   rotulo: 'Mês/Ano',
                   opcoes: [...estado.meses, null],
-                  rotuloDe: (m) => m == null ? 'Todos os meses' : FormatadorData.mesAnoAbreviado(m.ano, m.mes),
+                  rotuloDe: (m) => m == null
+                      ? 'Todos os meses'
+                      : FormatadorData.mesAnoAbreviado(m.ano, m.mes),
                   valor: estado.mes,
                   placeholder: 'Todos os meses',
                   onChanged: cubit.alterarMes,
@@ -171,7 +187,9 @@ class _Lista extends StatelessWidget {
               child: Text(
                 'Nenhum boleto encontrado',
                 textAlign: TextAlign.center,
-                style: estilos.bodyLarge?.copyWith(color: CoresApp.sobreSuperficieVariante),
+                style: estilos.bodyLarge?.copyWith(
+                  color: CoresApp.sobreSuperficieVariante,
+                ),
               ),
             ),
           for (final boleto in visiveis) ...[
@@ -186,5 +204,4 @@ class _Lista extends StatelessWidget {
       ),
     );
   }
-
 }
