@@ -11,14 +11,14 @@ from pathlib import Path
 
 # Categorias padrão de produto da consultora (ver migração conta). Primeira regra que casar vence.
 REGRAS = [
-    ("Infantil", r"\bnature\b|\bbebe\b|\binfantil\b|\bmamae e bebe\b"),
+    ("Infantil", r"\bnature\b|\bbaby\b|\bbebe\b|\binfantil\b|\bmamae e bebe\b"),
     ("Presentes", r"\bpresente|\bcofre\b|\becobag\b|\bchaveiro\b|\bnecessaire\b|\bsacola\b|\bcartao\b"),
-    ("Masculino", r"\bmasculin|\bhomem\b|\bbarba\b|\bpos[- ]?barba\b"),
+    ("Masculino", r"\bmasculin|\bmalbec\b|\bcoffee man\b|\bbarbear\b|\bhomem\b|\bbarba\b|\bpos[- ]?barba\b"),
     ("Perfumaria", r"\bcolonia\b|\bparfum\b|\bperfume\b|\beau de\b|\bbody splash\b|\bdeo parfum\b|\bdeo colonia\b|\bdes\.? col\b|\bessencial\b|\bkaiak\b"),
-    ("Maquiagem", r"\bbatom\b|\bbase\b|\bpo (compacto|facial|solto)\b|\bblush\b|\bsombra\b|\brimel\b|\bmascara (de |para )?cilios\b|\bcilios\b|\bfaces\b|\bduo\b|\bsuperbrilho\b|\bglitter\b|\blip\b|\bsobrancelhas?\b|\bdelineador\b|\bgloss\b|\bbalm\b|\biluminador\b|\bcorretivo\b|\blapis\b|\bpincel\b|\bpaleta\b|\bpalette\b|\besmalte\b|\bprimer\b|\bfixador\b|\bmaquiagem\b|\bbatons\b|\bcontorno\b|\bsobrancelha\b|\bpo bronzeador\b"),
-    ("Cabelos", r"\blumina\b|\bsh\b|\bcond\b|\bampola\b|\bshampoo\b|\bxampu\b|\bcondicionador\b|\bcapilar\b|\bcabelo|\bpentear\b|\bleave\b|\bfinalizador\b|\bmascara de tratamento\b"),
-    ("Cuidados com a pele", r"\bserum\b|\bfacial\b|\brosto\b|\bchronos\b|\btonico\b|\bprotetor solar\b|\bfps\b|\bantissinais\b|\bolhos\b|\bdemaquilante\b|\bmicelar\b|\bantiidade\b|\banti-idade\b|\bretinol\b|\bcolageno\b|\bvitamina c\b|\bacido\b"),
-    ("Corpo e banho", r"\bsabonetes?\b|\bconcentrado\b|\bcorpo\b|\bcorporal\b|\bhidratante\b|\bdesodorante\b|\besfoliante\b|\bbanho\b|\btododia\b|\bekos\b|\bmaos\b|\bpes\b|\blocao\b|\bmanteiga\b|\bsais\b|\boleo\b|\brefil\b|\bcreme\b"),
+    ("Maquiagem", r"\bbrilho labial\b|\blabial\b|\brollette\b|\bcobertura\b|\bcuticula|\blixa\b|\bcorret\b|\bmake b\b|\bqdb\b|\blap olh\b|\bberestick\b|\bbb cream\b|\bbatom\b|\bbase\b|\bpo (compacto|facial|solto)\b|\bblush\b|\bsombra\b|\brimel\b|\bmascara (de |para )?cilios\b|\bcilios\b|\bfaces\b|\bduo\b|\bsuperbrilho\b|\bglitter\b|\blip\b|\bsobrancelhas?\b|\bdelineador\b|\bgloss\b|\bbalm\b|\biluminador\b|\bcorretivo\b|\blapis\b|\bpincel\b|\bpaleta\b|\bpalette\b|\besmalte\b|\bprimer\b|\bfixador\b|\bmaquiagem\b|\bbatons\b|\bcontorno\b|\bsobrancelha\b|\bpo bronzeador\b"),
+    ("Cabelos", r"\bcondicionante\b|\bmatch\b|\blumina\b|\bsh\b|\bcond\b|\bampola\b|\bshampoo\b|\bxampu\b|\bcondicionador\b|\bcapilar\b|\bcabelo|\bpentear\b|\bleave\b|\bfinalizador\b|\bmascara de tratamento\b"),
+    ("Cuidados com a pele", r"\bbotik\b|\bskincare\b|\bsol renov\b|\bbooster\b|\brenew\b|\bserum\b|\bfacial\b|\brosto\b|\bchronos\b|\btonico\b|\bprotetor solar\b|\bfps\b|\bantissinais\b|\bolhos\b|\bdemaquilante\b|\bmicelar\b|\bantiidade\b|\banti-idade\b|\bretinol\b|\bcolageno\b|\bvitamina c\b|\bacido\b"),
+    ("Corpo e banho", r"\bshower gel\b|\bantitranspirante\b|\bloc des corp\b|\bsabonetes?\b|\bconcentrado\b|\bcorpo\b|\bcorporal\b|\bhidratante\b|\bdesodorante\b|\besfoliante\b|\bbanho\b|\btododia\b|\bekos\b|\bmaos\b|\bpes\b|\blocao\b|\bmanteiga\b|\bsais\b|\boleo\b|\brefil\b|\bcreme\b"),
 ]
 
 
@@ -47,7 +47,8 @@ def main():
             d = json.loads(l); itens[d["codigo"]] = d
     linhas, dist, sem = [], Counter(), []
     for d in sorted(itens.values(), key=lambda d: d["codigo"]):
-        cat = categoria(d["nome"])
+        # Tupperware (utilidades) não tem categoria padrão equivalente: a consultora escolhe.
+        cat = None if marca_chave == "tupperware" else categoria(d["nome"])
         dist[cat or "(sem categoria)"] += 1
         if cat is None:
             sem.append(d["nome"])
