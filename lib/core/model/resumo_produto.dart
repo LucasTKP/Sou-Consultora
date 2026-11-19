@@ -64,8 +64,8 @@ class ResumoProduto {
   /// "Esgotado", "1 un (Baixo estoque)", "4 un em estoque".
   String get textoEstoque => switch (situacao) {
     SituacaoEstoque.esgotado => 'Esgotado',
-    SituacaoEstoque.baixo => '$qtdDisponivel un (Baixo estoque)',
-    SituacaoEstoque.emEstoque => '$qtdDisponivel un em estoque',
+    SituacaoEstoque.baixo => '$qtdDisponivel un (baixo)',
+    SituacaoEstoque.emEstoque => '$qtdDisponivel un',
   };
 
   /// Busca por nome, marca ou código, sem maiúsculas nem acentos.

@@ -9,6 +9,8 @@ class CartaoListaApp extends StatelessWidget {
     required this.titulo,
     this.subtitulo,
     this.inicio,
+    this.maxLinhasTitulo = 1,
+    this.linhaInferior,
     this.selo,
     this.fim,
     this.onTap,
@@ -17,6 +19,12 @@ class CartaoListaApp extends StatelessWidget {
 
   final String titulo;
   final String? subtitulo;
+
+  /// Quantas linhas o título pode usar antes das reticências (nomes longos).
+  final int maxLinhasTitulo;
+
+  /// Widget no lugar do [subtitulo] (ex.: valor e status lado a lado).
+  final Widget? linhaInferior;
 
   /// Normalmente `AvatarApp` ou `FotoQuadradaApp`.
   final Widget? inicio;
@@ -53,11 +61,13 @@ class CartaoListaApp extends StatelessWidget {
                   children: [
                     Text(
                       titulo,
-                      maxLines: 1,
+                      maxLines: maxLinhasTitulo,
                       overflow: TextOverflow.ellipsis,
                       style: estilos.titleMedium,
                     ),
-                    if (subtitulo != null)
+                    if (linhaInferior != null)
+                      linhaInferior!
+                    else if (subtitulo != null)
                       Text(
                         subtitulo!,
                         maxLines: 1,

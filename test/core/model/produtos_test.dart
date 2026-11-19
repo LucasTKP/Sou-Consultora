@@ -79,10 +79,10 @@ void main() {
     test('situação e texto do estoque', () {
       expect(_resumo('a').textoEstoque, 'Esgotado');
       expect(_resumo('a', qtd: 1).situacao, SituacaoEstoque.baixo);
-      expect(_resumo('a', qtd: 1).textoEstoque, '1 un (Baixo estoque)');
+      expect(_resumo('a', qtd: 1).textoEstoque, '1 un (baixo)');
       expect(_resumo('a', qtd: 2).situacao, SituacaoEstoque.baixo);
       expect(_resumo('a', qtd: 3).situacao, SituacaoEstoque.emEstoque);
-      expect(_resumo('a', qtd: 4).textoEstoque, '4 un em estoque');
+      expect(_resumo('a', qtd: 4).textoEstoque, '4 un');
     });
 
     test('busca por nome, marca e código, sem acento', () {

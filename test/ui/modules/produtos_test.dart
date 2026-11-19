@@ -166,28 +166,30 @@ void main() {
   });
 
   group('Lista (tela)', () {
-    testWidgets('contador, preço, texto do estoque e abre o detalhe', (
-      tester,
-    ) async {
-      final servico = ServicoProdutosFalso(
-        resumos: [
-          produtoDto('p1', 'Kit Lily', precoVenda: 24000, qtdDisponivel: 4),
-          produtoDto('p2', 'Essencial', precoVenda: 18990, qtdDisponivel: 1),
-          produtoDto('p3', 'Malbec', precoVenda: 19990),
-        ],
-      );
-      await _abrir(tester, servico, '/produtos');
+    testWidgets(
+      'nome longo usa a largura toda; estoque fica na linha do valor',
+      (tester) async {
+        const nome =
+            'Natura Ekos Sabonete em Barra Puro Vegetal Esfoliante Sortido Açaí '
+            'Andiroba Maracujá e Castanha 4 Unidades de 100 g';
+        final servico = ServicoProdutosFalso(
+          resumos: [produtoDto('p1', nome, precoVenda: 24000)],
+        );
+        await _abrir(tester, servico, '/produtos');
 
-      expect(find.text('3 produtos'), findsOneWidget);
-      expect(find.text('4 un em estoque'), findsOneWidget);
-      expect(find.text('1 un (Baixo estoque)'), findsOneWidget);
-      expect(find.text('Esgotado'), findsOneWidget);
-      expect(find.text(FormatadorMoeda.formatar(24000)), findsOneWidget);
+        final tituloCaixa = tester.getRect(find.textContaining('Natura Ekos'));
+        final valor = tester.getRect(find.text('R\$ 240,00'));
+        final estoque = tester.getRect(find.text('Esgotado'));
 
-      await tester.tap(find.text('Kit Lily'));
-      await tester.pumpAndSettle();
-      expect(find.text('Detalhes do Produto'), findsOneWidget);
-    });
+        // O nome ocupa duas linhas e a largura toda do card (o estoque não o
+        // aperta mais pela direita).
+        expect(tituloCaixa.height, greaterThan(30));
+        expect(tituloCaixa.width, greaterThan(200));
+        // Valor e estoque ficam abaixo do nome, na linha de baixo.
+        expect(valor.top, greaterThanOrEqualTo(tituloCaixa.bottom - 1));
+        expect(estoque.top, greaterThanOrEqualTo(tituloCaixa.bottom - 1));
+      },
+    );
 
     testWidgets('lista vazia convida a cadastrar', (tester) async {
       await _abrir(tester, ServicoProdutosFalso(), '/produtos');

@@ -15,17 +15,25 @@ class CartaoProduto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final estilo = Theme.of(context).textTheme.bodySmall;
     return CartaoListaApp(
       titulo: produto.nome,
-      subtitulo: FormatadorMoeda.formatar(produto.precoVenda),
-      inicio: FotoQuadradaApp(url: produto.urlFoto),
-      selo: Text(
-        produto.textoEstoque,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.bodySmall
-            ?.copyWith(color: corDoEstoque(produto.situacao)),
+      // O nome ganha a largura toda (até 2 linhas); valor e estoque dividem a
+      // linha de baixo e quebram juntos se a fonte for grande.
+      maxLinhasTitulo: 2,
+      linhaInferior: Wrap(
+        spacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(FormatadorMoeda.formatar(produto.precoVenda), style: estilo),
+          Text('•', style: estilo),
+          Text(
+            produto.textoEstoque,
+            style: estilo?.copyWith(color: corDoEstoque(produto.situacao)),
+          ),
+        ],
       ),
+      inicio: FotoQuadradaApp(url: produto.urlFoto),
       onTap: onTap,
     );
   }
