@@ -17,7 +17,7 @@ select is((select public from storage.buckets where id = 'catalogo'), false, 'bu
 select testes.autenticar_como(:'id_a');
 select is((select count(*)::int from public.catalogo_produtos where marca = 'MarcaTeste'), 1,
   'consultora lê o catálogo');
-select is((select count(*)::int from storage.objects where bucket_id = 'catalogo'), 1,
+select is((select count(*)::int from storage.objects where bucket_id = 'catalogo' and name = 'marcateste/T-1.jpg'), 1,
   'consultora lê o arquivo do catálogo');
 select throws_ok(
   $$ insert into public.catalogo_produtos (marca, codigo, nome) values ('X', '1', 'Y') $$,
