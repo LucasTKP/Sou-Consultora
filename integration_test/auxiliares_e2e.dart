@@ -105,6 +105,9 @@ Finder campo(String rotulo) {
 
 Future<void> digitar(WidgetTester tester, String rotulo, String texto) async {
   await mostrar(tester, find.textContaining(rotulo, findRichText: true));
+  // Toca antes: depois de fechar uma folha o foco não vai sozinho ao campo.
+  await tester.tap(campo(rotulo));
+  await tester.pumpAndSettle();
   await tester.enterText(campo(rotulo), texto);
   await tester.pumpAndSettle();
 }
@@ -112,21 +115,52 @@ Future<void> digitar(WidgetTester tester, String rotulo, String texto) async {
 Future<void> abrirMenu(WidgetTester tester) =>
     tocar(tester, find.byTooltip('Abrir menu'));
 
-/// Item do menu lateral (rola o menu se preciso).
+const _gruposDoMenu = {
+  'Início': 'Navegação principal',
+  'Vendas': 'Navegação principal',
+  'Clientes': 'Navegação principal',
+  'Produtos & Estoque': 'Navegação principal',
+  'Serviços': 'Navegação principal',
+  'Fornecedores': 'Navegação principal',
+  'A Receber': 'Gestão financeira',
+  'A Pagar': 'Gestão financeira',
+  'Financeiro': 'Gestão financeira',
+};
+
+/// Item do menu lateral. Abre a categoria se ela estiver fechada e rola o menu.
 Future<void> tocarNoMenu(WidgetTester tester, String item) async {
-  final alvo = find.text(item).hitTestable();
   final lista = find
       .descendant(of: find.byType(Drawer), matching: find.byType(Scrollable))
       .first;
-  for (
-    var tentativa = 0;
-    tentativa < 6 && alvo.evaluate().isEmpty;
-    tentativa++
-  ) {
-    await tester.drag(lista, const Offset(0, -150));
-    await tester.pumpAndSettle();
+
+  Future<bool> revelar(String texto) async {
+    final alvo = find.text(texto).hitTestable();
+    if (alvo.evaluate().isNotEmpty) return true;
+    for (var tentativa = 0; tentativa < 8; tentativa++) {
+      await tester.drag(lista, const Offset(0, 400));
+      await tester.pumpAndSettle();
+    }
+    for (
+      var tentativa = 0;
+      tentativa < 8 && alvo.evaluate().isEmpty;
+      tentativa++
+    ) {
+      await tester.drag(lista, const Offset(0, -150));
+      await tester.pumpAndSettle();
+    }
+    return alvo.evaluate().isNotEmpty;
   }
-  await tester.tap(alvo.first);
+
+  if (!await revelar(item)) {
+    final grupo = _gruposDoMenu[item];
+    if (grupo != null && await revelar(grupo)) {
+      await tester.tap(find.text(grupo).hitTestable().first);
+      await tester.pumpAndSettle();
+    }
+  }
+  final visivel = await revelar(item);
+  expect(visivel, isTrue, reason: 'item "$item" no menu');
+  await tester.tap(find.text(item).hitTestable().first);
   await tester.pumpAndSettle();
 }
 

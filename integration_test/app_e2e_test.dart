@@ -116,9 +116,9 @@ void main() {
 
       await abrirMenu(tester);
       expect(find.text(consultora.nome), findsWidgets);
-      expect(find.textContaining('Sou Consultora v'), findsOneWidget);
+      expect(find.textContaining('Sou Consultora v'), findsNothing);
 
-      await tocarNoMenu(tester, 'Fornecedores & Marcas');
+      await tocarNoMenu(tester, 'Fornecedores');
       expect(find.byType(Drawer), findsNothing);
       expect(find.text('Fornecedores'), findsWidgets);
     });
@@ -212,7 +212,7 @@ void main() {
         await tocar(tester, find.text('E-mail'));
         await digitar(tester, 'Chave Pix', 'e2e@souconsultora.app');
         await salvar(tester);
-        expect(find.text('Tipo: E-mail'), findsOneWidget);
+        expect(find.text('Tipo: E-mail'), findsNothing);
         expect(find.text('e2e@souconsultora.app'), findsOneWidget);
 
         await tocar(tester, find.byTooltip('Copiar chave Pix'));
@@ -279,7 +279,7 @@ void main() {
         (w) =>
             w is Text &&
             (w.data == 'Nenhuma cliente ainda' ||
-                (w.data ?? '').contains('cadastrad')),
+                RegExp(r'^\d+ clientes?$').hasMatch(w.data ?? '')),
       );
       await esperarAte(
         tester,
@@ -397,7 +397,7 @@ void main() {
     Future<void> abrirFornecedores(WidgetTester tester) async {
       await abrirApp(tester);
       await abrirMenu(tester);
-      await tocarNoMenu(tester, 'Fornecedores & Marcas');
+      await tocarNoMenu(tester, 'Fornecedores');
       final listaOuVazia = find.byWidgetPredicate(
         (w) =>
             w is Text &&
@@ -498,7 +498,8 @@ void main() {
       await tocar(tester, find.text('Em espera'));
       await tocar(tester, find.text('Salvar'));
       await esperarAte(tester, find.text('Detalhes do Fornecedor'));
-      expect(find.text('Em espera'), findsOneWidget);
+      // O selo da tela depende dos boletos da marca (vence hoje/atrasado
+      // tem prioridade sobre "Em espera"); o que vale aqui é o banco.
 
       // Relê do banco: confirma que gravou de verdade.
       final relido = await repositorio.buscarResumo(original.id);
@@ -526,7 +527,7 @@ void main() {
         (w) =>
             w is Text &&
             (w.data == 'Nenhum produto ainda' ||
-                RegExp(r'^\d+ produtos? cadastrados?').hasMatch(w.data ?? '')),
+                RegExp(r'^\d+ produtos?$').hasMatch(w.data ?? '')),
       );
       await esperarAte(
         tester,
@@ -565,10 +566,12 @@ void main() {
         if (cardE2e.evaluate().isNotEmpty) return;
       }
 
-      await tocar(
-        tester,
-        find.text(vazia ? 'Cadastrar produto' : 'Novo produto'),
-      );
+      if (vazia) {
+        await tocar(tester, find.text('Cadastrar produto'));
+      } else {
+        await tocar(tester, find.text('Opções'));
+        await tocar(tester, find.text('Novo produto'));
+      }
       await esperarAte(tester, find.text('Continuar'));
       await digitar(tester, 'Nome do produto', nomeE2e);
       await escolher(tester, 'Escolha a marca', marcaE2e);
@@ -657,7 +660,7 @@ void main() {
         await tester.pumpAndSettle();
         await esperarAte(
           tester,
-          find.textContaining('cadastrado'),
+          find.textContaining(RegExp(r'^\d+ produtos?$')),
           descricao: 'lista de produtos',
         );
         await tester.enterText(find.byType(TextField).first, nomeProduto);
@@ -687,7 +690,11 @@ void main() {
         await tocar(tester, cardProduto);
         await esperarAte(tester, find.text('Detalhes do Produto'));
         await tocar(tester, find.text('Estoque $antes'));
-        await tocar(tester, find.text('Lançar Estoque'));
+        // Sem lotes o botão fica no vazio da aba ("Lançar estoque"); com lotes, no rodapé.
+        final lancar = find.text('Lançar estoque').evaluate().isNotEmpty
+            ? find.text('Lançar estoque')
+            : find.text('Lançar Estoque');
+        await tocar(tester, lancar);
         await esperarAte(tester, find.text('Adicionar Produto ao Estoque'));
 
         await tocar(tester, find.byTooltip('Aumentar'));
@@ -739,7 +746,7 @@ void main() {
         (w) =>
             w is Text &&
             (w.data == 'Nenhum serviço ainda' ||
-                RegExp(r'^\d+ serviços? cadastrados?').hasMatch(w.data ?? '')),
+                RegExp(r'^\d+ serviços?$').hasMatch(w.data ?? '')),
       );
       await esperarAte(tester, listaOuVazia, descricao: 'lista de serviços');
     }
@@ -840,7 +847,7 @@ void main() {
             (w) =>
                 w is Text &&
                 (w.data == 'Nenhuma venda ainda' ||
-                    (w.data ?? '').contains('realizada')),
+                    RegExp(r'^\d+ vendas?$').hasMatch(w.data ?? '')),
           ),
           descricao: 'lista de vendas',
         );
@@ -871,7 +878,10 @@ void main() {
         await esperarAte(tester, find.text('Como a cliente vai pagar?'));
         await mostrar(tester, find.text('Concluir Venda'));
         await tocar(tester, find.text('Concluir Venda'));
-        await esperarAte(tester, find.text('Vendas & Pedidos'));
+        await esperarAte(
+          tester,
+          find.text('Buscar por cliente, produto ou código...'),
+        );
 
         // Relê do banco: a venda nova existe, com o item como encomenda.
         final depois = await vendas.carregar();
@@ -894,7 +904,16 @@ void main() {
         await tocar(tester, find.text('Mais opções'));
         await tocar(tester, find.text('Cancelar Venda'));
         await tocar(tester, find.text('Cancelar venda'));
-        await esperarAte(tester, find.text('Vendas & Pedidos'));
+        // A lista fica vazia (sem busca) se esta era a única venda.
+        await esperarAte(
+          tester,
+          find.byWidgetPredicate(
+            (w) =>
+                w is Text &&
+                (w.data == 'Nenhuma venda ainda' ||
+                    w.data == 'Buscar por cliente, produto ou código...'),
+          ),
+        );
 
         final aposCancelar = await vendas.carregar();
         expect(
@@ -977,11 +996,11 @@ void main() {
 
         // Lista: busca pela cliente e abre a 1ª parcela desta venda.
         await abrirMenu(tester);
-        await tocarNoMenu(tester, 'A Receber / Cobranças');
+        await tocarNoMenu(tester, 'A Receber');
         await esperarAte(tester, find.text('Recebimentos'));
         await esperarAte(
           tester,
-          find.textContaining('encontrada'),
+          find.textContaining(RegExp(r'^\d+ parcelas?$')),
           descricao: 'lista de parcelas',
         );
         await tester.enterText(find.byType(TextField).first, cliente);
@@ -1030,16 +1049,19 @@ void main() {
         );
         expect(find.text('Compartilhar'), findsOneWidget);
 
-        // Volta aos detalhes (já com o pagamento) e cancela a venda pela tela.
+        // Volta aos detalhes (já com o pagamento); a venda é cancelada pelo repositório.
         await voltarDoSistema(tester);
         await esperarAte(
           tester,
           find.text('Pago ${FormatadorMoeda.formatar(parcial)}'),
         );
+        // Na parcela, "Mais opções" não cancela a venda: só edita o pagamento,
+        // cobra e gera o recibo.
         await tocar(tester, find.text('Mais opções'));
-        await tocar(tester, find.text('Cancelar Venda'));
-        await tocar(tester, find.text('Cancelar venda'));
-        await esperarAte(tester, find.text('Recebimentos'));
+        expect(find.text('Editar pagamento'), findsWidgets);
+        expect(find.text('Cancelar Venda'), findsNothing);
+        await tocar(tester, find.text('Fechar'));
+        await vendas.cancelar(idVenda);
 
         final aposCancelar = await vendas.detalhe(idVenda);
         expect((aposCancelar as Sucesso).valor, isNull);
@@ -1056,9 +1078,7 @@ void main() {
     // A lista, com boletos ou vazia.
     final listaDeBoletos = find.byWidgetPredicate(
       (w) =>
-          w is Text &&
-          (w.data == 'Nenhum boleto ainda' ||
-              w.data == 'Boletos de Fornecedores'),
+          w is Text && (w.data == 'Nenhum boleto ainda' || w.data == 'A pagar'),
     );
 
     testWidgets(
@@ -1077,11 +1097,17 @@ void main() {
         });
 
         await abrirMenu(tester);
-        await tocarNoMenu(tester, 'A Pagar / Boletos');
+        await tocarNoMenu(tester, 'A Pagar');
         await esperarAte(tester, listaDeBoletos, descricao: 'lista de boletos');
 
         // Lançar: passo 1 (marca, valor, vencimento hoje) e passo 2.
-        await tocar(tester, find.byTooltip('Novo boleto'));
+        // Sem boletos o botão é o do estado vazio; com boletos, o flutuante.
+        await tocar(
+          tester,
+          find.text('Lançar boleto').evaluate().isNotEmpty
+              ? find.text('Lançar boleto')
+              : find.byTooltip('Novo boleto'),
+        );
         await esperarAte(tester, find.text('Passo 1 de 2: Dados do Boleto'));
         await tocar(tester, find.text('Selecione a marca ou distribuidora'));
         if (find.text(marca).evaluate().isEmpty) {
@@ -1106,7 +1132,7 @@ void main() {
         await tester.enterText(find.byType(TextField).last, observacao);
         await tester.pumpAndSettle();
         await tocar(tester, find.text('Salvar Boleto'));
-        await esperarAte(tester, find.text('Boletos de Fornecedores'));
+        await esperarAte(tester, find.text('A pagar'));
 
         // Banco: o boleto novo, em aberto, com o que foi digitado.
         final hoje = DateTime.now();
@@ -1170,6 +1196,11 @@ void main() {
     T valorDe<T>(Resultado<T> resultado) => (resultado as Sucesso<T>).valor;
 
     Future<void> abrirFinanceiro(WidgetTester tester) async {
+      // Nas telas de dentro (A receber, A pagar) a barra inferior some: volta.
+      for (var i = 0; i < 4; i++) {
+        if (find.bySemanticsLabel('Financeiro').evaluate().isNotEmpty) break;
+        await voltarDoSistema(tester);
+      }
       await tester.tap(find.bySemanticsLabel('Financeiro').last);
       await tester.pumpAndSettle();
       await esperarAte(tester, find.text('Categorias do Mês'));
@@ -1286,7 +1317,7 @@ void main() {
         await esperarAte(tester, find.text('Recebimentos'));
         await abrirFinanceiro(tester);
         await tocar(tester, find.text('A Pagar'));
-        await esperarAte(tester, find.text('Boletos de Fornecedores'));
+        await esperarAte(tester, find.text('A pagar'));
       },
     );
   }, skip: pularGrupo('E2E-12'));
@@ -1429,8 +1460,8 @@ void main() {
         await tester.pumpAndSettle();
         await binding.takeScreenshot('e2e13-inicio');
 
-        // Cobrar agora → A receber em Atrasado, todos os meses.
-        await tocar(tester, find.text('Cobrar agora'));
+        // Cobrar → A receber em Atrasado, todos os meses.
+        await tocar(tester, find.text('Cobrar'));
         await esperarAte(tester, find.text('Recebimentos'));
         await esperarAte(tester, find.textContaining('Atrasado ('));
         expect(find.text('Todos os meses'), findsOneWidget);
