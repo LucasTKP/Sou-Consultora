@@ -142,7 +142,7 @@ class _LancarEstoqueVistaState extends State<_LancarEstoqueVista> {
               children: [
                 CabecalhoApp(titulo: 'Lançar Estoque', onVoltar: _sair),
                 Expanded(child: _corpo(estado)),
-                _Rodape(estado: estado, onCancelar: _sair),
+                _Rodape(estado: estado),
               ],
             ),
           ),
@@ -243,10 +243,9 @@ class _AtalhoCadastro extends StatelessWidget {
 }
 
 class _Rodape extends StatelessWidget {
-  const _Rodape({required this.estado, required this.onCancelar});
+  const _Rodape({required this.estado});
 
   final LancarEstoqueState estado;
-  final VoidCallback onCancelar;
 
   @override
   Widget build(BuildContext context) {
@@ -280,8 +279,6 @@ class _Rodape extends StatelessWidget {
             rotulo: estado.salvando ? 'Salvando...' : 'Salvar lançamento',
             onPressed: estado.podeSalvar ? cubit.salvar : null,
           ),
-          const SizedBox(height: 12),
-          BotaoApp.secundario(rotulo: 'Cancelar', onPressed: onCancelar),
         ],
       ),
     );

@@ -216,19 +216,9 @@ class _Rodape extends StatelessWidget {
     return SafeArea(
       top: false,
       minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BotaoApp(
-            rotulo: estado.salvando ? 'Salvando...' : 'Salvar',
-            onPressed: estado.salvando ? null : cubit.salvar,
-          ),
-          const SizedBox(height: 12),
-          BotaoApp.secundario(
-            rotulo: 'Cancelar',
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
+      child: BotaoApp(
+        rotulo: estado.salvando ? 'Salvando...' : 'Salvar',
+        onPressed: estado.salvando ? null : cubit.salvar,
       ),
     );
   }

@@ -226,7 +226,7 @@ void main() {
       await abrirPerfil(tester);
       await tocar(tester, find.text('Editar Perfil'));
       await digitar(tester, 'Nome completo', 'Nome que não deve ficar');
-      await tocar(tester, find.text('Cancelar'));
+      await tocar(tester, find.byTooltip('Voltar'));
 
       expect(find.text('Meu Perfil'), findsOneWidget);
       expect(find.text('Nome que não deve ficar'), findsNothing);
@@ -1062,7 +1062,7 @@ void main() {
         await tocar(tester, find.text('Mais opções'));
         expect(find.text('Editar pagamento'), findsWidgets);
         expect(find.text('Cancelar Venda'), findsNothing);
-        await tocar(tester, find.text('Fechar'));
+        await tocar(tester, find.byTooltip('Fechar'));
         await vendas.cancelar(idVenda);
 
         final aposCancelar = await vendas.detalhe(idVenda);

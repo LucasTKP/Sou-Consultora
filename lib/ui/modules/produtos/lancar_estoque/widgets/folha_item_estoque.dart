@@ -203,17 +203,14 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
           rotulo: _editando ? 'Salvar item' : 'Adicionar à Compra',
           onPressed: _confirmar,
         ),
-        const SizedBox(height: 12),
-        if (_editando)
+        // Sair sem adicionar é pelo X da folha; aqui só a ação de remover.
+        if (_editando) ...[
+          const SizedBox(height: 12),
           BotaoApp.secundario(
             rotulo: 'Remover da compra',
             onPressed: () => Navigator.of(context).pop(const ItemRemovido()),
-          )
-        else
-          BotaoApp.secundario(
-            rotulo: 'Voltar sem adicionar',
-            onPressed: () => Navigator.of(context).pop(),
           ),
+        ],
       ],
     );
   }

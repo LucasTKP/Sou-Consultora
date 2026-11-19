@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
-import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 
@@ -59,11 +58,6 @@ abstract final class FolhaOpcoesBoleto {
             'Remover este registro permanentemente',
             CoresApp.perigoContainer,
             CoresApp.perigo,
-          ),
-          const SizedBox(height: 16),
-          BotaoApp.secundario(
-            rotulo: 'Cancelar',
-            onPressed: () => Navigator.of(contexto).pop(),
           ),
         ],
       ),

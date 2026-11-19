@@ -274,7 +274,9 @@ void main() {
       expect(find.text('Novo Fornecedor'), findsOneWidget);
       expect(find.byType(InterruptorApp), findsNothing);
 
-      await tester.tap(find.text('Cancelar'));
+      // Sem botão Cancelar: a seta do cabeçalho sai do formulário.
+      expect(find.text('Cancelar'), findsNothing);
+      await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
       expect(find.text('anterior'), findsOneWidget);
       expect(servico.salvos, isEmpty);

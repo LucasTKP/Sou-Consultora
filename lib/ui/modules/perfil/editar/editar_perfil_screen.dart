@@ -123,18 +123,9 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
             SafeArea(
               top: false,
               minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-              child: Column(
-                children: [
-                  BotaoApp(
-                    rotulo: estado.salvando ? 'Salvando...' : 'Salvar Alterações',
-                    onPressed: estado.salvando ? null : cubit.salvar,
-                  ),
-                  const SizedBox(height: 12),
-                  BotaoApp.secundario(
-                    rotulo: 'Cancelar',
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
+              child: BotaoApp(
+                rotulo: estado.salvando ? 'Salvando...' : 'Salvar Alterações',
+                onPressed: estado.salvando ? null : cubit.salvar,
               ),
             ),
           ],

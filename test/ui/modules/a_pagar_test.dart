@@ -642,8 +642,12 @@ void main() {
       await tester.tap(find.text('Mais opções'));
       await tester.pumpAndSettle();
       expect(find.text('Desfazer Pagamento'), findsNothing);
+      // As folhas fecham pelo X do topo: não há botão Cancelar no rodapé.
+      expect(find.byTooltip('Fechar'), findsOneWidget);
+      expect(find.text('Cancelar'), findsNothing);
       await tester.tap(find.text('Baixar / Anexar Comprovante'));
       await tester.pumpAndSettle();
+      expect(find.text('Cancelar'), findsNothing);
       expect(find.text('Anexar outro substitui o atual.'), findsOneWidget);
       await tester.ensureVisible(find.text('Escolher PDF'));
       await tester.tap(find.text('Escolher PDF'));

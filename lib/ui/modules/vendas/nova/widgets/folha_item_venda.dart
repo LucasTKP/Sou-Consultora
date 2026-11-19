@@ -258,15 +258,7 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
         ],
         if (item != null) ...[const SizedBox(height: 16), _Resumo(item: item)],
         const SizedBox(height: 24),
-        BotaoApp(
-          rotulo: 'Salvar',
-          onPressed: _salvar,
-        ),
-        const SizedBox(height: 12),
-        BotaoApp.secundario(
-          rotulo: 'Cancelar',
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        BotaoApp(rotulo: 'Salvar', onPressed: _salvar),
       ],
     );
   }

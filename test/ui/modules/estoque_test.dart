@@ -211,7 +211,9 @@ void main() {
       await tester.tap(find.text('Adicionar à Compra'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Cancelar'));
+      // Sair é pela seta do cabeçalho (o rodapé só tem Salvar).
+      expect(find.text('Cancelar'), findsNothing);
+      await tester.tap(find.byTooltip('Voltar'));
       await tester.pumpAndSettle();
       expect(find.text('Descartar lançamento?'), findsOneWidget);
       await tester.tap(find.text('Descartar'));

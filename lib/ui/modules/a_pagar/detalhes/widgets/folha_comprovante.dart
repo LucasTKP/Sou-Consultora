@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/core/model/arquivo_comprovante.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
-import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 
@@ -67,11 +66,6 @@ abstract final class FolhaComprovante {
             Icons.picture_as_pdf_outlined,
             'Escolher PDF',
             'Comprovante do banco em PDF',
-          ),
-          const SizedBox(height: 16),
-          BotaoApp.secundario(
-            rotulo: 'Cancelar',
-            onPressed: () => Navigator.of(contexto).pop(),
           ),
         ],
       ),

@@ -295,7 +295,9 @@ void main() {
     testWidgets('cancelar descarta as alterações', (tester) async {
       await abrirEdicao(tester);
       await digitar(tester, 'Telefone / WhatsApp', '21999998888');
-      await tocar(tester, find.text('Cancelar'));
+      // Sem botão Cancelar: a seta do cabeçalho descarta e volta.
+      expect(find.text('Cancelar'), findsNothing);
+      await tocar(tester, find.byTooltip('Voltar'));
 
       expect(find.text('Meu Perfil'), findsOneWidget);
       expect(find.text('(11) 98765-4321'), findsOneWidget);
