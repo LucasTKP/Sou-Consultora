@@ -17,6 +17,7 @@ import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Serviços abre pelo menu, sem a barra. Voltar retorna à aba de onde veio.
 class ServicosListaScreen extends StatelessWidget {
@@ -54,7 +55,7 @@ class _ServicosListaVista extends StatelessWidget {
                   return Positioned(
                     right: 16,
                     // A casca usa `extendBody`: a altura da barra chega como padding.
-                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    bottom: EspacosApp.baseDoBotaoFlutuante(context),
                     child: BotaoFlutuanteApp(
                       rotulo: 'Novo serviço',
                       onPressed: () => context.push(RotasApp.novoServico),
@@ -113,7 +114,7 @@ class _Lista extends StatelessWidget {
           16,
           24,
           16,
-          MediaQuery.paddingOf(context).bottom + 96,
+          MediaQuery.paddingOf(context).bottom + 96 + EspacosApp.folgaInferior,
         ),
         children: [
           CampoBuscaApp(

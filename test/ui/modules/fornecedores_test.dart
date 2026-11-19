@@ -14,6 +14,8 @@ import 'package:sou_consultora/ui/modules/fornecedores/formulario/fornecedores_f
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_cubit.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_state.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/interruptor_app.dart';
 
 import '../../auxiliares/falsos_clientes.dart';
@@ -115,6 +117,21 @@ void main() {
   });
 
   group('Lista (tela)', () {
+    testWidgets('botão flutuante fica 32 px acima da base', (tester) async {
+      await _abrir(
+        tester,
+        repositorioFornecedoresDeTeste(
+          ServicoFornecedoresFalso(resumos: [fornecedorDto('f1', 'Natura')]),
+        ),
+        '/fornecedores',
+      );
+
+      final tela = tester.view.physicalSize / tester.view.devicePixelRatio;
+      final botao = tester.getRect(find.byType(BotaoFlutuanteApp));
+      // 16 de margem + 16 de folga para a seta de navegação do celular.
+      expect(tela.height - botao.bottom, greaterThanOrEqualTo(32));
+    });
+
     testWidgets('mostra contador, selos, boletos e abre o detalhe', (
       tester,
     ) async {
@@ -261,6 +278,19 @@ void main() {
   });
 
   group('Formulário (tela)', () {
+    testWidgets('botão do rodapé fica 40 px acima da base', (tester) async {
+      await _abrir(
+        tester,
+        repositorioFornecedoresDeTeste(ServicoFornecedoresFalso()),
+        '/fornecedores/novo',
+      );
+
+      final tela = tester.view.physicalSize / tester.view.devicePixelRatio;
+      final botao = tester.getRect(find.byType(BotaoApp));
+      // 24 de margem + 16 de folga para a seta de navegação do celular.
+      expect(tela.height - botao.bottom, greaterThanOrEqualTo(40));
+    });
+
     testWidgets('novo: título, sem interruptor; cancelar não grava', (
       tester,
     ) async {

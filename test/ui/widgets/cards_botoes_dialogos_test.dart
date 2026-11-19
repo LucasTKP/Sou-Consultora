@@ -160,6 +160,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Opções da parcela'), findsOneWidget);
     expect(find.text('Cobrar no WhatsApp'), findsOneWidget);
+    // Folga na base (48 + 16): a seta de navegação do celular não cobre o fim.
+    expect(
+      find.byWidgetPredicate((w) => w is SizedBox && w.height == 64),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byTooltip('Fechar'));
     await tester.pumpAndSettle();

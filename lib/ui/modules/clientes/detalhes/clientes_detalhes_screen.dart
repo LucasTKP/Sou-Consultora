@@ -14,6 +14,7 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/grupo_navegacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class ClientesDetalhesScreen extends StatelessWidget {
   const ClientesDetalhesScreen({super.key, required this.idCliente});
@@ -45,7 +46,7 @@ class _DetalhesVista extends StatelessWidget {
               if (resumo != null)
                 SafeArea(
                   top: false,
-                  minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                  minimum: EspacosApp.margemRodape,
                   child: BotaoApp(
                     rotulo: 'Nova Venda',
                     onPressed: () =>

@@ -19,6 +19,7 @@ import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Cadastrar ([idServico] nulo) ou editar serviço. Ao salvar, fecha devolvendo `true`.
 class ServicosFormularioScreen extends StatelessWidget {
@@ -119,7 +120,7 @@ class _FormularioVistaState extends State<_FormularioVista> {
               if (!estado.carregando && estado.erroCarregar == null)
                 SafeArea(
                   top: false,
-                  minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                  minimum: EspacosApp.margemRodape,
                   child: BotaoApp(
                     rotulo: estado.salvando ? 'Salvando...' : 'Salvar Serviço',
                     onPressed: estado.salvando ? null : _cubit.salvar,

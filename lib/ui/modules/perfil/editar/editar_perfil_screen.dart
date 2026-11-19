@@ -13,6 +13,7 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class EditarPerfilScreen extends StatelessWidget {
   const EditarPerfilScreen({super.key});
@@ -122,7 +123,7 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
             ),
             SafeArea(
               top: false,
-              minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              minimum: EspacosApp.margemRodape,
               child: BotaoApp(
                 rotulo: estado.salvando ? 'Salvando...' : 'Salvar Alterações',
                 onPressed: estado.salvando ? null : cubit.salvar,

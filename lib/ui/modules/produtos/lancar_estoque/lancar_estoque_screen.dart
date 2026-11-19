@@ -17,6 +17,7 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Lançar Estoque: uma compra com data e produtos. Ao salvar, fecha devolvendo
 /// `true`. Com [produtoInicialId], a folha de item já abre com o produto.
@@ -254,7 +255,7 @@ class _Rodape extends StatelessWidget {
     final LancamentoEstoque lancamento = estado.lancamento;
     return SafeArea(
       top: false,
-      minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      minimum: EspacosApp.margemRodape,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

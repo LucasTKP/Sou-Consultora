@@ -11,6 +11,7 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Novo boleto ([idBoleto] nulo) ou edição, em 2 passos.
 /// Ao salvar, fecha devolvendo `true`.
@@ -154,7 +155,7 @@ class _Rodape extends StatelessWidget {
     final cubit = context.read<APagarFormularioCubit>();
     return SafeArea(
       top: false,
-      minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      minimum: EspacosApp.margemRodape,
       child: estado.passo == 1
           ? BotaoApp(
               rotulo: 'Continuar',

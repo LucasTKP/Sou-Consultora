@@ -21,6 +21,7 @@ import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de uma parcela: saldo, cliente (Cobrar), pagamentos, a venda e
 /// as outras parcelas; Pagar (com saldo) e Mais opções.
@@ -194,7 +195,7 @@ class _ParcelaVista extends StatelessWidget {
     final detalhe = estado.detalhe!;
     return SafeArea(
       top: false,
-      minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      minimum: EspacosApp.margemRodape,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

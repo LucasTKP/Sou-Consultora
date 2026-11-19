@@ -13,6 +13,7 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Comprovante de pagamento da parcela, com Compartilhar (imagem + texto).
 class AReceberComprovanteScreen extends StatelessWidget {
@@ -90,7 +91,7 @@ class _ComprovanteVistaState extends State<_ComprovanteVista> {
             if (estado.pronto)
               SafeArea(
                 top: false,
-                minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                minimum: EspacosApp.margemRodape,
                 child: BotaoApp(
                   rotulo: estado.compartilhando
                       ? 'Preparando...'

@@ -17,6 +17,7 @@ import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de um serviço. Não existe exclusão.
 class ServicosDetalhesScreen extends StatelessWidget {
@@ -64,7 +65,7 @@ class _DetalhesVista extends StatelessWidget {
               if (servico != null)
                 SafeArea(
                   top: false,
-                  minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                  minimum: EspacosApp.margemRodape,
                   child: BotaoApp(
                     rotulo: 'Editar Serviço',
                     onPressed: () => _editar(context, servico.id),

@@ -20,6 +20,7 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_icone_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class MeuPerfilScreen extends StatelessWidget {
   const MeuPerfilScreen({super.key});
@@ -74,7 +75,7 @@ class _MeuPerfilVista extends StatelessWidget {
           ),
           SafeArea(
             top: false,
-            minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            minimum: EspacosApp.margemRodape,
             child: Column(
               children: [
                 BotaoApp(

@@ -24,6 +24,7 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de uma venda: itens, parcelas, editar (sem pagamento) e opções.
 class VendasDetalhesScreen extends StatelessWidget {
@@ -132,7 +133,7 @@ class _DetalhesVista extends StatelessWidget {
               if (detalhe != null)
                 SafeArea(
                   top: false,
-                  minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                  minimum: EspacosApp.margemRodape,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [

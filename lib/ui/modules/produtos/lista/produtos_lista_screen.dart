@@ -18,6 +18,7 @@ import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 enum _AcaoProduto { novo, estoque }
 
@@ -62,7 +63,7 @@ class _ProdutosListaVista extends StatelessWidget {
                     right: 16,
                     // A casca usa `extendBody`: a altura da barra inferior chega
                     // aqui como padding.
-                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    bottom: EspacosApp.baseDoBotaoFlutuante(context),
                     child: BotaoFlutuanteApp(
                       rotulo: 'Adicionar',
                       destaque: true,
@@ -160,7 +161,7 @@ class _Lista extends StatelessWidget {
           16,
           24,
           16,
-          MediaQuery.paddingOf(context).bottom + 160,
+          MediaQuery.paddingOf(context).bottom + 160 + EspacosApp.folgaInferior,
         ),
         children: [
           CampoBuscaApp(

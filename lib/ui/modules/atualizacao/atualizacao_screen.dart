@@ -6,6 +6,7 @@ import 'package:sou_consultora/ui/modules/atualizacao/atualizacao_state.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Tela única quando a versão instalada está abaixo do mínimo: não há como sair dela.
 class AtualizacaoScreen extends StatelessWidget {
@@ -63,7 +64,7 @@ class _AtualizacaoVista extends StatelessWidget {
                         : context.read<AtualizacaoCubit>().abrirLoja,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 24 + EspacosApp.folgaInferior),
               ],
             ),
           ),

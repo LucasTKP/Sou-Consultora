@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Folha inferior do app: alça, título, subtítulo, botão fechar e conteúdo.
 /// O [rodape], quando informado, fica fixo abaixo do conteúdo rolável
@@ -110,7 +111,7 @@ class _CorpoFolha extends StatelessWidget {
                 child: rodape,
               ),
             // Espaço extra para celulares com botões de navegação na base.
-            SizedBox(height: teclado > 0 ? 24 : 48),
+            SizedBox(height: teclado > 0 ? 24 : 48 + EspacosApp.folgaInferior),
           ],
         ),
       ),

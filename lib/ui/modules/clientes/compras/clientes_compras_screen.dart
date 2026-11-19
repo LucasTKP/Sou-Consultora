@@ -21,6 +21,7 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Compras da cliente: totais, filtro, busca e as vendas dela.
 class ClientesComprasScreen extends StatelessWidget {
@@ -53,7 +54,7 @@ class _ComprasVista extends StatelessWidget {
             if (estado.compras?.vendas.isEmpty != true)
               SafeArea(
                 top: false,
-                minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                minimum: EspacosApp.margemRodape,
                 child: BotaoApp(
                   rotulo: 'Nova Venda',
                   onPressed: () =>

@@ -12,6 +12,7 @@ import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_flutuante_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Início (item central da barra): painel do dia. Não cadastra nada; os
 /// números, alertas e lembretes abrem os outros módulos.
@@ -65,7 +66,7 @@ class _InicioVista extends StatelessWidget {
             Positioned(
               right: 16,
               // A casca usa `extendBody`: a barra inferior chega como padding.
-              bottom: MediaQuery.paddingOf(context).bottom + 16,
+              bottom: EspacosApp.baseDoBotaoFlutuante(context),
               child: BotaoFlutuanteApp(
                 rotulo: 'Ajuda',
                 icone: Icons.support_agent_rounded,
@@ -97,7 +98,7 @@ class _InicioVista extends StatelessWidget {
             16,
             // A casca usa `extendBody`: a barra inferior chega como padding.
             // O resto é folga para o botão "Ajuda" não cobrir o último cartão.
-            MediaQuery.paddingOf(context).bottom + 96,
+            MediaQuery.paddingOf(context).bottom + 96 + EspacosApp.folgaInferior,
           ),
           children: [
             SecaoAlertas(

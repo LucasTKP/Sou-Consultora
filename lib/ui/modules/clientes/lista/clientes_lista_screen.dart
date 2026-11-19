@@ -18,6 +18,7 @@ import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Tela principal de Clientes (dentro da casca, com a barra).
 class ClientesListaScreen extends StatelessWidget {
@@ -60,7 +61,7 @@ class _ClientesListaVista extends StatelessWidget {
                     right: 16,
                     // A casca usa `extendBody`: o fundo da tela fica atrás da
                     // barra inferior, cuja altura chega aqui como padding.
-                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    bottom: EspacosApp.baseDoBotaoFlutuante(context),
                     child: BotaoFlutuanteApp(
                       rotulo: 'Novo cliente',
                       icone: Icons.person_add_alt_1_outlined,
@@ -131,7 +132,7 @@ class _Lista extends StatelessWidget {
           16,
           24,
           16,
-          MediaQuery.paddingOf(context).bottom + 96,
+          MediaQuery.paddingOf(context).bottom + 96 + EspacosApp.folgaInferior,
         ),
         children: [
           CampoSelecaoApp<StatusFiltroCliente>(

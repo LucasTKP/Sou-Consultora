@@ -17,6 +17,7 @@ import 'package:sou_consultora/ui/widgets/indicadores/indicador_passos_app.dart'
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Novo produto ([idProduto] nulo) ou edição, em 2 passos.
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 /// Ao salvar, fecha devolvendo `true`.
 class ProdutosFormularioScreen extends StatelessWidget {
   const ProdutosFormularioScreen({super.key, this.idProduto});
@@ -199,7 +200,7 @@ class _Rodape extends StatelessWidget {
     final passo1 = estado.passo == 1;
     return SafeArea(
       top: false,
-      minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      minimum: EspacosApp.margemRodape,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

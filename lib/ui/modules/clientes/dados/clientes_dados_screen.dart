@@ -18,6 +18,7 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/titulo_secao_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class ClientesDadosScreen extends StatelessWidget {
   const ClientesDadosScreen({super.key, required this.idCliente});
@@ -64,7 +65,7 @@ class _DadosVista extends StatelessWidget {
               if (cliente != null)
                 SafeArea(
                   top: false,
-                  minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                  minimum: EspacosApp.margemRodape,
                   child: BotaoApp(
                     rotulo: 'Editar',
                     onPressed: () => _editar(context, cliente.id),

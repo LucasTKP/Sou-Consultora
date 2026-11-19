@@ -17,6 +17,7 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de um fornecedor. Não existe exclusão: para deixar de usar a
 /// marca, a consultora a coloca em espera na edição.
@@ -73,7 +74,7 @@ class _DetalhesVista extends StatelessWidget {
               if (fornecedor != null)
                 SafeArea(
                   top: false,
-                  minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                  minimum: EspacosApp.margemRodape,
                   child: BotaoApp(
                     rotulo: 'Editar Fornecedor',
                     onPressed: () => _editar(context, fornecedor.id),

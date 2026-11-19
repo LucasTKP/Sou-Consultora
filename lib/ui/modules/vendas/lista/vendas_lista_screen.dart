@@ -18,6 +18,7 @@ import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/texto_contagem_lista.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Tela principal de Vendas (item da barra inferior).
 class VendasListaScreen extends StatelessWidget {
@@ -56,7 +57,7 @@ class _VendasListaVista extends StatelessWidget {
                   if (vazio) return const SizedBox.shrink();
                   return Positioned(
                     right: 16,
-                    bottom: MediaQuery.paddingOf(context).bottom + 16,
+                    bottom: EspacosApp.baseDoBotaoFlutuante(context),
                     child: BotaoFlutuanteApp(
                       rotulo: 'Nova venda',
                       onPressed: () => context.push(RotasApp.novaVenda),
@@ -114,7 +115,7 @@ class _Lista extends StatelessWidget {
           16,
           24,
           16,
-          MediaQuery.paddingOf(context).bottom + 96,
+          MediaQuery.paddingOf(context).bottom + 96 + EspacosApp.folgaInferior,
         ),
         children: [
           CampoBuscaApp(

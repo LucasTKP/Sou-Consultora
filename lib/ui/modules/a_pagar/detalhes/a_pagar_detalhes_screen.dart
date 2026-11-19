@@ -19,6 +19,7 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
+import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes do boleto: valor, marca, vencimento, forma, situação, observação
 /// e comprovante; Confirmar pagamento (não pago) e Mais opções.
@@ -172,7 +173,7 @@ class _DetalhesVista extends StatelessWidget {
     final boleto = estado.boleto!;
     return SafeArea(
       top: false,
-      minimum: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      minimum: EspacosApp.margemRodape,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
