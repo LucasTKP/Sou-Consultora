@@ -38,6 +38,14 @@ android {
         versionName = flutter.versionName
     }
 
+    lint {
+        // O lint "vital" do build de release (AGP 9) usa APIs do Java 21 e quebra em JDK 17
+        // (NoSuchMethodError: List.removeLast) ao analisar plugins como o image_picker_android.
+        // Sem esta checagem o appbundle volta a gerar; o app segue validado pelo
+        // `flutter analyze` e pelos testes. Pode voltar a true depois de usar o JDK 21.
+        checkReleaseBuilds = false
+    }
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
