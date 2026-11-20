@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sou_consultora/core/model/dica_app.dart';
-import 'package:sou_consultora/core/repository/repositorio_dicas.dart';
 import 'package:sou_consultora/core/service/servico_dicas.dart';
 
 import '../../auxiliares/falsos_dicas.dart';

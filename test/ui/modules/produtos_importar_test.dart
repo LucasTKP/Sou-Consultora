@@ -3,8 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/dto/resumo_produto_dto.dart';
-import 'package:sou_consultora/core/erros/falha_app.dart';
-import 'package:sou_consultora/core/model/fornecedor.dart';
 import 'package:sou_consultora/core/model/produto_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_catalogo.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
