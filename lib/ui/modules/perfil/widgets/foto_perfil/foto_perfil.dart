@@ -108,6 +108,11 @@ class _Quadro extends StatelessWidget {
       decoration: BoxDecoration(
         color: CoresApp.primariaSuave,
         borderRadius: BorderRadius.circular(22),
+      ),
+      // A borda vai por cima da foto: como `decoration.border`, ela ficava
+      // atrás e os cantos quadrados da imagem cobriam a curva.
+      foregroundDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xFFF0D3DD), width: 2),
       ),
       child: Stack(

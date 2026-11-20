@@ -31,12 +31,12 @@ class LinhaDadoPerfil extends StatelessWidget {
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Row(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: corFundoIcone,
               borderRadius: BorderRadius.circular(16),
