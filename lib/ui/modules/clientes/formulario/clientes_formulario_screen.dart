@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/model/endereco.dart';
@@ -13,7 +14,6 @@ import 'package:sou_consultora/ui/widgets/formularios/area_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Novo cliente ([idCliente] nulo) ou edição. Ao salvar, fecha devolvendo `true`.
 class ClientesFormularioScreen extends StatelessWidget {
@@ -350,9 +350,7 @@ class _Rodape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<ClientesFormularioCubit>();
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: estado.passo == 1
           ? BotaoApp(
               rotulo: 'Continuar',

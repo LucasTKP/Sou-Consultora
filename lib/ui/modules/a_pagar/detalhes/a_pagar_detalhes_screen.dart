@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -19,7 +20,6 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes do boleto: valor, marca, vencimento, forma, situação, observação
 /// e comprovante; Confirmar pagamento (não pago) e Mais opções.
@@ -171,9 +171,7 @@ class _DetalhesVista extends StatelessWidget {
 
   Widget _rodape(BuildContext context, APagarDetalhesState estado) {
     final boleto = estado.boleto!;
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

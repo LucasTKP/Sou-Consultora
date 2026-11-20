@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +14,6 @@ import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Nova venda (com [clienteInicialId] opcional) ou edição ([idVenda]).
 /// Ao concluir, fecha devolvendo o id da venda.
@@ -52,11 +52,12 @@ class _NovaVendaVistaState extends State<_NovaVendaVista> {
   }
 
   Future<void> _adicionar() async {
-    final estado = _cubit.state;
     final item = await FolhaItemVenda.mostrar(
       context,
-      produtos: estado.produtos,
-      servicos: estado.servicos,
+      produtos: () => _cubit.state.produtos,
+      servicos: () => _cubit.state.servicos,
+      onNovoProduto: _novoProduto,
+      onNovoServico: _novoServico,
       jaNoPedido: (chave) => _cubit.jaNoPedido(chave),
     );
     if (item != null) _cubit.adicionarItem(item);
@@ -66,8 +67,10 @@ class _NovaVendaVistaState extends State<_NovaVendaVista> {
     final estado = _cubit.state;
     final item = await FolhaItemVenda.mostrar(
       context,
-      produtos: estado.produtos,
-      servicos: estado.servicos,
+      produtos: () => _cubit.state.produtos,
+      servicos: () => _cubit.state.servicos,
+      onNovoProduto: _novoProduto,
+      onNovoServico: _novoServico,
       jaNoPedido: (chave) => _cubit.jaNoPedido(chave, indiceEditado: indice),
       item: estado.itens[indice],
     );
@@ -77,6 +80,15 @@ class _NovaVendaVistaState extends State<_NovaVendaVista> {
   Future<void> _novaCliente() async {
     // A cliente nova chega ao cubit pelo repositório de clientes.
     await context.push(RotasApp.novoCliente);
+  }
+
+  Future<void> _novoProduto() async {
+    // O produto novo chega ao cubit pelo repositório de produtos.
+    await context.push(RotasApp.novoProduto);
+  }
+
+  Future<void> _novoServico() async {
+    await context.push(RotasApp.novoServico);
   }
 
   /// Passo 2 → passo 1; no passo 1, confirma o descarte se houver itens.
@@ -186,9 +198,7 @@ class _Rodape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<NovaVendaCubit>();
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: estado.passo == 1
           ? BotaoApp(
               rotulo: 'Avançar',

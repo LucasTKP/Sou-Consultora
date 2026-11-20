@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +19,6 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/titulo_secao_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class ClientesDadosScreen extends StatelessWidget {
   const ClientesDadosScreen({super.key, required this.idCliente});
@@ -63,9 +63,7 @@ class _DadosVista extends StatelessWidget {
               const CabecalhoApp(titulo: 'Dados Cadastrais'),
               Expanded(child: _corpo(context, estado)),
               if (cliente != null)
-                SafeArea(
-                  top: false,
-                  minimum: EspacosApp.margemRodape,
+                RodapeSeguro(
                   child: BotaoApp(
                     rotulo: 'Editar',
                     onPressed: () => _editar(context, cliente.id),

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,6 @@ import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de um serviço. Não existe exclusão.
 class ServicosDetalhesScreen extends StatelessWidget {
@@ -63,9 +63,7 @@ class _DetalhesVista extends StatelessWidget {
               const CabecalhoApp(titulo: 'Detalhes do Serviço'),
               Expanded(child: _corpo(context, estado)),
               if (servico != null)
-                SafeArea(
-                  top: false,
-                  minimum: EspacosApp.margemRodape,
+                RodapeSeguro(
                   child: BotaoApp(
                     rotulo: 'Editar Serviço',
                     onPressed: () => _editar(context, servico.id),
@@ -208,13 +206,11 @@ class _Bloco extends StatelessWidget {
     required this.rotulo,
     required this.valor,
     required this.fundo,
-    this.detalhe,
     this.cor,
   });
 
   final String rotulo;
   final String valor;
-  final String? detalhe;
   final Color fundo;
   final Color? cor;
 
@@ -234,8 +230,6 @@ class _Bloco extends StatelessWidget {
             Text(rotulo, style: estilos.bodySmall?.copyWith(color: cor)),
             const SizedBox(height: 4),
             Text(valor, style: estilos.titleMedium?.copyWith(color: cor)),
-            if (detalhe != null)
-              Text(detalhe!, style: estilos.bodySmall?.copyWith(color: cor)),
           ],
         ),
       ),

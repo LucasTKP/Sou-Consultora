@@ -35,6 +35,34 @@ class MascaraTelefone extends TextInputFormatter {
   }
 }
 
+/// 123.456.789-09
+class MascaraCpf extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue antigo,
+    TextEditingValue novo,
+  ) {
+    final texto = formatar(novo.text);
+    return TextEditingValue(
+      text: texto,
+      selection: TextSelection.collapsed(offset: texto.length),
+    );
+  }
+
+  /// "12345678909" → "123.456.789-09" (parcial enquanto digita).
+  static String formatar(String texto) {
+    var digitos = texto.replaceAll(RegExp(r'\D'), '');
+    if (digitos.length > 11) digitos = digitos.substring(0, 11);
+    final buffer = StringBuffer();
+    for (var i = 0; i < digitos.length; i++) {
+      if (i == 3 || i == 6) buffer.write('.');
+      if (i == 9) buffer.write('-');
+      buffer.write(digitos[i]);
+    }
+    return buffer.toString();
+  }
+}
+
 /// dd/MM/aaaa
 class MascaraData extends TextInputFormatter {
   @override

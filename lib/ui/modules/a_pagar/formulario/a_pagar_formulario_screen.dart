@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +12,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Novo boleto ([idBoleto] nulo) ou edição, em 2 passos.
 /// Ao salvar, fecha devolvendo `true`.
@@ -153,9 +153,7 @@ class _Rodape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<APagarFormularioCubit>();
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: estado.passo == 1
           ? BotaoApp(
               rotulo: 'Continuar',

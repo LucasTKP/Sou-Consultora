@@ -19,9 +19,11 @@ import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 abstract final class FolhaItemVenda {
   static Future<ItemPedido?> mostrar(
     BuildContext context, {
-    required List<ResumoProduto> produtos,
-    required List<ResumoServico> servicos,
+    required List<ResumoProduto> Function() produtos,
+    required List<ResumoServico> Function() servicos,
     required bool Function(String chave) jaNoPedido,
+    required Future<void> Function() onNovoProduto,
+    required Future<void> Function() onNovoServico,
     ItemPedido? item,
   }) {
     return FolhaInferiorApp.mostrar<ItemPedido>(
@@ -32,6 +34,8 @@ abstract final class FolhaItemVenda {
         produtos: produtos,
         servicos: servicos,
         jaNoPedido: jaNoPedido,
+        onNovoProduto: onNovoProduto,
+        onNovoServico: onNovoServico,
         item: item,
       ),
     );
@@ -43,12 +47,16 @@ class _ConteudoFolha extends StatefulWidget {
     required this.produtos,
     required this.servicos,
     required this.jaNoPedido,
+    required this.onNovoProduto,
+    required this.onNovoServico,
     this.item,
   });
 
-  final List<ResumoProduto> produtos;
-  final List<ResumoServico> servicos;
+  final List<ResumoProduto> Function() produtos;
+  final List<ResumoServico> Function() servicos;
   final bool Function(String chave) jaNoPedido;
+  final Future<void> Function() onNovoProduto;
+  final Future<void> Function() onNovoServico;
   final ItemPedido? item;
 
   @override
@@ -68,13 +76,13 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
   ResumoProduto? _produtoInicial() {
     final item = widget.item;
     if (item == null || item.tipo != TipoItem.produto) return null;
-    return widget.produtos.where((p) => p.id == item.catalogoId).firstOrNull;
+    return widget.produtos().where((p) => p.id == item.catalogoId).firstOrNull;
   }
 
   ResumoServico? _servicoInicial() {
     final item = widget.item;
     if (item == null || item.tipo != TipoItem.servico) return null;
-    return widget.servicos.where((s) => s.id == item.catalogoId).firstOrNull;
+    return widget.servicos().where((s) => s.id == item.catalogoId).firstOrNull;
   }
 
   /// Item montado com o que está na folha (null sem produto/serviço escolhido).
@@ -126,6 +134,17 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
       baixa: item.baixa,
       saldo: item.saldoEstoque,
     );
+  }
+
+  /// Abre o cadastro e, na volta, relê a lista para o item novo aparecer.
+  Future<void> _cadastrarProduto() async {
+    await widget.onNovoProduto();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _cadastrarServico() async {
+    await widget.onNovoServico();
+    if (mounted) setState(() {});
   }
 
   void _salvar() {
@@ -186,7 +205,7 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
           CampoSelecaoApp<ResumoProduto>(
             rotulo: 'Selecionar Produto',
             placeholder: 'Escolha o produto',
-            opcoes: widget.produtos,
+            opcoes: widget.produtos(),
             rotuloDe: (p) => p.nome,
             valor: _produto,
             buscavel: true,
@@ -196,12 +215,14 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
               _produto = p;
               _erroItem = null;
             }),
+            onCadastrar: _cadastrarProduto,
+            rotuloCadastrar: 'Cadastrar produto',
           )
         else
           CampoSelecaoApp<ResumoServico>(
             rotulo: 'Selecionar Serviço',
             placeholder: 'Escolha o serviço',
-            opcoes: widget.servicos,
+            opcoes: widget.servicos(),
             rotuloDe: (s) => s.nome,
             valor: _servico,
             buscavel: true,
@@ -211,6 +232,8 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
               _servico = s;
               _erroItem = null;
             }),
+            onCadastrar: _cadastrarServico,
+            rotuloCadastrar: 'Cadastrar serviço',
           ),
         const SizedBox(height: 16),
         Row(

@@ -148,6 +148,7 @@ void main() {
 
       await tester.tap(find.byType(CampoSelecaoApp<String>));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Avon'));
       await tester.tap(find.text('Avon'));
       await tester.pumpAndSettle();
 

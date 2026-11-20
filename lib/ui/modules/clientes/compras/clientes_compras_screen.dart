@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +22,6 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_busca_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Compras da cliente: totais, filtro, busca e as vendas dela.
 class ClientesComprasScreen extends StatelessWidget {
@@ -52,9 +52,7 @@ class _ComprasVista extends StatelessWidget {
             const CabecalhoApp(titulo: 'Compras da Cliente'),
             Expanded(child: _corpo(context, estado)),
             if (estado.compras?.vendas.isEmpty != true)
-              SafeArea(
-                top: false,
-                minimum: EspacosApp.margemRodape,
+              RodapeSeguro(
                 child: BotaoApp(
                   rotulo: 'Nova Venda',
                   onPressed: () =>

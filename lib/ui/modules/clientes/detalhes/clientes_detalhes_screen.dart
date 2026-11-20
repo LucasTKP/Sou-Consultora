@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +15,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/grupo_navegacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class ClientesDetalhesScreen extends StatelessWidget {
   const ClientesDetalhesScreen({super.key, required this.idCliente});
@@ -44,9 +44,7 @@ class _DetalhesVista extends StatelessWidget {
               const CabecalhoApp(titulo: 'Detalhes do Cliente'),
               Expanded(child: _corpo(context, estado)),
               if (resumo != null)
-                SafeArea(
-                  top: false,
-                  minimum: EspacosApp.margemRodape,
+                RodapeSeguro(
                   child: BotaoApp(
                     rotulo: 'Nova Venda',
                     onPressed: () =>

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,6 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_data_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Lançar Estoque: uma compra com data e produtos. Ao salvar, fecha devolvendo
 /// `true`. Com [produtoInicialId], a folha de item já abre com o produto.
@@ -54,12 +54,18 @@ class _LancarEstoqueVistaState extends State<_LancarEstoqueVista> {
     });
   }
 
+  Future<void> _novoProduto() async {
+    // O produto novo chega ao cubit pelo repositório de produtos.
+    await context.push(RotasApp.novoProduto);
+  }
+
   Future<void> _abrirFolha({int? indice, ResumoProduto? produtoInicial}) async {
     final estado = _cubit.state;
     final item = indice == null ? null : estado.itens[indice];
     final escolha = await FolhaItemEstoque.mostrar(
       context,
-      produtos: estado.produtos,
+      produtos: () => _cubit.state.produtos,
+      onNovoProduto: _novoProduto,
       dataCompra: estado.dataCompra,
       jaNaCompra: (id) => _cubit.jaNaCompra(id, indiceEditado: indice),
       item: item,
@@ -253,9 +259,7 @@ class _Rodape extends StatelessWidget {
     final cubit = context.read<LancarEstoqueCubit>();
     final estilos = Theme.of(context).textTheme;
     final LancamentoEstoque lancamento = estado.lancamento;
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

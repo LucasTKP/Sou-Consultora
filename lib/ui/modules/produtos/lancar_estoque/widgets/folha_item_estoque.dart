@@ -33,7 +33,8 @@ final class ItemRemovido extends EscolhaItem {
 abstract final class FolhaItemEstoque {
   static Future<EscolhaItem?> mostrar(
     BuildContext context, {
-    required List<ResumoProduto> produtos,
+    required List<ResumoProduto> Function() produtos,
+    required Future<void> Function() onNovoProduto,
     required DateTime dataCompra,
     required bool Function(String produtoId) jaNaCompra,
     ItemLancamento? item,
@@ -45,6 +46,7 @@ abstract final class FolhaItemEstoque {
       subtitulo: 'Selecione o produto e defina custo e quantidade',
       conteudo: (_) => _ConteudoFolha(
         produtos: produtos,
+        onNovoProduto: onNovoProduto,
         dataCompra: dataCompra,
         jaNaCompra: jaNaCompra,
         item: item,
@@ -57,13 +59,15 @@ abstract final class FolhaItemEstoque {
 class _ConteudoFolha extends StatefulWidget {
   const _ConteudoFolha({
     required this.produtos,
+    required this.onNovoProduto,
     required this.dataCompra,
     required this.jaNaCompra,
     this.item,
     this.produtoInicial,
   });
 
-  final List<ResumoProduto> produtos;
+  final List<ResumoProduto> Function() produtos;
+  final Future<void> Function() onNovoProduto;
   final DateTime dataCompra;
   final bool Function(String produtoId) jaNaCompra;
   final ItemLancamento? item;
@@ -83,6 +87,12 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
   String? _erroValidade;
 
   bool get _editando => widget.item != null;
+
+  /// Abre o cadastro e, na volta, relê a lista para o produto novo aparecer.
+  Future<void> _cadastrarProduto() async {
+    await widget.onNovoProduto();
+    if (mounted) setState(() {});
+  }
 
   void _confirmar() {
     final produto = _produto;
@@ -126,7 +136,7 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
           rotulo: 'Selecionar Produto',
           obrigatorio: true,
           placeholder: 'Escolha o produto',
-          opcoes: widget.produtos,
+          opcoes: widget.produtos(),
           rotuloDe: (p) => p.nome,
           valor: produto,
           buscavel: true,
@@ -136,6 +146,8 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
             _produto = p;
             _erroProduto = null;
           }),
+          onCadastrar: _cadastrarProduto,
+          rotuloCadastrar: 'Cadastrar produto',
         ),
         if (produto != null) ...[
           const SizedBox(height: 12),

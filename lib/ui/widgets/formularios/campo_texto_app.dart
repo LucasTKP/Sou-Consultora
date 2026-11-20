@@ -89,6 +89,14 @@ class CampoTextoApp extends StatelessWidget {
       forceErrorText: erro == null ? null : '',
       enabled: habilitado,
       readOnly: somenteLeitura,
+      // Campo de seleção só abre a folha: sem seleção nem menu de copiar/colar.
+      enableInteractiveSelection: !somenteLeitura,
+      // Menu do próprio Flutter: o do sistema (SystemContextMenu) quebra quando
+      // dois campos tentam abri-lo ao mesmo tempo.
+      contextMenuBuilder: (context, estadoEditavel) =>
+          AdaptiveTextSelectionToolbar.editableText(
+            editableTextState: estadoEditavel,
+          ),
       obscureText: obscuro,
       keyboardType: linhas > 1 ? TextInputType.multiline : teclado,
       inputFormatters: formatadores,

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +19,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de um produto (aba Informações). A aba Estoque chega no change
 /// `estoque`. Não existe exclusão de produto.
@@ -73,9 +73,7 @@ class _DetalhesVista extends StatelessWidget {
   Widget _rodape(BuildContext context, ProdutosDetalhesState estado) {
     final id = estado.produto!.id;
     final estoque = estado.aba == AbaProduto.estoque;
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: estoque
           ? BotaoApp(
               rotulo: 'Lançar Estoque',

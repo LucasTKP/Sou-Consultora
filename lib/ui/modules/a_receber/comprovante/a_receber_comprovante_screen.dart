@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Comprovante de pagamento da parcela, com Compartilhar (imagem + texto).
 class AReceberComprovanteScreen extends StatelessWidget {
@@ -89,9 +89,7 @@ class _ComprovanteVistaState extends State<_ComprovanteVista> {
             const CabecalhoApp(titulo: 'Comprovante de Pagamento'),
             Expanded(child: _corpo(context, estado)),
             if (estado.pronto)
-              SafeArea(
-                top: false,
-                minimum: EspacosApp.margemRodape,
+              RodapeSeguro(
                 child: BotaoApp(
                   rotulo: estado.compartilhando
                       ? 'Preparando...'

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class EditarPerfilScreen extends StatelessWidget {
   const EditarPerfilScreen({super.key});
@@ -126,9 +126,7 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
                 ],
               ),
             ),
-            SafeArea(
-              top: false,
-              minimum: EspacosApp.margemRodape,
+            RodapeSeguro(
               child: BotaoApp(
                 rotulo: estado.salvando ? 'Salvando...' : 'Salvar Alterações',
                 onPressed: estado.salvando ? null : cubit.salvar,
@@ -150,7 +148,11 @@ class _EditarPerfilVistaState extends State<_EditarPerfilVista> {
   }
 
   List<TextInputFormatter>? _mascaraDaChave(TipoChavePix? tipo) {
-    return tipo == TipoChavePix.telefone ? [MascaraTelefone()] : null;
+    return switch (tipo) {
+      TipoChavePix.telefone => [MascaraTelefone()],
+      TipoChavePix.cpf => [MascaraCpf()],
+      _ => null,
+    };
   }
 }
 

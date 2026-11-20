@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,6 @@ import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de um fornecedor. Não existe exclusão: para deixar de usar a
 /// marca, a consultora a coloca em espera na edição.
@@ -72,9 +72,7 @@ class _DetalhesVista extends StatelessWidget {
               const CabecalhoApp(titulo: 'Detalhes do Fornecedor'),
               Expanded(child: _corpo(context, estado)),
               if (fornecedor != null)
-                SafeArea(
-                  top: false,
-                  minimum: EspacosApp.margemRodape,
+                RodapeSeguro(
                   child: BotaoApp(
                     rotulo: 'Editar Fornecedor',
                     onPressed: () => _editar(context, fornecedor.id),

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/model/categoria.dart';
@@ -19,7 +20,6 @@ import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Cadastrar ([idServico] nulo) ou editar serviço. Ao salvar, fecha devolvendo `true`.
 class ServicosFormularioScreen extends StatelessWidget {
@@ -118,9 +118,7 @@ class _FormularioVistaState extends State<_FormularioVista> {
               ),
               Expanded(child: _corpo(estado)),
               if (!estado.carregando && estado.erroCarregar == null)
-                SafeArea(
-                  top: false,
-                  minimum: EspacosApp.margemRodape,
+                RodapeSeguro(
                   child: BotaoApp(
                     rotulo: estado.salvando ? 'Salvando...' : 'Salvar Serviço',
                     onPressed: estado.salvando ? null : _cubit.salvar,
@@ -148,8 +146,8 @@ class _FormularioVistaState extends State<_FormularioVista> {
         const _ComoFunciona(),
         const SizedBox(height: 24),
         CampoFotoApp(
+          compacto: true,
           rotuloAcessivel: 'foto do serviço',
-          descricao: 'Opcional • aparece na lista de serviços',
           fotoNova: estado.fotoNova,
           urlFoto: estado.urlFotoVisivel,
           onTap: _escolherFoto,

@@ -6,14 +6,6 @@ abstract final class EspacosApp {
   /// de navegação na base, o botão não fica por baixo dela.
   static const folgaInferior = 16.0;
 
-  /// Margem do botão fixo no rodapé das telas (SafeArea.minimum).
-  static const margemRodape = EdgeInsets.fromLTRB(
-    24,
-    12,
-    24,
-    24 + folgaInferior,
-  );
-
   /// Distância da base para os botões flutuantes das listas. A altura da barra
   /// inferior do app chega como padding (a casca usa `extendBody`).
   static double baseDoBotaoFlutuante(BuildContext context) =>

@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/model/marca_padrao.dart';
@@ -10,7 +11,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class CadastroScreen extends StatelessWidget {
   const CadastroScreen({super.key});
@@ -123,14 +123,7 @@ class _CadastroVista extends StatelessWidget {
                   ],
                 ),
               ),
-              SafeArea(
-                top: false,
-                minimum: const EdgeInsets.fromLTRB(
-                  24,
-                  24,
-                  24,
-                  24 + EspacosApp.folgaInferior,
-                ),
+              RodapeSeguro(
                 child: BotaoApp(
                   rotulo: estado.salvando ? 'Salvando...' : 'Continuar',
                   iconeFim: const Icon(Icons.arrow_forward_rounded),

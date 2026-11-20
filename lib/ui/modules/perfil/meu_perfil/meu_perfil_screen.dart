@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +21,6 @@ import 'package:sou_consultora/ui/widgets/botoes/botao_icone_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/dialogo_confirmacao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 class MeuPerfilScreen extends StatelessWidget {
   const MeuPerfilScreen({super.key});
@@ -92,9 +92,7 @@ class _MeuPerfilVista extends StatelessWidget {
               },
             ),
           ),
-          SafeArea(
-            top: false,
-            minimum: EspacosApp.margemRodape,
+          RodapeSeguro(
             child: Column(
               children: [
                 BotaoApp(

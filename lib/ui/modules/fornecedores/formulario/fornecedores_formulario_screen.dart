@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/ui/formatadores/mascaras.dart';
@@ -11,7 +12,6 @@ import 'package:sou_consultora/ui/widgets/formularios/area_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/interruptor_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Novo fornecedor ([idFornecedor] nulo) ou edição. Ao salvar, fecha devolvendo `true`.
 class FornecedoresFormularioScreen extends StatelessWidget {
@@ -214,9 +214,7 @@ class _Rodape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<FornecedoresFormularioCubit>();
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: BotaoApp(
         rotulo: estado.salvando ? 'Salvando...' : 'Salvar',
         onPressed: estado.salvando ? null : cubit.salvar,

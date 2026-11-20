@@ -97,4 +97,19 @@ void main() {
       expect(FormatadorTelefone.valido('(11) 9876'), isFalse);
     });
   });
+
+  group('cpf', () {
+    test('máscara formata enquanto digita', () {
+      expect(_digitar(MascaraCpf(), '123'), '123');
+      expect(_digitar(MascaraCpf(), '1234'), '123.4');
+      expect(_digitar(MascaraCpf(), '1234567'), '123.456.7');
+      expect(_digitar(MascaraCpf(), '1234567890'), '123.456.789-0');
+      expect(_digitar(MascaraCpf(), '12345678909'), '123.456.789-09');
+    });
+
+    test('ignora o que não é dígito e corta no 11º', () {
+      expect(_digitar(MascaraCpf(), '123.456.789-09'), '123.456.789-09');
+      expect(_digitar(MascaraCpf(), '123456789012345'), '123.456.789-01');
+    });
+  });
 }

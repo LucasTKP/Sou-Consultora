@@ -278,7 +278,7 @@ void main() {
   });
 
   group('Formulário (tela)', () {
-    testWidgets('botão do rodapé fica 40 px acima da base', (tester) async {
+    testWidgets('botão do rodapé fica acima da base', (tester) async {
       await _abrir(
         tester,
         repositorioFornecedoresDeTeste(ServicoFornecedoresFalso()),
@@ -287,8 +287,8 @@ void main() {
 
       final tela = tester.view.physicalSize / tester.view.devicePixelRatio;
       final botao = tester.getRect(find.byType(BotaoApp));
-      // 24 de margem + 16 de folga para a seta de navegação do celular.
-      expect(tela.height - botao.bottom, greaterThanOrEqualTo(40));
+      // Folga de 24 somada à área do aparelho (zero no teste).
+      expect(tela.height - botao.bottom, greaterThanOrEqualTo(24));
     });
 
     testWidgets('novo: título, sem interruptor; cancelar não grava', (

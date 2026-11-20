@@ -7,6 +7,9 @@ import 'package:sou_consultora/ui/temas/espacos_app.dart';
 /// O [rodape], quando informado, fica fixo abaixo do conteúdo rolável
 /// (ex.: botão "Cadastrar").
 abstract final class FolhaInferiorApp {
+  /// Fração da altura da tela que toda folha ocupa.
+  static const alturaRelativa = 0.7;
+
   /// Abre a folha e devolve o valor passado ao `Navigator.pop` (ou null ao fechar).
   static Future<T?> mostrar<T>({
     required BuildContext context,
@@ -52,17 +55,16 @@ class _CorpoFolha extends StatelessWidget {
     final estilos = Theme.of(context).textTheme;
     final consulta = MediaQuery.of(context);
     final teclado = consulta.viewInsets.bottom;
-    // A folha se ajusta ao conteúdo, limitada a 90% da área visível.
-    final alturaMaxima = (consulta.size.height * 0.9).clamp(
-      0.0,
-      consulta.size.height - teclado,
-    );
+    // Altura fixa de 70% da tela, sem encolher com o conteúdo; com o teclado
+    // aberto, só cede o que o teclado e a barra de status tomam.
+    final altura = (consulta.size.height * FolhaInferiorApp.alturaRelativa)
+        .clamp(0.0, consulta.size.height - teclado - consulta.padding.top);
     return Padding(
       padding: EdgeInsets.only(bottom: teclado),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: alturaMaxima),
+      child: SizedBox(
+        height: altura,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 12),
@@ -99,7 +101,7 @@ class _CorpoFolha extends StatelessWidget {
               ),
             ),
             const Divider(height: 1),
-            Flexible(
+            Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                 child: conteudo,

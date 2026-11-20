@@ -9,6 +9,8 @@ import 'package:sou_consultora/core/model/item_venda.dart';
 import 'package:sou_consultora/core/model/pedido_venda.dart';
 import 'package:sou_consultora/core/model/plano_parcelas.dart';
 import 'package:sou_consultora/core/model/resumo_cliente.dart';
+import 'package:sou_consultora/core/model/resumo_produto.dart';
+import 'package:sou_consultora/core/model/resumo_servico.dart';
 import 'package:sou_consultora/core/repository/repositorio_clientes.dart';
 import 'package:sou_consultora/core/repository/repositorio_produtos.dart';
 import 'package:sou_consultora/core/repository/repositorio_servicos.dart';
@@ -38,8 +40,10 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
            dataVenda: _dia((agora ?? DateTime.now)()),
          ),
        ) {
-    // Cliente cadastrada pelo atalho chega pelo stream.
+    // Cliente, produto ou serviço cadastrados pelo atalho chegam pelo stream.
     _assinatura = _clientes.mudancas.listen(_aoMudarClientes);
+    _assinaturaProdutos = _produtos.mudancas.listen(_aoMudarProdutos);
+    _assinaturaServicos = _servicos.mudancas.listen(_aoMudarServicos);
     carregar();
   }
 
@@ -49,6 +53,8 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
   final RepositorioServicos _servicos;
   final DateTime Function() _agora;
   late final StreamSubscription<List<ResumoCliente>> _assinatura;
+  late final StreamSubscription<List<ResumoProduto>> _assinaturaProdutos;
+  late final StreamSubscription<List<ResumoServico>> _assinaturaServicos;
 
   /// Clientes e catálogo (e, na edição, a venda).
   Future<void> carregar() async {
@@ -310,6 +316,16 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
     emit(state.copyWith(clientes: lista));
   }
 
+  void _aoMudarProdutos(List<ResumoProduto> lista) {
+    if (isClosed || lista.isEmpty) return;
+    emit(state.copyWith(produtos: lista));
+  }
+
+  void _aoMudarServicos(List<ResumoServico> lista) {
+    if (isClosed || lista.isEmpty) return;
+    emit(state.copyWith(servicos: lista));
+  }
+
   void _falharAoCarregar(String mensagem) =>
       emit(state.copyWith(carregando: false, erroCarregar: () => mensagem));
 
@@ -318,6 +334,8 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
   @override
   Future<void> close() async {
     await _assinatura.cancel();
+    await _assinaturaProdutos.cancel();
+    await _assinaturaServicos.cancel();
     return super.close();
   }
 }

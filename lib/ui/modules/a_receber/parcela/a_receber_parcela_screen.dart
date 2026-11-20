@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +22,6 @@ import 'package:sou_consultora/ui/widgets/cards/cartao_app.dart';
 import 'package:sou_consultora/ui/widgets/estados/estados_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
 import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
-import 'package:sou_consultora/ui/temas/espacos_app.dart';
 
 /// Detalhes de uma parcela: saldo, cliente (Cobrar), pagamentos, a venda e
 /// as outras parcelas; Pagar (com saldo) e Mais opções.
@@ -192,9 +192,7 @@ class _ParcelaVista extends StatelessWidget {
 
   Widget _rodape(BuildContext context, AReceberParcelaState estado) {
     final detalhe = estado.detalhe!;
-    return SafeArea(
-      top: false,
-      minimum: EspacosApp.margemRodape,
+    return RodapeSeguro(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
