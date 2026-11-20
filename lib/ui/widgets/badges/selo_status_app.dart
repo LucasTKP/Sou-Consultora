@@ -5,6 +5,17 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 /// Status visual dos badges do design system.
 enum StatusSelo { sucesso, alerta, perigo, neutro, primario }
 
+/// Cor do texto de cada status (selo e linha de situação dos cards).
+extension CorDoStatusSelo on StatusSelo {
+  Color get corTexto => switch (this) {
+    StatusSelo.sucesso => CoresApp.sucesso,
+    StatusSelo.alerta => CoresApp.alerta,
+    StatusSelo.perigo => CoresApp.perigo,
+    StatusSelo.neutro => CoresApp.neutro,
+    StatusSelo.primario => CoresApp.primariaEscura,
+  };
+}
+
 /// Tamanho do selo: [cartao] nas listas e cartões; [pagina] nas telas de detalhe.
 enum TamanhoSelo {
   cartao(fonte: 14, horizontal: 12, vertical: 4),

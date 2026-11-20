@@ -151,24 +151,24 @@ void main() {
           ).paraModel(),
           hoje: hoje,
         );
-        return '${t.rotuloData} | ${t.data} | ${t.complemento} | ${t.rotuloValor}';
+        return '${t.rotuloData} | ${t.data} | ${t.rotuloValor}';
       }
 
       expect(
         linha(DateTime(2026, 11, 12)),
-        'Vencimento | Hoje (12/11/2026) | null | Valor a pagar',
+        'Vencimento | Hoje (12/11/2026) | Valor a pagar',
       );
       expect(
         linha(DateTime(2026, 11, 18)),
-        'Vencimento | 18/11/2026 | (em 6 dias) | Valor a pagar',
+        'Vencimento | 18/11/2026 | Valor a pagar',
       );
       expect(
         linha(DateTime(2026, 11, 13)),
-        'Vencimento | 13/11/2026 | (amanhã) | Valor a pagar',
+        'Vencimento | 13/11/2026 | Valor a pagar',
       );
       expect(
         linha(DateTime(2026, 11, 5)),
-        'Venceu em | 05/11/2026 | (7 dias) | Valor original',
+        'Venceu em | 05/11/2026 | Valor original',
       );
       expect(
         linha(
@@ -176,7 +176,8 @@ void main() {
           pagoEm: DateTime(2026, 11, 1),
           forma: 'pix',
         ),
-        'Liquidado em | 01/11/2026 | via Pix | Valor liquidado',
+        // A forma de pagamento não aparece no card.
+        'Liquidado em | 01/11/2026 | Valor liquidado',
       );
     });
 

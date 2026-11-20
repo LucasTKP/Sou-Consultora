@@ -73,7 +73,6 @@ class CartaoBoleto extends StatelessWidget {
                       child: _Coluna(
                         rotulo: textos.rotuloData,
                         texto: textos.data,
-                        complemento: textos.complemento,
                         cor: atrasado ? CoresApp.perigo : null,
                       ),
                     ),
@@ -104,52 +103,38 @@ class CartaoBoleto extends StatelessWidget {
     _ => CoresApp.primaria,
   };
 
-  /// Textos do card conforme a situação:
+  /// Textos do card conforme a situação, só data e valor (nada no meio):
   /// - vence hoje: "Vencimento" / "Hoje (12/11/2024)" / "Valor a pagar";
-  /// - pendente: "Vencimento" / "18/11/2024" "(em 6 dias)" / "Valor a pagar";
-  /// - atrasado: "Venceu em" / "05/11/2024" "(7 dias)" / "Valor original";
-  /// - pago: "Liquidado em" / "01/11/2024" "via Pix" / "Valor liquidado".
-  static ({
-    String rotuloData,
-    String data,
-    String? complemento,
-    String rotuloValor,
-  })
-  textosDe(ResumoBoleto boleto, {required DateTime hoje}) {
+  /// - pendente: "Vencimento" / "18/11/2024" / "Valor a pagar";
+  /// - atrasado: "Venceu em" / "05/11/2024" / "Valor original";
+  /// - pago: "Liquidado em" / "01/11/2024" / "Valor liquidado".
+  static ({String rotuloData, String data, String rotuloValor}) textosDe(
+    ResumoBoleto boleto, {
+    required DateTime hoje,
+  }) {
     final vencimento = FormatadorData.curta(boleto.vencimento);
-    switch (boleto.status(hoje: hoje)) {
-      case StatusBoleto.pago:
-        final forma = boleto.forma;
-        return (
-          rotuloData: 'Liquidado em',
-          data: FormatadorData.curta(boleto.dataPagamento!),
-          complemento: forma == null ? null : 'via ${forma.rotulo}',
-          rotuloValor: 'Valor liquidado',
-        );
-      case StatusBoleto.atrasado:
-        final dias = boleto.diasAtraso(hoje: hoje);
-        return (
-          rotuloData: 'Venceu em',
-          data: vencimento,
-          complemento: dias == 1 ? '(1 dia)' : '($dias dias)',
-          rotuloValor: 'Valor original',
-        );
-      case StatusBoleto.venceHoje:
-        return (
-          rotuloData: 'Vencimento',
-          data: 'Hoje ($vencimento)',
-          complemento: null,
-          rotuloValor: 'Valor a pagar',
-        );
-      case StatusBoleto.pendente:
-        final dias = boleto.diasParaVencer(hoje: hoje);
-        return (
-          rotuloData: 'Vencimento',
-          data: vencimento,
-          complemento: dias == 1 ? '(amanhã)' : '(em $dias dias)',
-          rotuloValor: 'Valor a pagar',
-        );
-    }
+    return switch (boleto.status(hoje: hoje)) {
+      StatusBoleto.pago => (
+        rotuloData: 'Liquidado em',
+        data: FormatadorData.curta(boleto.dataPagamento!),
+        rotuloValor: 'Valor liquidado',
+      ),
+      StatusBoleto.atrasado => (
+        rotuloData: 'Venceu em',
+        data: vencimento,
+        rotuloValor: 'Valor original',
+      ),
+      StatusBoleto.venceHoje => (
+        rotuloData: 'Vencimento',
+        data: 'Hoje ($vencimento)',
+        rotuloValor: 'Valor a pagar',
+      ),
+      StatusBoleto.pendente => (
+        rotuloData: 'Vencimento',
+        data: vencimento,
+        rotuloValor: 'Valor a pagar',
+      ),
+    };
   }
 }
 
@@ -157,7 +142,6 @@ class _Coluna extends StatelessWidget {
   const _Coluna({
     required this.rotulo,
     required this.texto,
-    this.complemento,
     this.cor,
     this.destaque = false,
     this.aDireita = false,
@@ -165,7 +149,6 @@ class _Coluna extends StatelessWidget {
 
   final String rotulo;
   final String texto;
-  final String? complemento;
   final Color? cor;
   final bool destaque;
   final bool aDireita;
@@ -173,7 +156,6 @@ class _Coluna extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
-    final extra = complemento;
     return Column(
       crossAxisAlignment: aDireita
           ? CrossAxisAlignment.end
@@ -185,17 +167,8 @@ class _Coluna extends StatelessWidget {
             color: cor ?? CoresApp.sobreSuperficieVariante,
           ),
         ),
-        Text.rich(
-          TextSpan(
-            text: texto,
-            children: [
-              if (extra != null)
-                TextSpan(
-                  text: ' $extra',
-                  style: estilos.bodySmall?.copyWith(color: cor),
-                ),
-            ],
-          ),
+        Text(
+          texto,
           style: (destaque ? estilos.titleLarge : estilos.bodyLarge)?.copyWith(
             color: cor,
           ),

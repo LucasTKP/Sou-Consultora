@@ -68,6 +68,7 @@ ui/widgets/
 
 ## Regras
 
+- Card de lista: sempre `CartaoListaApp` + `LinhaSituacaoApp` (ver `.claude/rules/cards-lista.md`)
 - Reutilizável em 2+ telas → `ui/widgets/<categoria>/`
 - Só uma tela usa → `ui/modules/<feature>/<tela>/widgets/`
 - Preferir wrappers `*App`; só use `Shad*` cru se ainda não houver wrapper

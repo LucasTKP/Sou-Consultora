@@ -1007,8 +1007,11 @@ void main() {
         );
         await tester.enterText(find.byType(TextField).first, cliente);
         await tester.pumpAndSettle();
+        // A 1ª parcela vence hoje; a 2ª, daqui a 30 dias. A segunda linha do
+        // card é "status · valor", sem a parcela.
         final cartao = find.textContaining(
-          '${parcela.textoCurto} • ${FormatadorMoeda.formatar(parcela.valor)}',
+          'Vence hoje · ${FormatadorMoeda.formatar(parcela.valor)}',
+          findRichText: true,
         );
         await tocar(tester, cartao);
         await esperarAte(tester, find.text('Detalhes da Parcela'));
@@ -1299,7 +1302,7 @@ void main() {
         );
         expect(
           find.textContaining(
-            'Faturamento no mês: '
+            'Faturamento: '
             '${FormatadorMoeda.formatar(esperado.faturamentoDoMes)}',
             findRichText: true,
           ),
@@ -1307,7 +1310,7 @@ void main() {
         );
         expect(
           find.textContaining(
-            'Despesas no mês: '
+            'Despesas: '
             '${FormatadorMoeda.formatar(esperado.despesasDoMes)}',
             findRichText: true,
           ),

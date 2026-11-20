@@ -170,17 +170,30 @@ void main() {
     testWidgets('mostra contador, selos e abre o detalhe', (tester) async {
       final servico = ServicoClientesFalso(
         resumos: [
-          resumoDto('c1', 'Dona Carla', saldo: 12000, atrasado: 12000),
+          resumoDto(
+            'c1',
+            'Dona Carla',
+            saldo: 12000,
+            atrasado: 12000,
+            qtdAtrasadas: 2,
+          ),
           resumoDto('c2', 'Beatriz Lima', saldo: 8500, venceHoje: 8500),
           resumoDto('c3', 'Mariana Souza'),
+          resumoDto('c4', 'Joana Dias', saldo: 3000, atrasado: 3000),
         ],
       );
       await _abrir(tester, repositorioClientesDeTeste(servico), '/clientes');
 
-      expect(find.text('3 clientes'), findsOneWidget);
-      expect(find.text('Deve R\$ 120,00'), findsOneWidget);
-      expect(find.text('Vence hoje R\$ 85,00'), findsOneWidget);
-      expect(find.text('Em dia'), findsOneWidget);
+      Finder linha(String texto) =>
+          find.textContaining(texto, findRichText: true);
+
+      expect(find.text('4 clientes'), findsOneWidget);
+      // O status vai em texto na segunda linha, sem selo.
+      expect(linha('2 atrasadas · R\$ 120,00'), findsOneWidget);
+      expect(linha('1 atrasada · R\$ 30,00'), findsOneWidget);
+      expect(linha('Vence hoje · R\$ 85,00'), findsOneWidget);
+      expect(linha('Em dia · Cliente desde'), findsOneWidget);
+      expect(find.text('Deve R\$ 120,00'), findsNothing);
 
       await tester.tap(find.text('Dona Carla'));
       await tester.pumpAndSettle();

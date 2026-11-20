@@ -279,9 +279,11 @@ void main() {
       expect(find.text('Recebimentos'), findsOneWidget);
       expect(find.text('2 parcelas'), findsOneWidget);
       expect(find.text('Fora do Mês'), findsNothing);
-      expect(find.text('Vence hoje'), findsNWidgets(2));
-      expect(find.text('Parcela 2/2 • R\$ 70,00'), findsOneWidget);
-      expect(find.text('Parcela única • R\$ 80,00'), findsOneWidget);
+      // Segunda linha: status em cor e o valor, nada depois (sem selo).
+      Finder linha(String t) => find.textContaining(t, findRichText: true);
+      expect(linha('Vence hoje · R\$ 70,00'), findsOneWidget);
+      expect(linha('Vence hoje · R\$ 80,00'), findsOneWidget);
+      expect(linha('Parcela'), findsNothing);
 
       await tester.enterText(find.byType(EditableText).first, 'lily');
       await tester.pumpAndSettle();
@@ -557,6 +559,7 @@ void main() {
       expect(tester.widget<EditableText>(valor).controller.text, '70,00');
 
       await tester.enterText(valor, '8000');
+      await tester.ensureVisible(find.text('Confirmar'));
       await tester.tap(find.text('Confirmar'));
       await tester.pumpAndSettle();
       expect(
@@ -566,7 +569,9 @@ void main() {
       expect(ambiente.servicoRecebimentos.pagamentos, hasLength(2));
 
       await tester.enterText(valor, '7000');
+      await tester.ensureVisible(find.text('Dinheiro'));
       await tester.tap(find.text('Dinheiro'));
+      await tester.ensureVisible(find.text('Confirmar'));
       await tester.tap(find.text('Confirmar'));
       await tester.pumpAndSettle();
       expect(find.text('comprovante pa2 pg-1'), findsOneWidget);
@@ -799,6 +804,7 @@ void main() {
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       expect(find.text(FormatadorData.curta(ontem)), findsOneWidget);
+      await tester.ensureVisible(find.text('Confirmar'));
       await tester.tap(find.text('Confirmar'));
       await tester.pumpAndSettle();
 

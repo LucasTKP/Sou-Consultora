@@ -66,6 +66,7 @@ lib/
 - **UI** por feature (`modules/clientes`) e **uma pasta por tela** dentro do módulo.
 - Widgets reutilizáveis só em `ui/widgets/<categoria>/`.
 - Telas: `*_state.dart`, `*_cubit.dart`, `*_screen.dart`.
+- **Cards de lista** seguem um padrão único (foto 56, nome com a largura toda, 2ª linha com status em cor + detalhes, sem selo): `.claude/rules/cards-lista.md`.
 
 ### Erros (padrão do projeto)
 
@@ -74,7 +75,7 @@ lib/
 - Cubit faz `fold`/`switch` e emite estado de erro amigável.
 - Exception só para bugs/invariantes quebradas.
 
-Detalhes: `.claude/rules/architecture.md` e skills em `.claude/skills/`.
+Detalhes: `.claude/rules/architecture.md`, `.claude/rules/cards-lista.md` e skills em `.claude/skills/`.
 
 ### Segurança (obrigatória, prioridade máxima)
 

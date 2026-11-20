@@ -8,8 +8,9 @@ import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
 import 'package:sou_consultora/ui/widgets/avatares/avatar_app.dart';
 import 'package:sou_consultora/ui/widgets/badges/selo_status_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
+import 'package:sou_consultora/ui/widgets/cards/linha_situacao_app.dart';
 
-/// Card da parcela em A receber: cliente, qual parcela, selo e valor.
+/// Card da parcela em A receber: cliente e, embaixo, situação e valor.
 class CartaoParcela extends StatelessWidget {
   const CartaoParcela({
     super.key,
@@ -27,14 +28,16 @@ class CartaoParcela extends StatelessWidget {
     final (rotulo, status) = seloDe(parcela, hoje: hoje);
     return CartaoListaApp(
       titulo: parcela.clienteNome,
-      subtitulo:
-          '${parcela.textoCurto} • '
-          '${FormatadorMoeda.formatar(FiltroRecebimentos.valorExibido(parcela))}',
-      inicio: AvatarApp(
-        iniciais: Cliente.iniciaisDe(parcela.clienteNome),
-        tamanho: TamanhoAvatar.miniatura,
+      // Status em cor e valor na segunda linha, e nada depois do valor (não cabe
+      // no card): o nome fica com a largura toda, sem selo disputando espaço.
+      linhaInferior: LinhaSituacaoApp(
+        status: rotulo,
+        cor: status.corTexto,
+        detalhes: [
+          FormatadorMoeda.formatar(FiltroRecebimentos.valorExibido(parcela)),
+        ],
       ),
-      selo: SeloStatusApp(rotulo: rotulo, status: status),
+      inicio: AvatarApp(iniciais: Cliente.iniciaisDe(parcela.clienteNome)),
       onTap: onTap,
     );
   }

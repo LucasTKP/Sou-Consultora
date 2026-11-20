@@ -88,8 +88,15 @@ void main() {
       );
 
       expect(find.text('2 serviços'), findsOneWidget);
-      expect(find.text('UNHAS'), findsOneWidget);
-      expect(find.text(FormatadorMoeda.formatar(6500)), findsOneWidget);
+      // Segunda linha: categoria em cor e o preço por último (sem selo).
+      expect(
+        find.textContaining(
+          'Unhas · ${FormatadorMoeda.formatar(6500)}',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('UNHAS'), findsNothing);
 
       await tester.tap(find.text('Todos os serviços'));
       await tester.pumpAndSettle();
