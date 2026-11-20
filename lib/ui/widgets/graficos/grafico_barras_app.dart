@@ -40,6 +40,12 @@ class GraficoBarrasApp extends StatefulWidget {
   /// Barras com valor > 0 ficam com pelo menos esta altura, para aparecer.
   static const _alturaMinima = 4.0;
 
+  /// Altura reservada ao valor em destaque (20) mais o espaço até a barra (4).
+  static const _reservaTopo = 24.0;
+
+  /// Altura reservada ao rótulo do mês (20) mais o espaço da barra até ele (8).
+  static const _reservaBase = 28.0;
+
   /// Largura para o mês e o valor caberem sem encolher.
   static const _larguraMinimaBarra = 52.0;
 
@@ -78,7 +84,10 @@ class _GraficoBarrasAppEstado extends State<GraficoBarrasApp> {
   Widget build(BuildContext context) {
     final barras = widget.barras;
     final maior = barras.fold(0, (m, b) => b.valor > m ? b.valor : m);
-    final alturaTotal = widget.altura + 44;
+    final alturaTotal =
+        widget.altura +
+        GraficoBarrasApp._reservaTopo +
+        GraficoBarrasApp._reservaBase;
 
     if (barras.isEmpty) return SizedBox(height: alturaTotal);
 
@@ -162,37 +171,59 @@ class _Barra extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 3),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (topo != null)
-              FittedBox(
-                child: Text(
-                  topo,
-                  style: estilos.labelSmall?.copyWith(
-                    color: CoresApp.primaria,
-                    fontWeight: FontWeight.w700,
+            // Valor em destaque: altura fixa, sem depender do tamanho da fonte.
+            SizedBox(
+              height: GraficoBarrasApp._reservaTopo,
+              child: topo == null
+                  ? null
+                  : Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: FittedBox(
+                          child: Text(
+                            topo,
+                            style: estilos.labelSmall?.copyWith(
+                              color: CoresApp.primaria,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: alturaBarra,
+                  decoration: BoxDecoration(
+                    color: cor,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(6),
+                    ),
                   ),
                 ),
               ),
-            const SizedBox(height: 4),
-            Container(
-              height: alturaBarra,
-              decoration: BoxDecoration(
-                color: cor,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(6),
-                ),
-              ),
             ),
-            const SizedBox(height: 8),
-            FittedBox(
-              child: Text(
-                barra.rotulo,
-                style: estilos.labelSmall?.copyWith(
-                  color: emDestaque
-                      ? CoresApp.primaria
-                      : CoresApp.sobreSuperficieVariante,
-                  fontWeight: emDestaque ? FontWeight.w700 : null,
+            SizedBox(
+              height: GraficoBarrasApp._reservaBase,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: FittedBox(
+                    child: Text(
+                      barra.rotulo,
+                      style: estilos.labelSmall?.copyWith(
+                        color: emDestaque
+                            ? CoresApp.primaria
+                            : CoresApp.sobreSuperficieVariante,
+                        fontWeight: emDestaque ? FontWeight.w700 : null,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

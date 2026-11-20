@@ -35,7 +35,7 @@ class CartaoCategorias extends StatelessWidget {
             fundo: CoresApp.primariaSuave,
             corIcone: CoresApp.primaria,
             titulo: 'A Receber',
-            rotulo: 'Faturamento no mês:',
+            rotulo: 'Faturamento:',
             valor: faturamento,
             corValor: CoresApp.primaria,
             onTap: onAReceber,
@@ -46,7 +46,7 @@ class CartaoCategorias extends StatelessWidget {
             fundo: CoresApp.perigoContainer,
             corIcone: CoresApp.perigo,
             titulo: 'A Pagar',
-            rotulo: 'Despesas no mês:',
+            rotulo: 'Despesas:',
             valor: despesas,
             corValor: CoresApp.perigo,
             onTap: onAPagar,
@@ -88,7 +88,7 @@ class _Linha extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               Container(

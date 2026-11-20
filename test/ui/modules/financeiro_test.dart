@@ -158,14 +158,14 @@ void main() {
       expect(find.text('5.4k'), findsOneWidget);
       expect(
         find.textContaining(
-          'Faturamento no mês: R\$ 5.400,00',
+          'Faturamento: R\$ 5.400,00',
           findRichText: true,
         ),
         findsOneWidget,
       );
       expect(
         find.textContaining(
-          'Despesas no mês: R\$ 1.560,00',
+          'Despesas: R\$ 1.560,00',
           findRichText: true,
         ),
         findsOneWidget,
@@ -194,7 +194,7 @@ void main() {
       await _abrir(tester, _Ambiente());
       expect(find.text('R\$ 0'), findsOneWidget);
       expect(
-        find.textContaining('Faturamento no mês: R\$ 0,00', findRichText: true),
+        find.textContaining('Faturamento: R\$ 0,00', findRichText: true),
         findsOneWidget,
       );
     });
