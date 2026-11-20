@@ -93,9 +93,12 @@ class _MeuAppState extends State<MeuApp> {
           ],
           supportedLocales: const [Locale('pt', 'BR'), Locale('en', 'US')],
           builder: (context, child) {
-            return ToastificationConfigProvider(
-              config: ToastApp.configuracao(context),
-              child: ShadAppBuilder(child: child!),
+            // As fontes do app já são grandes: ignora o tamanho de letra do celular.
+            return MediaQuery.withNoTextScaling(
+              child: ToastificationConfigProvider(
+                config: ToastApp.configuracao(context),
+                child: ShadAppBuilder(child: child!),
+              ),
             );
           },
           routerConfig: _roteador,
