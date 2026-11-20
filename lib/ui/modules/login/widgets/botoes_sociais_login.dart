@@ -1,4 +1,6 @@
 // ignore_for_file: deprecated_member_use
+import 'dart:io';
+
 import 'package:sou_consultora/ui/modules/login/acesso_login_cubit.dart';
 import 'package:sou_consultora/ui/modules/login/acesso_login_state.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
@@ -36,21 +38,23 @@ class BotoesSociaisLogin extends StatelessWidget {
               ),
               onPressed: cubit.continuarComGoogle,
             ),
-            const SizedBox(height: 14),
-            _BotaoSocialLogin(
-              rotulo: 'Continuar com Apple',
-              fundo: CoresApp.botaoApple,
-              texto: CoresApp.sobrePrimaria,
-              borda: CoresApp.botaoApple,
-              carregando: carregandoApple,
-              habilitado: !bloqueado,
-              icone: const Icon(
-                Icons.apple,
-                size: 24,
-                color: CoresApp.sobrePrimaria,
+            if (!Platform.isAndroid) ...[
+              const SizedBox(height: 14),
+              _BotaoSocialLogin(
+                rotulo: 'Continuar com Apple',
+                fundo: CoresApp.botaoApple,
+                texto: CoresApp.sobrePrimaria,
+                borda: CoresApp.botaoApple,
+                carregando: carregandoApple,
+                habilitado: !bloqueado,
+                icone: const Icon(
+                  Icons.apple,
+                  size: 24,
+                  color: CoresApp.sobrePrimaria,
+                ),
+                onPressed: cubit.continuarComApple,
               ),
-              onPressed: cubit.continuarComApple,
-            ),
+            ],
           ],
         );
       },
