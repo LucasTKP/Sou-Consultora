@@ -66,7 +66,6 @@ class _ProdutosListaVista extends StatelessWidget {
                     bottom: EspacosApp.baseDoBotaoFlutuante(context),
                     child: BotaoFlutuanteApp(
                       rotulo: 'Adicionar',
-                      destaque: true,
                       onPressed: () => _abrirOpcoes(context),
                     ),
                   );
