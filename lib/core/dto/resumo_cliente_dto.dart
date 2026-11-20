@@ -13,6 +13,7 @@ class ResumoClienteDto {
     required this.saldoDevedor,
     required this.valorAtrasado,
     required this.valorVenceHoje,
+    required this.qtdAtrasadas,
     this.dataNascimento,
     this.ultimaCompra,
   });
@@ -30,6 +31,7 @@ class ResumoClienteDto {
       saldoDevedor: ConversoresDto.centavos(json['saldo_devedor']),
       valorAtrasado: ConversoresDto.centavos(json['valor_atrasado']),
       valorVenceHoje: ConversoresDto.centavos(json['valor_vence_hoje']),
+      qtdAtrasadas: json['qtd_atrasadas'] as int,
     );
   }
 
@@ -47,6 +49,9 @@ class ResumoClienteDto {
   final int valorAtrasado;
   final int valorVenceHoje;
 
+  /// Parcelas vencidas com saldo em aberto.
+  final int qtdAtrasadas;
+
   ResumoCliente paraModel() {
     return ResumoCliente(
       id: id,
@@ -60,6 +65,7 @@ class ResumoClienteDto {
       saldoDevedor: saldoDevedor,
       valorAtrasado: valorAtrasado,
       valorVenceHoje: valorVenceHoje,
+      qtdAtrasadas: qtdAtrasadas,
     );
   }
 }

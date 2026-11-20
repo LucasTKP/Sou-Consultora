@@ -41,6 +41,7 @@ class _ApiFalsa implements ApiSupabase {
         'saldo_devedor': 0,
         'valor_atrasado': 0,
         'valor_vence_hoje': 0,
+        'qtd_atrasadas': 0,
       },
     ];
   }

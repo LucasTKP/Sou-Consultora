@@ -19,6 +19,7 @@ class ResumoCliente {
     this.saldoDevedor = 0,
     this.valorAtrasado = 0,
     this.valorVenceHoje = 0,
+    this.qtdAtrasadas = 0,
   });
 
   final String id;
@@ -34,6 +35,9 @@ class ResumoCliente {
   final int saldoDevedor;
   final int valorAtrasado;
   final int valorVenceHoje;
+
+  /// Quantas parcelas estão vencidas e em aberto.
+  final int qtdAtrasadas;
 
   String get iniciais => Cliente.iniciaisDe(nome);
 

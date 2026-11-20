@@ -74,16 +74,16 @@ values ('00000000-0000-0000-0000-0000000000b1', 30, 'pix'),
        ('00000000-0000-0000-0000-0000000000b4', 50, 'dinheiro');
 
 select results_eq(
-  format('select qtd_compras, total_compras, saldo_devedor, valor_atrasado, valor_vence_hoje
+  format('select qtd_compras, total_compras, saldo_devedor, valor_atrasado, valor_vence_hoje, qtd_atrasadas
             from public.resumo_clientes where id = %L', :'nova'),
-  $$ values (2, 350.00::numeric(12,2), 270.00::numeric(12,2), 70.00::numeric(12,2), 100.00::numeric(12,2)) $$,
-  'resumo soma compras, saldo, atrasado (com pagamento parcial) e vence hoje; parcela quitada não conta');
+  $$ values (2, 350.00::numeric(12,2), 270.00::numeric(12,2), 70.00::numeric(12,2), 100.00::numeric(12,2), 1) $$,
+  'resumo soma compras, saldo, atrasado (com pagamento parcial), vence hoje e conta as atrasadas; parcela quitada não conta');
 
 select public.salvar_cliente(null, 'Sem Compras', '11911112222', null, null, null) as sem_compras \gset
 select results_eq(
-  format('select qtd_compras, total_compras, saldo_devedor, valor_atrasado, valor_vence_hoje, ultima_compra is null
+  format('select qtd_compras, total_compras, saldo_devedor, valor_atrasado, valor_vence_hoje, qtd_atrasadas, ultima_compra is null
             from public.resumo_clientes where id = %L', :'sem_compras'),
-  $$ values (0, 0::numeric(12,2), 0::numeric(12,2), 0::numeric(12,2), 0::numeric(12,2), true) $$,
+  $$ values (0, 0::numeric(12,2), 0::numeric(12,2), 0::numeric(12,2), 0::numeric(12,2), 0, true) $$,
   'cliente sem vendas tem tudo zerado e sem última compra');
 
 -- ---------------------------------------------------------------------

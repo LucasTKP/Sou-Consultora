@@ -218,11 +218,13 @@ void main() {
         'saldo_devedor': '270.5',
         'valor_atrasado': 70.1,
         'valor_vence_hoje': 0,
+        'qtd_atrasadas': 2,
       });
       final model = dto.paraModel();
       expect(model.totalCompras, 35000);
       expect(model.saldoDevedor, 27050);
       expect(model.valorAtrasado, 7010);
+      expect(model.qtdAtrasadas, 2);
       expect(model.dataNascimento, DateTime(1990, 5, 10));
       expect(model.ultimaCompra, isNull);
     });

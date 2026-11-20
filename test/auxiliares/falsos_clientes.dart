@@ -21,6 +21,7 @@ ResumoClienteDto resumoDto(
   int saldo = 0,
   int atrasado = 0,
   int venceHoje = 0,
+  int qtdAtrasadas = 0,
   int compras = 0,
   int total = 0,
   DateTime? nascimento,
@@ -36,6 +37,7 @@ ResumoClienteDto resumoDto(
     saldoDevedor: saldo,
     valorAtrasado: atrasado,
     valorVenceHoje: venceHoje,
+    qtdAtrasadas: qtdAtrasadas > 0 ? qtdAtrasadas : (atrasado > 0 ? 1 : 0),
   );
 }
 
