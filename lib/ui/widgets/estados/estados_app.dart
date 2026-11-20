@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/widgets/botoes/botao_suporte/botao_suporte_app.dart';
 
 /// Lista ou tela sem dados ("Nenhum cliente cadastrado").
 class EstadoVazioApp extends StatelessWidget {
@@ -85,7 +86,7 @@ class _EstadoBase extends StatelessWidget {
   }
 }
 
-/// Erro ao carregar, com "Tentar novamente".
+/// Erro ao carregar: "Tentar novamente" (quando há) e, sempre, "Falar com o suporte".
 class EstadoErroApp extends StatelessWidget {
   const EstadoErroApp({
     super.key,
@@ -103,13 +104,20 @@ class EstadoErroApp extends StatelessWidget {
       corIcone: CoresApp.perigo,
       titulo: 'Algo deu errado',
       mensagem: mensagem,
-      acao: onTentarNovamente == null
-          ? null
-          : OutlinedButton.icon(
+      acao: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (onTentarNovamente != null) ...[
+            OutlinedButton.icon(
               onPressed: onTentarNovamente,
               icon: const Icon(Icons.refresh_rounded),
               label: const Text('Tentar novamente'),
             ),
+            const SizedBox(height: 8),
+          ],
+          BotaoSuporteApp(detalhe: mensagem),
+        ],
+      ),
     );
   }
 }

@@ -51,4 +51,30 @@ void main() {
     expect(texto, isNot(contains('(')));
     expect(texto, isNot(contains('Nome:')));
   });
+
+  test('leva o erro que a consultora estava vendo', () {
+    final texto = MensagemSuporte.montar(
+      nomeConsultora: 'Ana',
+      versao: '1.0.0',
+      plataforma: PlataformaApp.android,
+      detalhe: ' Não foi possível carregar as clientes. ',
+    );
+    expect(
+      texto,
+      'Olá! Preciso de ajuda com o app Sou Consultora.\n'
+      '\n'
+      'Nome: Ana\n'
+      'App: 1.0.0 (Android)\n'
+      'Erro: Não foi possível carregar as clientes.\n'
+      '\n'
+      'Meu problema:',
+    );
+  });
+
+  test('erro em branco não aparece', () {
+    expect(
+      MensagemSuporte.montar(nomeConsultora: '', detalhe: '  '),
+      'Olá! Preciso de ajuda com o app Sou Consultora.\n\nMeu problema:',
+    );
+  });
 }

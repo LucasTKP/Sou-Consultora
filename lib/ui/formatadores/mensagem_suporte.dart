@@ -10,13 +10,16 @@ abstract final class MensagemSuporte {
   ///
   /// Nome: Ana Paula
   /// App: 1.0.0 (Android)
+  /// Erro: Não foi possível carregar as clientes.
   ///
   /// Meu problema:
   static String montar({
     required String nomeConsultora,
     String? versao,
     PlataformaApp? plataforma,
+    String? detalhe,
   }) {
+    final erro = detalhe?.trim() ?? '';
     final nome = nomeConsultora.trim();
     final sistema = switch (plataforma) {
       PlataformaApp.android => 'Android',
@@ -29,7 +32,8 @@ abstract final class MensagemSuporte {
       '',
       if (nome.isNotEmpty) 'Nome: $nome',
       if (app.isNotEmpty) 'App: $app',
-      if (nome.isNotEmpty || app.isNotEmpty) '',
+      if (erro.isNotEmpty) 'Erro: $erro',
+      if (nome.isNotEmpty || app.isNotEmpty || erro.isNotEmpty) '',
       'Meu problema:',
     ].join('\n');
   }
