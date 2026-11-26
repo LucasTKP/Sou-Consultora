@@ -12,6 +12,7 @@ class CartaoApp extends StatelessWidget {
     this.inicio,
     this.fim,
     this.onTap,
+    this.espacamento,
   });
 
   final Widget? titulo;
@@ -22,6 +23,9 @@ class CartaoApp extends StatelessWidget {
   final Widget? fim;
   final VoidCallback? onTap;
 
+  /// Padding interno; null usa o padrão do [ShadCard].
+  final EdgeInsetsGeometry? espacamento;
+
   @override
   Widget build(BuildContext context) {
     final cartao = ShadCard(
@@ -30,6 +34,7 @@ class CartaoApp extends StatelessWidget {
       leading: inicio,
       trailing: fim,
       footer: rodape,
+      padding: espacamento,
       child: filho,
     );
 

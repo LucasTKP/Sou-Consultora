@@ -3,7 +3,8 @@ import 'package:sou_consultora/ui/widgets/feedback/toast_app.dart';
 
 /// Mostra [erro] como toast (uma vez por mensagem nova) e devolve [child] como está.
 ///
-/// Padrão do app: erros não aparecem escritos na tela, só em toast. Quando o
+/// Só para erro que **não é de um campo** (ex.: pedido sem itens, falha ao
+/// gravar). Erro de campo aparece embaixo dele (`CampoTextoApp.erro`). Quando o
 /// erro some (null), a próxima mensagem volta a disparar o toast.
 class ErroEmToast extends StatefulWidget {
   const ErroEmToast({super.key, required this.erro, this.child});

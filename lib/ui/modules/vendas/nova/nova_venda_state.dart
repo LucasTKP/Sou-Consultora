@@ -23,6 +23,7 @@ class NovaVendaState {
     this.parcelas = const [],
     this.versaoPlano = 0,
     this.entradaRecebida = false,
+    this.tentouConcluir = false,
     this.formaEntrada = FormaPagamento.pix,
     this.observacoes = '',
     this.erroCliente,
@@ -53,6 +54,7 @@ class NovaVendaState {
   /// Muda quando o app sugere um plano novo (os campos de valor se refazem).
   final int versaoPlano;
   final bool entradaRecebida;
+  final bool tentouConcluir;
   final FormaPagamento formaEntrada;
   final String observacoes;
   final String? erroCliente;
@@ -79,6 +81,10 @@ class NovaVendaState {
   /// Positivo = falta; negativo = sobra.
   int get diferenca => PlanoParcelas.diferenca(total, parcelas);
 
+  /// Só depois de tocar em Concluir a parcela zerada é apontada.
+  String? erroValorParcela(int indice) =>
+      tentouConcluir && parcelas[indice].valor <= 0 ? 'Informe o valor' : null;
+
   bool get podeConcluir =>
       !salvando && erroData == null && PlanoParcelas.fecha(total, parcelas);
 
@@ -96,6 +102,7 @@ class NovaVendaState {
     List<ParcelaPlano>? parcelas,
     int? versaoPlano,
     bool? entradaRecebida,
+    bool? tentouConcluir,
     FormaPagamento? formaEntrada,
     String? observacoes,
     String? Function()? erroCliente,
@@ -121,6 +128,7 @@ class NovaVendaState {
       parcelas: parcelas ?? this.parcelas,
       versaoPlano: versaoPlano ?? this.versaoPlano,
       entradaRecebida: entradaRecebida ?? this.entradaRecebida,
+      tentouConcluir: tentouConcluir ?? this.tentouConcluir,
       formaEntrada: formaEntrada ?? this.formaEntrada,
       observacoes: observacoes ?? this.observacoes,
       erroCliente: erroCliente != null ? erroCliente() : this.erroCliente,

@@ -4,11 +4,13 @@ import 'package:sou_consultora/core/model/item_venda.dart';
 import 'package:sou_consultora/core/model/resumo_produto.dart';
 import 'package:sou_consultora/core/model/resumo_servico.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
+import 'package:sou_consultora/ui/formatadores/formatador_percentual.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/alternador_segmentado_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_moeda_app.dart';
+import 'package:sou_consultora/ui/widgets/formularios/campo_percentual_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/campo_selecao_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/interruptor_app.dart';
 import 'package:sou_consultora/ui/widgets/formularios/seletor_quantidade_app.dart';
@@ -42,6 +44,9 @@ abstract final class FolhaItemVenda {
   }
 }
 
+/// Como o desconto é digitado.
+enum _ModoDesconto { valor, percentual }
+
 class _ConteudoFolha extends StatefulWidget {
   const _ConteudoFolha({
     required this.produtos,
@@ -68,7 +73,11 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
   late ResumoProduto? _produto = _produtoInicial();
   late ResumoServico? _servico = _servicoInicial();
   late int _quantidade = widget.item?.quantidade ?? 1;
+  late _ModoDesconto _modo = widget.item?.percentualDesconto == null
+      ? _ModoDesconto.valor
+      : _ModoDesconto.percentual;
   late int _desconto = widget.item?.desconto ?? 0;
+  late int _percentual = widget.item?.percentualDesconto ?? 0;
   late bool _baixar = widget.item?.baixarEstoque ?? true;
   String? _erroItem;
   String? _erroDesconto;
@@ -96,7 +105,8 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
         nome: produto.nome,
         precoUnitario: produto.precoVenda,
         quantidade: _quantidade,
-        desconto: _desconto,
+        desconto: _descontoSobre(produto.precoVenda),
+        percentualDesconto: _percentualDigitado,
         baixarEstoque: _baixar,
         saldoEstoque: _saldo(produto),
         urlFoto: produto.urlFoto,
@@ -110,11 +120,44 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
       nome: servico.nome,
       precoUnitario: servico.precoCobrado,
       quantidade: _quantidade,
-      desconto: _desconto,
+      desconto: _descontoSobre(servico.precoCobrado),
+      percentualDesconto: _percentualDigitado,
       baixarEstoque: false,
       urlFoto: servico.urlFoto,
       categoriaServico: servico.categoriaNome,
     );
+  }
+
+  int? get _percentualDigitado =>
+      _modo == _ModoDesconto.percentual && _percentual > 0 ? _percentual : null;
+
+  /// Em %, acompanha a quantidade e o item escolhido.
+  int _descontoSobre(int precoUnitario) {
+    if (_modo == _ModoDesconto.valor) return _desconto;
+    return ItemPedido.descontoPorPercentual(
+      percentual: _percentual,
+      bruto: precoUnitario * _quantidade,
+    );
+  }
+
+  String? _validarDesconto(ItemPedido item) {
+    final percentual = item.percentualDesconto;
+    if (percentual != null) return ItemPedido.validarPercentual(percentual);
+    return ItemPedido.validarDesconto(
+      desconto: item.desconto,
+      bruto: item.bruto,
+    );
+  }
+
+  /// Trocar o modo zera o desconto: "10" em R$ não é "10" em %.
+  void _trocarModo(_ModoDesconto modo) {
+    if (modo == _modo) return;
+    setState(() {
+      _modo = modo;
+      _desconto = 0;
+      _percentual = 0;
+      _erroDesconto = null;
+    });
   }
 
   /// Na edição, o que este item já baixou volta ao saldo antes de regravar.
@@ -158,9 +201,7 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
           : (!mesmo && widget.jaNoPedido(item.chave))
           ? 'Este item já está no pedido'
           : null;
-      _erroDesconto = item == null
-          ? null
-          : ItemPedido.validarDesconto(desconto: _desconto, bruto: item.bruto);
+      _erroDesconto = item == null ? null : _validarDesconto(item);
     });
     final erroQuantidade = _erroQuantidade;
     if (erroQuantidade != null && _erroItem == null && _erroDesconto == null) {
@@ -172,6 +213,31 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
       return;
     }
     Navigator.of(context).pop(item);
+  }
+
+  Widget _campoDesconto() {
+    if (_modo == _ModoDesconto.percentual) {
+      return CampoPercentualApp(
+        rotulo: 'Desconto',
+        opcional: true,
+        centesimosIniciais: _percentual,
+        erro: _erroDesconto,
+        onChanged: (p) => setState(() {
+          _percentual = p;
+          _erroDesconto = null;
+        }),
+      );
+    }
+    return CampoMoedaApp(
+      rotulo: 'Desconto',
+      opcional: true,
+      centavosIniciais: _desconto,
+      erro: _erroDesconto,
+      onChanged: (c) => setState(() {
+        _desconto = c;
+        _erroDesconto = null;
+      }),
+    );
   }
 
   @override
@@ -236,36 +302,25 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
             rotuloCadastrar: 'Cadastrar serviço',
           ),
         const SizedBox(height: 16),
+        SeletorQuantidadeApp(
+          valor: _quantidade,
+          onChanged: (q) => setState(() => _quantidade = q),
+        ),
+        const SizedBox(height: 16),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Quantidade',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  SeletorQuantidadeApp(
-                    valor: _quantidade,
-                    onChanged: (q) => setState(() => _quantidade = q),
-                  ),
-                ],
-              ),
-            ),
+            Expanded(child: _campoDesconto()),
             const SizedBox(width: 12),
-            Expanded(
-              child: CampoMoedaApp(
-                rotulo: 'Desconto',
-                opcional: true,
-                centavosIniciais: _desconto,
-                erro: _erroDesconto,
-                onChanged: (c) => setState(() {
-                  _desconto = c;
-                  _erroDesconto = null;
-                }),
+            SizedBox(
+              width: 132,
+              child: AlternadorSegmentadoApp<_ModoDesconto>(
+                opcoes: const [
+                  OpcaoSegmento(valor: _ModoDesconto.valor, rotulo: r'R$'),
+                  OpcaoSegmento(valor: _ModoDesconto.percentual, rotulo: '%'),
+                ],
+                selecionado: _modo,
+                onChanged: _trocarModo,
               ),
             ),
           ],
@@ -311,7 +366,10 @@ class _Resumo extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             _linha(
-              'Desconto aplicado:',
+              item.percentualDesconto == null
+                  ? 'Desconto aplicado:'
+                  : 'Desconto aplicado '
+                        '(${FormatadorPercentual.formatar(item.percentualDesconto!)}%):',
               '- ${FormatadorMoeda.formatar(item.desconto)}',
               estilos.bodyMedium?.copyWith(color: CoresApp.primaria),
             ),

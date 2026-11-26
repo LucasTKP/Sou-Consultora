@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sou_consultora/core/model/item_venda.dart';
 import 'package:sou_consultora/core/model/resumo_cliente.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
+import 'package:sou_consultora/ui/formatadores/formatador_percentual.dart';
 import 'package:sou_consultora/ui/modules/servicos/widgets/icone_servico.dart';
 import 'package:sou_consultora/ui/modules/vendas/nova/nova_venda_cubit.dart';
 import 'package:sou_consultora/ui/modules/vendas/nova/nova_venda_state.dart';
+import 'package:sou_consultora/ui/modules/vendas/nova/widgets/folha_opcoes_item.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/avatares/avatar_app.dart';
 import 'package:sou_consultora/ui/widgets/avatares/foto_quadrada_app.dart';
@@ -95,10 +97,18 @@ class _CartaoItem extends StatelessWidget {
   final VoidCallback onEditar;
   final VoidCallback onRemover;
 
+  Future<void> _abrirOpcoes(BuildContext context) async {
+    final opcao = await FolhaOpcoesItem.mostrar(context, item.nome);
+    if (opcao == OpcaoItem.editar) onEditar();
+    if (opcao == OpcaoItem.excluir) onRemover();
+  }
+
   @override
   Widget build(BuildContext context) {
     final estilos = Theme.of(context).textTheme;
     return CartaoApp(
+      // Margem menor, sobretudo à direita, para o lápis encostar na borda.
+      espacamento: const EdgeInsets.fromLTRB(16, 12, 4, 12),
       filho: Row(
         children: [
           if (item.tipo == TipoItem.servico)
@@ -125,7 +135,8 @@ class _CartaoItem extends StatelessWidget {
                 ),
                 Text(
                   '${item.quantidade}x • Desconto: '
-                  '${FormatadorMoeda.formatar(item.desconto)}',
+                  '${FormatadorMoeda.formatar(item.desconto)}'
+                  '${FormatadorPercentual.complemento(item.percentualDesconto)}',
                   style: estilos.bodySmall,
                 ),
                 Text(
@@ -136,14 +147,9 @@ class _CartaoItem extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Alterar ${item.nome}',
-            onPressed: onEditar,
+            tooltip: 'Opções de ${item.nome}',
+            onPressed: () => _abrirOpcoes(context),
             icon: const Icon(Icons.edit_outlined),
-          ),
-          IconButton(
-            tooltip: 'Remover ${item.nome}',
-            onPressed: onRemover,
-            icon: const Icon(Icons.delete_outline_rounded),
           ),
         ],
       ),

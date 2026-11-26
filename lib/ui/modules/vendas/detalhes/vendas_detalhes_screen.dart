@@ -9,6 +9,7 @@ import 'package:sou_consultora/core/model/item_venda.dart';
 import 'package:sou_consultora/core/model/parcela.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_data.dart';
 import 'package:sou_consultora/ui/formatadores/formatador_moeda.dart';
+import 'package:sou_consultora/ui/formatadores/formatador_percentual.dart';
 import 'package:sou_consultora/ui/modules/servicos/widgets/icone_servico.dart';
 import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_cubit.dart';
 import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_state.dart';
@@ -366,7 +367,8 @@ class _CartaoItem extends StatelessWidget {
                 Text(item.nome, style: estilos.titleSmall),
                 Text(
                   '${item.quantidade}x • Desconto: '
-                  '${FormatadorMoeda.formatar(item.desconto)}',
+                  '${FormatadorMoeda.formatar(item.desconto)}'
+                  '${FormatadorPercentual.complemento(item.percentualDesconto)}',
                   style: estilos.bodySmall,
                 ),
               ],

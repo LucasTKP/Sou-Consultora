@@ -100,6 +100,16 @@ class LancarEstoqueCubit extends Cubit<LancarEstoqueState> {
   void limparAviso() => emit(state.copyWith(aviso: () => null));
 
   Future<void> salvar() async {
+    if (state.salvando) return;
+    if (state.itens.isEmpty) {
+      emit(
+        state.copyWith(
+          aviso: () => const AvisoToast.aviso('Adicione pelo menos um produto'),
+        ),
+      );
+      return;
+    }
+    // A data inválida já está apontada embaixo do campo.
     if (!state.podeSalvar) return;
     emit(state.copyWith(salvando: true));
     final resultado = await _estoque.lancar(state.lancamento);

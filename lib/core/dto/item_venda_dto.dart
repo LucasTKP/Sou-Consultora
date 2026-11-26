@@ -16,6 +16,7 @@ class ItemVendaDto {
     this.servicoId,
     this.fotoUrl,
     this.categoriaServico,
+    this.percentualDesconto,
   });
 
   factory ItemVendaDto.fromJson(Map<String, dynamic> json) {
@@ -30,6 +31,10 @@ class ItemVendaDto {
       quantidade: json['quantidade'] as int,
       precoUnitario: ConversoresDto.centavos(json['preco_unitario']),
       desconto: ConversoresDto.centavos(json['desconto']),
+      // numeric(5,2) em centésimos: a mesma conversão dos centavos.
+      percentualDesconto: json['percentual_desconto'] == null
+          ? null
+          : ConversoresDto.centavos(json['percentual_desconto']),
       subtotal: ConversoresDto.centavos(json['subtotal']),
       baixarEstoque: json['baixar_estoque'] as bool,
     );
@@ -51,6 +56,9 @@ class ItemVendaDto {
   /// Centavos.
   final int precoUnitario;
   final int desconto;
+
+  /// Centésimos de porcento.
+  final int? percentualDesconto;
   final int subtotal;
   final bool baixarEstoque;
 
@@ -63,6 +71,7 @@ class ItemVendaDto {
     quantidade: quantidade,
     precoUnitario: precoUnitario,
     desconto: desconto,
+    percentualDesconto: percentualDesconto,
     subtotal: subtotal,
     baixarEstoque: baixarEstoque,
     caminhoFoto: fotoUrl,

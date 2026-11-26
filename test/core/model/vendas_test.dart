@@ -99,6 +99,34 @@ void main() {
   });
 
   group('Itens do pedido', () {
+    test('desconto em porcentagem vira centavos arredondados', () {
+      int desconto(int percentual, int bruto) =>
+          ItemPedido.descontoPorPercentual(
+            percentual: percentual,
+            bruto: bruto,
+          );
+
+      expect(desconto(1000, 19600), 1960);
+      expect(desconto(1250, 999), 125);
+      expect(desconto(10000, 19600), 19600);
+      expect(ItemPedido.validarPercentual(10000), isNull);
+      expect(ItemPedido.validarPercentual(10001), isNotNull);
+    });
+
+    test('porcentagem é gravada junto com o valor', () {
+      const item = ItemPedido(
+        tipo: TipoItem.servico,
+        catalogoId: 's1',
+        nome: 'Sobrancelha',
+        precoUnitario: 6000,
+        quantidade: 1,
+        desconto: 750,
+        percentualDesconto: 1250,
+      );
+      expect(item.paraGravar()['desconto'], 7.5);
+      expect(item.paraGravar()['percentual_desconto'], 12.5);
+    });
+
     test('subtotal, desconto, estoque e formato para gravar', () {
       const item = ItemPedido(
         tipo: TipoItem.produto,
@@ -305,12 +333,14 @@ void main() {
         'preco_unitario': 45,
         'custo_unitario': 0,
         'desconto': 5,
+        'percentual_desconto': 12.5,
         'subtotal': 40,
         'baixar_estoque': false,
       }).paraModel();
       expect(item.tipo, TipoItem.servico);
       expect(item.catalogoId, 's1');
       expect(item.subtotal, 4000);
+      expect(item.percentualDesconto, 1250);
 
       final parcela = ResumoParcelaDto.fromJson({
         'id': 'p1',

@@ -20,6 +20,20 @@ class MascaraMoeda extends TextInputFormatter {
   }
 }
 
+/// Até três dígitos e duas casas: "10", "12,5". Ponto vira vírgula.
+class MascaraPercentual extends TextInputFormatter {
+  static final _valido = RegExp(r'^(\d{1,3}(,\d{0,2})?)?$');
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue antigo,
+    TextEditingValue novo,
+  ) {
+    final texto = novo.text.replaceAll('.', ',');
+    return _valido.hasMatch(texto) ? novo.copyWith(text: texto) : antigo;
+  }
+}
+
 /// (11) 98765-4321
 class MascaraTelefone extends TextInputFormatter {
   @override

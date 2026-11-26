@@ -41,6 +41,7 @@ Guardrails em todo arquivo `.dart`. Arquitetura detalhada em `.claude/rules/arch
 
 - Regras no **Model** (reutilizáveis, ex.: telefone válido) e orquestração no **Cubit** (`salvar()` valida e emite estado com o erro de cada campo).
 - A tela só repassa: `CampoTextoApp(erro: estado.erroNome)`. Nada de regra em `validator` de `Form` por padrão.
+- **Padrão de todo formulário:** o botão salvar/avançar fica habilitado (só trava enquanto grava); ao tocar, cada campo inválido mostra o erro **embaixo dele**. Toast só para o que não é de um campo (ex.: venda sem produto, soma das parcelas, falha do servidor).
 - Erros do servidor (ex.: nome duplicado) chegam pelo mesmo caminho do estado.
 
 ## UI

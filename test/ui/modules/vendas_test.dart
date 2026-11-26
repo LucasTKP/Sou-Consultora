@@ -18,6 +18,7 @@ import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_screen
 import 'package:sou_consultora/ui/modules/vendas/lista/vendas_lista_screen.dart';
 import 'package:sou_consultora/ui/modules/vendas/nova/nova_venda_cubit.dart';
 import 'package:sou_consultora/ui/modules/vendas/nova/nova_venda_screen.dart';
+import 'package:sou_consultora/ui/widgets/formularios/campo_percentual_app.dart';
 
 import '../../auxiliares/falsos_clientes.dart';
 import '../../auxiliares/falsos_consultora.dart';
@@ -245,12 +246,78 @@ void main() {
       expect(find.text('Como a cliente vai pagar?'), findsNothing);
     });
 
-    testWidgets('folha: estoque insuficiente avisa no Salvar; sem baixar libera', (
-      tester,
-    ) async {
-      final ambiente = _Ambiente();
-      await _abrir(tester, ambiente, '/vendas/nova?cliente=c1');
-      expect(find.text('Camila Rodrigues'), findsOneWidget);
+    testWidgets(
+      'folha: estoque insuficiente avisa no Salvar; sem baixar libera',
+      (tester) async {
+        final ambiente = _Ambiente();
+        await _abrir(tester, ambiente, '/vendas/nova?cliente=c1');
+        expect(find.text('Camila Rodrigues'), findsOneWidget);
+
+        await tester.tap(find.text('Adicionar Produto ou Serviço'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Escolha o produto'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Kit Lily').last);
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.byTooltip('Aumentar'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Aumentar'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Aumentar'));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('Baixar do estoque'));
+        await tester.pumpAndSettle();
+        // O erro sai em toast, ao tocar em Salvar; a folha continua aberta.
+        await tester.ensureVisible(find.text('Salvar'));
+        await tester.tap(find.text('Salvar'));
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Estoque insuficiente: 2 un disponíveis'),
+          findsOneWidget,
+        );
+        expect(find.text('Baixar do estoque'), findsOneWidget);
+
+        await tester.ensureVisible(find.text('Baixar do estoque'));
+        await tester.tap(find.text('Baixar do estoque'));
+        // O toast do erro fica um tempo na tela antes de sumir sozinho.
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Estoque insuficiente: 2 un disponíveis'),
+          findsNothing,
+        );
+
+        await tester.ensureVisible(find.text('Salvar'));
+        await tester.tap(find.text('Salvar'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Encomenda'), findsNothing);
+        // O lápis do item abre a folha com editar e excluir.
+        await tester.ensureVisible(find.byTooltip('Opções de Kit Lily'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Opções de Kit Lily'));
+        await tester.pumpAndSettle();
+        expect(find.text('Editar'), findsOneWidget);
+        expect(find.text('Excluir'), findsOneWidget);
+        await tester.tapAt(const Offset(10, 10));
+        await tester.pumpAndSettle();
+        expect(find.text(FormatadorMoeda.formatar(58800)), findsWidgets);
+
+        await tester.tap(find.text('Avançar'));
+        await tester.pumpAndSettle();
+        expect(find.text('Como a cliente vai pagar?'), findsOneWidget);
+        await tester.ensureVisible(find.text('Concluir Venda'));
+        await tester.tap(find.text('Concluir Venda'));
+        await tester.pumpAndSettle();
+        expect(find.text('anterior'), findsOneWidget);
+        expect(
+          ambiente.servicoVendas.concluidos.single.itens.single.baixarEstoque,
+          isFalse,
+        );
+      },
+    );
+
+    testWidgets('folha: desconto em % acompanha a quantidade', (tester) async {
+      await _abrir(tester, _Ambiente(), '/vendas/nova?cliente=c1');
 
       await tester.tap(find.text('Adicionar Produto ou Serviço'));
       await tester.pumpAndSettle();
@@ -258,48 +325,32 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Kit Lily').last);
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('%'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('%'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(CampoPercentualApp),
+          matching: find.byType(TextFormField),
+        ),
+        '10',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('- ${FormatadorMoeda.formatar(1960)}'), findsOneWidget);
+
       await tester.ensureVisible(find.byTooltip('Aumentar'));
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Aumentar'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Aumentar'));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Baixar do estoque'));
-      await tester.pumpAndSettle();
-      // O erro sai em toast, ao tocar em Salvar; a folha continua aberta.
-      await tester.ensureVisible(find.text('Salvar'));
-      await tester.tap(find.text('Salvar'));
-      await tester.pumpAndSettle();
-      expect(
-        find.text('Estoque insuficiente: 2 un disponíveis'),
-        findsOneWidget,
-      );
-      expect(find.text('Baixar do estoque'), findsOneWidget);
+      expect(find.text('- ${FormatadorMoeda.formatar(3920)}'), findsOneWidget);
 
-      await tester.ensureVisible(find.text('Baixar do estoque'));
-      await tester.tap(find.text('Baixar do estoque'));
-      // O toast do erro fica um tempo na tela antes de sumir sozinho.
-      await tester.pump(const Duration(seconds: 5));
+      // Trocar o modo zera o desconto.
+      await tester.ensureVisible(find.text(r'R$'));
       await tester.pumpAndSettle();
-      expect(find.text('Estoque insuficiente: 2 un disponíveis'), findsNothing);
-
-      await tester.ensureVisible(find.text('Salvar'));
-      await tester.tap(find.text('Salvar'));
+      await tester.tap(find.text(r'R$'));
       await tester.pumpAndSettle();
-      expect(find.textContaining('Encomenda'), findsNothing);
-      expect(find.text(FormatadorMoeda.formatar(58800)), findsWidgets);
-
-      await tester.tap(find.text('Avançar'));
-      await tester.pumpAndSettle();
-      expect(find.text('Como a cliente vai pagar?'), findsOneWidget);
-      await tester.ensureVisible(find.text('Concluir Venda'));
-      await tester.tap(find.text('Concluir Venda'));
-      await tester.pumpAndSettle();
-      expect(find.text('anterior'), findsOneWidget);
-      expect(
-        ambiente.servicoVendas.concluidos.single.itens.single.baixarEstoque,
-        isFalse,
-      );
+      expect(find.text('- ${FormatadorMoeda.formatar(0)}'), findsOneWidget);
     });
   });
 

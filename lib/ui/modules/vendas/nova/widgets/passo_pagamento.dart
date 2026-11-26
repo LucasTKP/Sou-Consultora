@@ -131,6 +131,7 @@ class PassoPagamento extends StatelessWidget {
                 key: ValueKey('valor-$i-${estado.versaoPlano}'),
                 rotulo: '${i + 1}ª parcela',
                 centavosIniciais: estado.parcelas[i].valor,
+                erro: estado.erroValorParcela(i),
                 onChanged: (c) => cubit.alterarValorParcela(i, c),
               ),
             ),

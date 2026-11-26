@@ -12,6 +12,7 @@ class ItemVendido {
     required this.quantidade,
     required this.precoUnitario,
     required this.desconto,
+    this.percentualDesconto,
     required this.subtotal,
     required this.baixarEstoque,
     this.caminhoFoto,
@@ -29,6 +30,9 @@ class ItemVendido {
   final int quantidade;
   final int precoUnitario;
   final int desconto;
+
+  /// Em centésimos (1250 = 12,5%); null quando o desconto foi em R$.
+  final int? percentualDesconto;
   final int subtotal;
   final bool baixarEstoque;
   final String? caminhoFoto;
@@ -44,6 +48,7 @@ class ItemVendido {
     quantidade: quantidade,
     precoUnitario: precoUnitario,
     desconto: desconto,
+    percentualDesconto: percentualDesconto,
     subtotal: subtotal,
     baixarEstoque: baixarEstoque,
     caminhoFoto: caminhoFoto,
@@ -61,6 +66,7 @@ class ItemPedido {
     required this.precoUnitario,
     required this.quantidade,
     this.desconto = 0,
+    this.percentualDesconto,
     this.baixarEstoque = true,
     this.saldoEstoque,
     this.urlFoto,
@@ -74,7 +80,13 @@ class ItemPedido {
   /// Do catálogo (não muda na venda).
   final int precoUnitario;
   final int quantidade;
+
+  /// Sempre em centavos, mesmo quando digitado em porcentagem.
   final int desconto;
+
+  /// Preenchido quando o desconto foi digitado em %, em centésimos
+  /// (1250 = 12,5%).
+  final int? percentualDesconto;
 
   /// Só produto; serviço nunca baixa.
   final bool baixarEstoque;
@@ -98,6 +110,8 @@ class ItemPedido {
     if (tipo == TipoItem.servico) 'servico_id': catalogoId,
     'quantidade': quantidade,
     'desconto': desconto / 100,
+    if (percentualDesconto != null)
+      'percentual_desconto': percentualDesconto! / 100,
     'baixar_estoque': baixa,
   };
 
@@ -111,6 +125,15 @@ class ItemPedido {
     if (!baixa || saldo == null || quantidade <= saldo) return null;
     return 'Estoque insuficiente: $saldo un disponíveis';
   }
+
+  /// Centavos de desconto para um percentual em centésimos, arredondado.
+  static int descontoPorPercentual({
+    required int percentual,
+    required int bruto,
+  }) => (bruto * percentual + 5000) ~/ 10000;
+
+  static String? validarPercentual(int percentual) =>
+      percentual > 10000 ? 'O desconto não pode passar de 100%' : null;
 
   static String? validarDesconto({required int desconto, required int bruto}) {
     if (desconto < 0) return 'O desconto não pode ser negativo';

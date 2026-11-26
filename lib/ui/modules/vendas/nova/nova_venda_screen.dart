@@ -211,7 +211,7 @@ class _Rodape extends StatelessWidget {
                   : estado.editando
                   ? 'Salvar Venda'
                   : 'Concluir Venda',
-              onPressed: estado.podeConcluir ? cubit.concluir : null,
+              onPressed: estado.salvando ? null : cubit.concluir,
             ),
     );
   }

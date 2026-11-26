@@ -282,7 +282,7 @@ class _Rodape extends StatelessWidget {
           const SizedBox(height: 16),
           BotaoApp(
             rotulo: estado.salvando ? 'Salvando...' : 'Salvar lançamento',
-            onPressed: estado.podeSalvar ? cubit.salvar : null,
+            onPressed: estado.salvando ? null : cubit.salvar,
           ),
         ],
       ),

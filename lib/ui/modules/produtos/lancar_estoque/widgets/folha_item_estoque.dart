@@ -155,22 +155,13 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
         ],
         const SizedBox(height: 16),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Quantidade *',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  SeletorQuantidadeApp(
-                    valor: _quantidade,
-                    onChanged: (q) => setState(() => _quantidade = q),
-                  ),
-                ],
+              child: SeletorQuantidadeApp(
+                obrigatorio: true,
+                valor: _quantidade,
+                onChanged: (q) => setState(() => _quantidade = q),
               ),
             ),
             const SizedBox(width: 12),

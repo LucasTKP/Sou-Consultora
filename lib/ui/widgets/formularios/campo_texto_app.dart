@@ -2,14 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
-import 'package:sou_consultora/ui/widgets/feedback/erro_em_toast.dart';
 
 /// Campo de texto do app com rótulo sobre a borda (padrão do design system).
 ///
 /// O rótulo recebe " *" quando [obrigatorio] e " (Opcional)" quando [opcional].
 ///
-/// **Validação:** o padrão do projeto é validar no Cubit/Model e passar a
-/// mensagem em [erro] (testável sem widget e igual para erros do servidor).
+/// **Validação:** o padrão do projeto é validar no Cubit/Model ao tocar em
+/// salvar/avançar e passar a mensagem em [erro], que aparece embaixo do campo.
 /// [validador] existe só para casos pontuais dentro de um `Form`.
 class CampoTextoApp extends StatelessWidget {
   const CampoTextoApp({
@@ -77,16 +76,11 @@ class CampoTextoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ErroEmToast(erro: erro, child: _campo(context));
-  }
-
-  Widget _campo(BuildContext context) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
       validator: validador,
-      // Erro vira toast (ErroEmToast); aqui só a borda fica vermelha.
-      forceErrorText: erro == null ? null : '',
+      forceErrorText: erro,
       enabled: habilitado,
       readOnly: somenteLeitura,
       // Campo de seleção só abre a folha: sem seleção nem menu de copiar/colar.
@@ -115,7 +109,7 @@ class CampoTextoApp extends StatelessWidget {
     return InputDecoration(
       label: rotulo == null
           ? null
-          : _RotuloCampo(
+          : RotuloCampoApp(
               rotulo: rotulo!,
               obrigatorio: obrigatorio,
               opcional: opcional,
@@ -137,7 +131,9 @@ class CampoTextoApp extends StatelessWidget {
         restricaoTrailing != null || trailingCompacto ? 0 : 16,
         18,
       ),
-      errorStyle: const TextStyle(fontSize: 0, height: 0),
+      errorStyle: const TextStyle(color: CoresApp.perigo, fontSize: 13),
+      // Campos lado a lado são estreitos: a mensagem quebra em vez de cortar.
+      errorMaxLines: 3,
       errorBorder: _borda(CoresApp.perigo),
       focusedErrorBorder: _borda(CoresApp.perigo, largura: 1.5),
       enabledBorder: _borda(CoresApp.primariaSuave, largura: 1.5),
@@ -152,11 +148,13 @@ class CampoTextoApp extends StatelessWidget {
   }
 }
 
-class _RotuloCampo extends StatelessWidget {
-  const _RotuloCampo({
+/// Rótulo sobre a borda, igual em todos os campos do app.
+class RotuloCampoApp extends StatelessWidget {
+  const RotuloCampoApp({
+    super.key,
     required this.rotulo,
-    required this.obrigatorio,
-    required this.opcional,
+    this.obrigatorio = false,
+    this.opcional = false,
   });
 
   final String rotulo;

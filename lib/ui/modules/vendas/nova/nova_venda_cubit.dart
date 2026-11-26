@@ -161,7 +161,7 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
     if (!PlanoParcelas.fecha(state.total, state.parcelas)) {
       _sugerirPlano(state.aVista ? 1 : _qtdDividida);
     }
-    emit(state.copyWith(passo: 2));
+    emit(state.copyWith(passo: 2, tentouConcluir: false));
   }
 
   // —— Passo 2 ——
@@ -206,7 +206,8 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
   void limparAviso() => emit(state.copyWith(aviso: () => null));
 
   Future<void> concluir() async {
-    if (!state.podeConcluir) return;
+    if (state.salvando) return;
+    if (!state.podeConcluir) return _apontarPendencias();
     emit(state.copyWith(salvando: true));
     final pedido = PedidoVenda(
       clienteId: state.clienteId!,
@@ -231,6 +232,22 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
       case Sucesso(:final valor):
         emit(state.copyWith(salvando: false, idSalvo: () => valor));
     }
+  }
+
+  /// Erro de campo fica no campo; a soma das parcelas não é de um só: toast.
+  void _apontarPendencias() {
+    final temZerada = state.parcelas.any((p) => p.valor <= 0);
+    final somaDiferente = !temZerada && state.diferenca != 0;
+    emit(
+      state.copyWith(
+        tentouConcluir: true,
+        aviso: somaDiferente
+            ? () => const AvisoToast.aviso(
+                'A soma das parcelas precisa ser igual ao total',
+              )
+            : null,
+      ),
+    );
   }
 
   int get _qtdDividida => state.parcelas.length >= PlanoParcelas.minimoDividido
@@ -274,6 +291,16 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
     );
   }
 
+  /// Desconto em % é recalculado sobre o preço atual, como o banco fará.
+  int _descontoAtual(ItemVendido item, int preco) {
+    final percentual = item.percentualDesconto;
+    if (percentual == null) return item.desconto;
+    return ItemPedido.descontoPorPercentual(
+      percentual: percentual,
+      bruto: preco * item.quantidade,
+    );
+  }
+
   /// O preço vem do catálogo atual (a função regrava com ele). Na edição, o
   /// saldo inclui o que esta venda baixou (volta ao estoque antes de regravar).
   ItemPedido _itemDoPedido(ItemVendido item) {
@@ -281,13 +308,15 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
       final servico = state.servicos
           .where((s) => s.id == item.catalogoId)
           .firstOrNull;
+      final preco = servico?.precoCobrado ?? item.precoUnitario;
       return ItemPedido(
         tipo: TipoItem.servico,
         catalogoId: item.catalogoId,
         nome: item.nome,
-        precoUnitario: servico?.precoCobrado ?? item.precoUnitario,
+        precoUnitario: preco,
         quantidade: item.quantidade,
-        desconto: item.desconto,
+        desconto: _descontoAtual(item, preco),
+        percentualDesconto: item.percentualDesconto,
         baixarEstoque: false,
         urlFoto: servico?.urlFoto,
         categoriaServico: item.categoriaServico,
@@ -296,13 +325,15 @@ class NovaVendaCubit extends Cubit<NovaVendaState> {
     final produto = state.produtos
         .where((p) => p.id == item.catalogoId)
         .firstOrNull;
+    final preco = produto?.precoVenda ?? item.precoUnitario;
     return ItemPedido(
       tipo: TipoItem.produto,
       catalogoId: item.catalogoId,
       nome: item.nome,
-      precoUnitario: produto?.precoVenda ?? item.precoUnitario,
+      precoUnitario: preco,
       quantidade: item.quantidade,
-      desconto: item.desconto,
+      desconto: _descontoAtual(item, preco),
+      percentualDesconto: item.percentualDesconto,
       baixarEstoque: item.baixarEstoque,
       saldoEstoque:
           (produto?.qtdDisponivel ?? 0) +

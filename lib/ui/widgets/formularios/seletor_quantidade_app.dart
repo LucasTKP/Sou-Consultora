@@ -1,19 +1,25 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
+import 'package:sou_consultora/ui/widgets/formularios/campo_texto_app.dart';
 
 /// Quantidade com botões − e +, respeitando [minimo] e [maximo].
+/// O [rotulo] fica sobre a borda, como nos demais campos.
 class SeletorQuantidadeApp extends StatelessWidget {
   const SeletorQuantidadeApp({
     super.key,
     required this.valor,
     required this.onChanged,
+    this.rotulo = 'Quantidade',
+    this.obrigatorio = false,
     this.minimo = 1,
     this.maximo,
   });
 
   final int valor;
   final ValueChanged<int> onChanged;
+  final String rotulo;
+  final bool obrigatorio;
   final int minimo;
 
   /// Sem máximo quando null (ex.: estoque não controlado).
@@ -27,12 +33,18 @@ class SeletorQuantidadeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        color: CoresApp.superficie,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: CoresApp.primariaSuave, width: 1.5),
+    final borda = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(color: CoresApp.primariaSuave, width: 1.5),
+    );
+    return InputDecorator(
+      decoration: InputDecoration(
+        label: RotuloCampoApp(rotulo: rotulo, obrigatorio: obrigatorio),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        // 48 do botão + 14 = mesma altura dos campos de texto.
+        contentPadding: const EdgeInsets.symmetric(vertical: 7),
+        enabledBorder: borda,
+        border: borda,
       ),
       child: Row(
         children: [
