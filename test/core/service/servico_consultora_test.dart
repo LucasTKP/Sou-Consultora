@@ -92,10 +92,13 @@ void main() {
 
   test('criar não envia o id (o banco usa o usuário logado)', () async {
     final api = _ApiFalsa();
-    final resultado = await ServicoConsultora(api: api)
-        .criar(nome: 'Ana', whatsapp: '11987654321');
+    final resultado = await ServicoConsultora(
+      api: api,
+    ).criar(nome: 'Ana', whatsapp: '11987654321', termosVersao: '2026-11-26');
     expect(resultado, isA<Sucesso>());
-    expect(api.chamadas, ['inserir consultoras [nome, whatsapp]']);
+    expect(api.chamadas, [
+      'inserir consultoras [nome, whatsapp, termos_versao]',
+    ]);
   });
 
   test('foto vai para a pasta do usuário com nome novo', () async {
@@ -133,6 +136,7 @@ void main() {
       final resultado = await servico.criar(
         nome: 'Ana',
         whatsapp: '11987654321',
+        termosVersao: '2026-11-26',
       );
       final falha = (resultado as Erro).falha;
       expect(falha, isA<FalhaInesperada>());

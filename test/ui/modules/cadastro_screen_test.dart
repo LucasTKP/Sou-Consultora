@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart' show EditableText;
+import 'package:flutter/material.dart' show Checkbox, EditableText;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/model/resumo_consultora.dart';
@@ -49,6 +49,7 @@ void main() {
     await tester.tap(find.text('Avon')); // desmarca
     await tester.pump();
     await tester.enterText(find.byType(EditableText).first, '11987654321');
+    await tester.tap(find.byType(Checkbox));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
 

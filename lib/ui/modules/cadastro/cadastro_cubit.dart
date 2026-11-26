@@ -3,6 +3,7 @@ import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
 import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/core/model/marca_padrao.dart';
+import 'package:sou_consultora/core/model/termos_de_uso.dart';
 import 'package:sou_consultora/core/repository/repositorio_autenticacao.dart';
 import 'package:sou_consultora/core/repository/repositorio_consultora.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_state.dart';
@@ -43,6 +44,9 @@ class CadastroCubit extends Cubit<CadastroState> {
   void alterarWhatsapp(String whatsapp) =>
       emit(state.copyWith(whatsapp: whatsapp, erroWhatsapp: () => null));
 
+  void alterarAceite(bool aceitou) =>
+      emit(state.copyWith(aceitouTermos: aceitou, erroTermos: () => null));
+
   void alternarMarca(MarcaPadrao marca) {
     final marcas = {...state.marcas};
     if (!marcas.remove(marca)) marcas.add(marca);
@@ -76,12 +80,14 @@ class CadastroCubit extends Cubit<CadastroState> {
         ? Consultora.validarNome(state.nome)
         : null;
     final erroWhatsapp = Consultora.validarWhatsapp(state.whatsapp);
+    final erroTermos = TermosDeUso.validarAceite(state.aceitouTermos);
     emit(
       state.copyWith(
         erroNome: () => erroNome,
         erroWhatsapp: () => erroWhatsapp,
+        erroTermos: () => erroTermos,
       ),
     );
-    return erroNome == null && erroWhatsapp == null;
+    return erroNome == null && erroWhatsapp == null && erroTermos == null;
   }
 }

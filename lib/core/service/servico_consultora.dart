@@ -29,10 +29,15 @@ class ServicoConsultora {
   Future<Resultado<ConsultoraDto>> criar({
     required String nome,
     required String whatsapp,
+    required String termosVersao,
   }) {
     return executarComFalha(
       () async => ConsultoraDto.fromJson(
-        await _api.inserir(_tabela, {'nome': nome, 'whatsapp': whatsapp}),
+        await _api.inserir(_tabela, {
+          'nome': nome,
+          'whatsapp': whatsapp,
+          'termos_versao': termosVersao,
+        }),
       ),
       mensagemPadrao: 'Não foi possível concluir o cadastro.',
     );

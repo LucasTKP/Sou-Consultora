@@ -4,9 +4,9 @@ import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/cards/cartao_lista_app.dart';
 import 'package:sou_consultora/ui/widgets/dialog/folha_inferior_app.dart';
 
-enum AcaoConta { sair, apagar }
+enum AcaoConta { termos, sair, apagar }
 
-/// Folha "Opções da Conta": sair e apagar conta.
+/// Folha "Opções da Conta": termos, sair e apagar conta.
 abstract final class FolhaOpcoesConta {
   static Future<AcaoConta?> mostrar(BuildContext context) {
     return FolhaInferiorApp.mostrar<AcaoConta>(
@@ -14,6 +14,17 @@ abstract final class FolhaOpcoesConta {
       titulo: 'Opções da Conta',
       conteudo: (contexto) => Column(
         children: [
+          CartaoListaApp(
+            titulo: 'Termos de Uso',
+            subtitulo: 'Termos e Política de Privacidade',
+            inicio: _icone(
+              Icons.description_outlined,
+              CoresApp.primariaSuave,
+              CoresApp.primariaEscura,
+            ),
+            onTap: () => Navigator.of(contexto).pop(AcaoConta.termos),
+          ),
+          const SizedBox(height: 12),
           CartaoListaApp(
             titulo: 'Sair da Conta',
             subtitulo: 'Desconectar deste dispositivo',

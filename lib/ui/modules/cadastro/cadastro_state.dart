@@ -8,6 +8,8 @@ class CadastroState {
     this.whatsapp = '',
     this.erroNome,
     this.erroWhatsapp,
+    this.aceitouTermos = false,
+    this.erroTermos,
     this.marcas = const {},
     this.salvando = false,
     this.erroGeral,
@@ -20,6 +22,8 @@ class CadastroState {
   final String? erroNome;
   final String? erroWhatsapp;
   final bool salvando;
+  final bool aceitouTermos;
+  final String? erroTermos;
 
   /// Marcas que a consultora vende (viram fornecedores ao cadastrar).
   final Set<MarcaPadrao> marcas;
@@ -32,6 +36,8 @@ class CadastroState {
     String? whatsapp,
     String? Function()? erroNome,
     String? Function()? erroWhatsapp,
+    bool? aceitouTermos,
+    String? Function()? erroTermos,
     Set<MarcaPadrao>? marcas,
     bool? salvando,
     String? Function()? erroGeral,
@@ -42,6 +48,8 @@ class CadastroState {
       whatsapp: whatsapp ?? this.whatsapp,
       erroNome: erroNome != null ? erroNome() : this.erroNome,
       erroWhatsapp: erroWhatsapp != null ? erroWhatsapp() : this.erroWhatsapp,
+      aceitouTermos: aceitouTermos ?? this.aceitouTermos,
+      erroTermos: erroTermos != null ? erroTermos() : this.erroTermos,
       marcas: marcas ?? this.marcas,
       salvando: salvando ?? this.salvando,
       erroGeral: erroGeral != null ? erroGeral() : this.erroGeral,

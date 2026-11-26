@@ -12,6 +12,8 @@ class ConsultoraDto {
     this.fotoUrl,
     this.chavePix,
     this.tipoChavePix,
+    this.termosVersao,
+    this.termosAceitosEm,
   });
 
   factory ConsultoraDto.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,10 @@ class ConsultoraDto {
       tipoChavePix: json['tipo_chave_pix'] as String?,
       ultimoCodigoVenda: json['ultimo_codigo_venda'] as int,
       createdAt: DateTime.parse(json['created_at'] as String),
+      termosVersao: json['termos_versao'] as String?,
+      termosAceitosEm: DateTime.tryParse(
+        json['termos_aceitos_em'] as String? ?? '',
+      ),
     );
   }
 
@@ -37,6 +43,8 @@ class ConsultoraDto {
   final String? tipoChavePix;
   final int ultimoCodigoVenda;
   final DateTime createdAt;
+  final String? termosVersao;
+  final DateTime? termosAceitosEm;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -47,6 +55,8 @@ class ConsultoraDto {
     'tipo_chave_pix': tipoChavePix,
     'ultimo_codigo_venda': ultimoCodigoVenda,
     'created_at': createdAt.toIso8601String(),
+    'termos_versao': termosVersao,
+    'termos_aceitos_em': termosAceitosEm?.toIso8601String(),
   };
 
   Consultora paraModel({String? urlFoto}) {

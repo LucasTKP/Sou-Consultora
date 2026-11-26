@@ -46,6 +46,10 @@ class _MeuPerfilVista extends StatelessWidget {
   Future<void> _abrirOpcoes(BuildContext context) async {
     final cubit = context.read<MeuPerfilCubit>();
     final acao = await FolhaOpcoesConta.mostrar(context);
+    if (acao == AcaoConta.termos && context.mounted) {
+      await context.push(RotasApp.termos);
+      return;
+    }
     if (acao == AcaoConta.apagar) {
       // A exclusão é pedida ao suporte pelo WhatsApp, com a mensagem pronta.
       await cubit.pedirParaApagarConta();

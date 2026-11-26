@@ -37,7 +37,9 @@ void main() {
         ..alternarMarca(MarcaPadrao.avon); // desmarca
       expect(cubit.state.marcas, {MarcaPadrao.maryKay, MarcaPadrao.natura});
 
-      cubit.alterarWhatsapp('(11) 98765-4321');
+      cubit
+        ..alterarWhatsapp('(11) 98765-4321')
+        ..alterarAceite(true);
       await cubit.continuar();
 
       expect(fornecedores.salvos.map((s) => s.fornecedor.nome), [

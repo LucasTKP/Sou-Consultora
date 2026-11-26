@@ -72,6 +72,7 @@ void main() {
         }
 
         await digitar(tester, 'Número de WhatsApp', '119876');
+        await tocar(tester, find.byType(Checkbox));
         await tocar(tester, find.text('Continuar'));
         expect(find.text('Informe o WhatsApp com DDD'), findsOneWidget);
 

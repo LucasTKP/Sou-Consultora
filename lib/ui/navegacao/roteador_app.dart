@@ -29,6 +29,7 @@ import 'package:sou_consultora/ui/modules/produtos/lista/produtos_lista_screen.d
 import 'package:sou_consultora/ui/modules/servicos/detalhes/servicos_detalhes_screen.dart';
 import 'package:sou_consultora/ui/modules/servicos/formulario/servicos_formulario_screen.dart';
 import 'package:sou_consultora/ui/modules/servicos/lista/servicos_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/termos/termos_screen.dart';
 import 'package:sou_consultora/ui/modules/perfil/editar/editar_perfil_screen.dart';
 import 'package:sou_consultora/ui/modules/perfil/meu_perfil/meu_perfil_screen.dart';
 import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_screen.dart';
@@ -76,6 +77,11 @@ abstract final class RoteadorApp {
         GoRoute(
           path: RotasApp.cadastro,
           builder: (_, _) => const CadastroScreen(),
+        ),
+        GoRoute(
+          path: RotasApp.termos,
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const TermosScreen(),
         ),
         GoRoute(
           path: RotasApp.perfil,

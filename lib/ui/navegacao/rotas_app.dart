@@ -28,6 +28,9 @@ abstract final class RotasApp {
   static const carregando = '/carregando';
   static const cadastro = '/cadastro';
   static const atualizacao = '/atualizar';
+
+  /// Leitura dos termos: abre no cadastro e no perfil.
+  static const termos = '/termos';
   static const inicio = '/inicio';
   static const produtos = '/produtos';
   static const clientes = '/clientes';

@@ -38,6 +38,7 @@ class ServicoConsultoraFalso implements ServicoConsultora {
 
   ConsultoraDto? registro;
   bool falharRede = false;
+  String? termosAceitos;
   bool falharAtualizarFoto = false;
   final List<String> chamadas = [];
   final List<String> fotosRemovidas = [];
@@ -56,7 +57,9 @@ class ServicoConsultoraFalso implements ServicoConsultora {
   Future<Resultado<ConsultoraDto>> criar({
     required String nome,
     required String whatsapp,
+    required String termosVersao,
   }) async {
+    termosAceitos = termosVersao;
     chamadas.add('criar $nome $whatsapp');
     if (falharRede) return Erro(falhaDeRede);
     return Sucesso(registro = dtoDeTeste(nome: nome));

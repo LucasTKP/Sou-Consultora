@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sou_consultora/core/model/termos_de_uso.dart';
 import 'package:sou_consultora/core/di/injetor.dart';
 import 'package:sou_consultora/core/dto/resumo_parcela_dto.dart';
 import 'package:sou_consultora/core/erros/resultado.dart';
@@ -263,6 +264,7 @@ void main() {
     testWidgets('WhatsApp válido cadastra e abre o Início', (tester) async {
       await abrirApp(tester, logado: true, cadastrada: false);
       await tester.enterText(find.byType(TextField), '11987654321');
+      await tester.tap(find.byType(Checkbox));
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
 
@@ -270,12 +272,43 @@ void main() {
         _servicoConsultora.chamadas.last,
         'criar Ana Paula Consultora 11987654321',
       );
+      expect(_servicoConsultora.termosAceitos, TermosDeUso.versao);
       expect(find.text('Alertas de hoje'), findsOneWidget);
+    });
+
+    testWidgets('sem aceitar os termos mostra o erro e não grava', (
+      tester,
+    ) async {
+      await abrirApp(tester, logado: true, cadastrada: false);
+      await tester.enterText(find.byType(TextField), '11987654321');
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Aceite os termos para continuar'), findsOneWidget);
+      expect(
+        _servicoConsultora.chamadas.where((c) => c.startsWith('criar')),
+        isEmpty,
+      );
+    });
+
+    testWidgets('lê os termos e volta sem perder o que digitou', (
+      tester,
+    ) async {
+      await abrirApp(tester, logado: true, cadastrada: false);
+      await tester.enterText(find.byType(TextField), '11987654321');
+      await tester.tap(find.text('Termos de Uso'));
+      await tester.pumpAndSettle();
+      expect(find.text('1. O que é o aplicativo'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Voltar'));
+      await tester.pumpAndSettle();
+      expect(find.text('(11) 98765-4321'), findsOneWidget);
     });
 
     testWidgets('WhatsApp inválido mostra o erro e não grava', (tester) async {
       await abrirApp(tester, logado: true, cadastrada: false);
       await tester.enterText(find.byType(TextField), '119876');
+      await tester.tap(find.byType(Checkbox));
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
 
@@ -292,6 +325,7 @@ void main() {
       await abrirApp(tester, logado: true, cadastrada: false);
       _servicoConsultora.falharRede = true;
       await tester.enterText(find.byType(TextField), '11987654321');
+      await tester.tap(find.byType(Checkbox));
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
 

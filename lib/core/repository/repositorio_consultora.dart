@@ -8,6 +8,7 @@ import 'package:sou_consultora/core/model/consultora.dart';
 import 'package:sou_consultora/core/model/marca_padrao.dart';
 import 'package:sou_consultora/core/model/origem_foto.dart';
 import 'package:sou_consultora/core/model/telefone.dart';
+import 'package:sou_consultora/core/model/termos_de_uso.dart';
 import 'package:sou_consultora/core/service/servico_consultora.dart';
 import 'package:sou_consultora/core/service/servico_fornecedores.dart';
 import 'package:sou_consultora/core/service/servico_foto_dispositivo.dart';
@@ -44,6 +45,8 @@ class RepositorioConsultora {
     };
   }
 
+  /// Só é chamado com os termos aceitos: grava a versão em vigor.
+  ///
   /// Cria o cadastro e, antes de liberar o app, os fornecedores das [marcas]
   /// marcadas. Falha em uma marca não impede o cadastro (ela cadastra depois).
   Future<Resultado<Consultora>> cadastrar({
@@ -54,6 +57,7 @@ class RepositorioConsultora {
     final resultado = await _servico.criar(
       nome: nome.trim(),
       whatsapp: Telefone.digitos(whatsapp),
+      termosVersao: TermosDeUso.versao,
     );
     if (resultado is Sucesso && marcas.isNotEmpty) {
       await Future.wait(

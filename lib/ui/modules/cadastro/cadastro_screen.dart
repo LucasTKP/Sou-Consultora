@@ -2,10 +2,13 @@
 import 'package:sou_consultora/ui/widgets/estrutura/rodape_seguro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sou_consultora/core/model/marca_padrao.dart';
 import 'package:sou_consultora/ui/formatadores/mascaras.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_cubit.dart';
 import 'package:sou_consultora/ui/modules/cadastro/cadastro_state.dart';
+import 'package:sou_consultora/ui/modules/cadastro/widgets/aceite_termos.dart';
+import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 import 'package:sou_consultora/ui/temas/cores_app.dart';
 import 'package:sou_consultora/ui/widgets/botoes/botao_app.dart';
 import 'package:sou_consultora/ui/widgets/estrutura/cabecalho_app.dart';
@@ -124,10 +127,23 @@ class _CadastroVista extends StatelessWidget {
                 ),
               ),
               RodapeSeguro(
-                child: BotaoApp(
-                  rotulo: estado.salvando ? 'Salvando...' : 'Continuar',
-                  iconeFim: const Icon(Icons.arrow_forward_rounded),
-                  onPressed: estado.salvando ? null : cubit.continuar,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AceiteTermos(
+                      aceito: estado.aceitouTermos,
+                      erro: estado.erroTermos,
+                      onAlterar: estado.salvando ? null : cubit.alterarAceite,
+                      onLer: () => context.push(RotasApp.termos),
+                    ),
+                    const SizedBox(height: 8),
+                    BotaoApp(
+                      rotulo: estado.salvando ? 'Salvando...' : 'Continuar',
+                      iconeFim: const Icon(Icons.arrow_forward_rounded),
+                      onPressed: estado.salvando ? null : cubit.continuar,
+                    ),
+                  ],
                 ),
               ),
             ],

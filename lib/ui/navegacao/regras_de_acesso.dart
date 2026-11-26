@@ -8,12 +8,16 @@ import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
 /// | atualizacaoObrigatoria          | /atualizar          |
 /// | desconectado                    | /login              |
 /// | verificando / erroVerificacao   | /carregando         |
-/// | semCadastro                     | /cadastro           |
+/// | semCadastro                     | /cadastro e /termos |
 /// | pronto                          | qualquer rota do app (login, cadastro e carregando → /inicio) |
 String? destinoPermitido({
   required EstadoAcesso estado,
   required String destino,
 }) {
+  // Quem está se cadastrando precisa poder ler o que vai aceitar.
+  if (estado == EstadoAcesso.semCadastro && destino == RotasApp.termos) {
+    return null;
+  }
   final rotaObrigatoria = switch (estado) {
     EstadoAcesso.atualizacaoObrigatoria => RotasApp.atualizacao,
     EstadoAcesso.desconectado => RotasApp.login,
