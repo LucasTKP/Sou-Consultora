@@ -334,7 +334,11 @@ class _ConteudoFolhaState extends State<_ConteudoFolha> {
             onChanged: (valor) => setState(() => _baixar = valor),
           ),
         ],
-        if (item != null) ...[const SizedBox(height: 16), _Resumo(item: item)],
+        // Desconto inválido daria um resumo com valores negativos.
+        if (item != null && _validarDesconto(item) == null) ...[
+          const SizedBox(height: 16),
+          _Resumo(item: item),
+        ],
         const SizedBox(height: 24),
         BotaoApp(rotulo: 'Salvar', onPressed: _salvar),
       ],

@@ -41,8 +41,9 @@ class SeletorQuantidadeApp extends StatelessWidget {
       decoration: InputDecoration(
         label: RotuloCampoApp(rotulo: rotulo, obrigatorio: obrigatorio),
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        // 48 do botão + 14 = mesma altura dos campos de texto.
-        contentPadding: const EdgeInsets.symmetric(vertical: 7),
+        // 48 do botão + 14 = mesma altura dos campos de texto. O recuo lateral
+        // põe o rótulo no mesmo lugar e não come o canto da borda.
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         enabledBorder: borda,
         border: borda,
       ),
