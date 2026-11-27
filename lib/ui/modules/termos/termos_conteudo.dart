@@ -115,44 +115,23 @@ abstract final class TermosConteudo {
     (
       titulo: '3. Quem é responsável',
       paragrafos: [
-        'Pelos dados da sua conta, o responsável (controlador) é '
+        'Pelos dados da sua conta, o responsável é '
             '${TermosDeUso.responsavel}, que mantém o aplicativo Sou '
-            'Consultora. Contato: ${TermosDeUso.emailContato}.',
-        'Pelos dados das suas clientes, a responsável é você (controladora). O '
-            'aplicativo apenas guarda e processa essas informações para você '
-            '(operador).',
+            'Consultora.',
+        'Pelos dados das suas clientes, a responsável é você. O aplicativo '
+            'apenas guarda essas informações para você.',
+        'Para consultar, corrigir ou apagar seus dados, escreva para '
+            '${TermosDeUso.emailContato}.',
       ],
     ),
     (
       titulo: '4. Com quem compartilhamos',
       paragrafos: [
-        'Com os serviços necessários para o aplicativo funcionar: Supabase '
-            '(banco de dados, arquivos e autenticação), Google e Apple (login).',
+        'Com os serviços necessários para o aplicativo funcionar: provedores '
+            'de hospedagem e armazenamento, Google e Apple (login).',
         'Esses serviços podem armazenar dados em servidores fora do Brasil.',
         'Também podemos entregar dados quando a lei ou uma ordem judicial '
             'exigir.',
-      ],
-    ),
-    (
-      titulo: '5. Segurança e guarda',
-      paragrafos: [
-        'A conexão é protegida e cada consultora só acessa os próprios dados. '
-            'Nenhum sistema é totalmente imune a falhas; se houver incidente '
-            'relevante, os afetados serão avisados.',
-        'Guardamos os dados enquanto a conta existir. Depois da exclusão, eles '
-            'são apagados, salvo o que a lei obrigar a manter. Cópias de '
-            'segurança podem existir por prazo limitado.',
-      ],
-    ),
-    (
-      titulo: '6. Seus direitos (LGPD)',
-      paragrafos: [
-        'Você pode pedir confirmação do tratamento, acesso, correção, cópia, '
-            'portabilidade, anonimização ou exclusão dos seus dados, '
-            'informação sobre compartilhamento e revogar o consentimento.',
-        'Faça o pedido pelo e-mail ${TermosDeUso.emailContato} ou pelo '
-            'suporte no WhatsApp, disponível no aplicativo. Você também pode reclamar à Autoridade Nacional de Proteção de '
-            'Dados (ANPD).',
       ],
     ),
   ];
