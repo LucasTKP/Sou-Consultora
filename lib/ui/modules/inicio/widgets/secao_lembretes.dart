@@ -171,8 +171,6 @@ class _Linha extends StatelessWidget {
                 Text(
                   '${lembrete.produtoNome} • '
                   '${dias == 1 ? 'há 1 dia' : 'há $dias dias'}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: estilos.bodySmall,
                 ),
               ],
