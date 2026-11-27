@@ -1131,10 +1131,7 @@ void main() {
         await tocar(tester, find.byType(CampoDataApp));
         await tocar(tester, find.text('OK'));
         await tocar(tester, find.text('Continuar'));
-        await esperarAte(
-          tester,
-          find.text('PASSO 2 DE 2'),
-        );
+        await esperarAte(tester, find.text('PASSO 2 DE 2'));
         await tester.enterText(find.byType(TextField).last, observacao);
         await tester.pumpAndSettle();
         await tocar(tester, find.text('Salvar Boleto'));
@@ -1504,4 +1501,151 @@ void main() {
       },
     );
   }, skip: pularGrupo('E2E-14'));
+
+  // ————————————————————————————————————————————————————————————————
+  // E2E-15 · Venda com desconto em %, opções do item e erros no campo
+  // ————————————————————————————————————————————————————————————————
+  group('E2E-15 Desconto em porcentagem', () {
+    const cliente = 'E2E Cliente';
+    const servico = 'E2E Serviço';
+    const opcoes = 'Opções de $servico';
+
+    Future<void> adicionarServico(WidgetTester tester) async {
+      await tocar(tester, find.text('Adicionar Produto ou Serviço'));
+      await tocar(tester, find.text('Serviço'));
+      await tocar(tester, find.text('Escolha o serviço'));
+      if (find.text(servico).evaluate().isEmpty) {
+        fail('Rode antes o E2E-08: ele cria o serviço "$servico".');
+      }
+      await tocar(tester, find.text(servico).last);
+    }
+
+    testWidgets(
+      'recusa o que falta, grava a porcentagem, mantém ao editar e cancela',
+      (tester) async {
+        await abrirApp(tester);
+        final vendas = injetor<RepositorioVendas>();
+        final antes = await vendas.carregar();
+        final idsAntes = {for (final v in (antes as Sucesso).valor) v.id};
+        addTearDown(() async {
+          final depois = await vendas.carregar();
+          for (final v in (depois as Sucesso).valor) {
+            if (!idsAntes.contains(v.id)) await vendas.cancelar(v.id);
+          }
+        });
+
+        await tester.tap(find.bySemanticsLabel('Vendas').last);
+        await tester.pumpAndSettle();
+        await esperarAte(
+          tester,
+          find.byWidgetPredicate(
+            (w) =>
+                w is Text &&
+                (w.data == 'Nenhuma venda ainda' ||
+                    RegExp(r'^\d+ vendas?$').hasMatch(w.data ?? '')),
+          ),
+          descricao: 'lista de vendas',
+        );
+        await tocar(
+          tester,
+          find.text(
+            find.text('Nenhuma venda ainda').evaluate().isEmpty
+                ? 'Nova venda'
+                : 'Registrar venda',
+          ),
+        );
+        await esperarAte(tester, find.text('Adicionar Produto ou Serviço'));
+
+        // Sem itens, Avançar não passa do passo 1.
+        await tocar(tester, find.text('Avançar'));
+        expect(find.text('Como a cliente vai pagar?'), findsNothing);
+
+        if (find.text('Escolha a cliente').evaluate().isNotEmpty) {
+          await tocar(tester, find.text('Escolha a cliente').first);
+          if (find.text(cliente).evaluate().isEmpty) {
+            fail('Rode antes o E2E-04: ele cria a cliente "$cliente".');
+          }
+          await tocar(tester, find.text(cliente).last);
+        }
+
+        // Excluir pelo lápis tira o item do pedido.
+        await adicionarServico(tester);
+        await tocar(tester, find.text('Salvar'));
+        await tocar(tester, find.byTooltip(opcoes));
+        await tocar(tester, find.text('Excluir'));
+        expect(find.byTooltip(opcoes), findsNothing);
+
+        await adicionarServico(tester);
+        await tocar(tester, find.byTooltip('Aumentar'));
+        await tocar(tester, find.text('%'));
+        await digitar(tester, 'Desconto', '101');
+        await tocar(tester, find.text('Salvar'));
+        expect(find.text('O desconto não pode passar de 100%'), findsOneWidget);
+        await digitar(tester, 'Desconto', '10');
+        await mostrar(tester, find.text('Desconto aplicado (10%):'));
+        expect(find.text('Desconto aplicado (10%):'), findsOneWidget);
+        await tocar(tester, find.text('Salvar'));
+
+        // Reabrir o item mantém o desconto em %.
+        await tocar(tester, find.byTooltip(opcoes));
+        await tocar(tester, find.text('Editar'));
+        await mostrar(tester, find.text('Desconto aplicado (10%):'));
+        expect(find.text('Desconto aplicado (10%):'), findsOneWidget);
+        await tocar(tester, find.text('Salvar'));
+
+        await tocar(tester, find.text('Avançar'));
+        await esperarAte(tester, find.text('Como a cliente vai pagar?'));
+        await mostrar(tester, find.text('Concluir Venda'));
+        await tocar(tester, find.text('Concluir Venda'));
+        await esperarAte(
+          tester,
+          find.text('Buscar por cliente, produto ou código...'),
+        );
+
+        // Relê do banco: a porcentagem e o valor calculado.
+        final depois = await vendas.carregar();
+        final nova = (depois as Sucesso).valor.firstWhere(
+          (v) => !idsAntes.contains(v.id),
+        );
+        final detalhe = await vendas.detalhe(nova.id);
+        final item = (detalhe as Sucesso).valor!.itens.single;
+        expect(item.quantidade, 2);
+        expect(item.percentualDesconto, 1000);
+        expect(
+          item.desconto,
+          ItemPedido.descontoPorPercentual(
+            percentual: 1000,
+            bruto: item.precoUnitario * 2,
+          ),
+        );
+
+        await tester.enterText(
+          find.byType(TextField).first,
+          nova.codigo.toString(),
+        );
+        await tester.pumpAndSettle();
+        await tocar(tester, find.text(cliente).first);
+        await esperarAte(tester, find.text('Detalhes da Venda'));
+        await mostrar(tester, find.textContaining('(10%)'));
+        expect(find.textContaining('(10%)'), findsWidgets);
+        await tocar(tester, find.text('Mais opções'));
+        await tocar(tester, find.text('Cancelar Venda'));
+        await tocar(tester, find.text('Cancelar venda'));
+        await esperarAte(
+          tester,
+          find.byWidgetPredicate(
+            (w) =>
+                w is Text &&
+                (w.data == 'Nenhuma venda ainda' ||
+                    w.data == 'Buscar por cliente, produto ou código...'),
+          ),
+        );
+        final aposCancelar = await vendas.carregar();
+        expect(
+          (aposCancelar as Sucesso).valor.any((v) => v.id == nova.id),
+          isFalse,
+        );
+      },
+    );
+  }, skip: pularGrupo('E2E-15'));
 }

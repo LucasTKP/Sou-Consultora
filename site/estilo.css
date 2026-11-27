@@ -1,0 +1,81 @@
+/* Cores de lib/ui/temas/cores_app.dart */
+:root {
+  --primaria: #b0396f;
+  --primaria-escura: #902054;
+  --primaria-suave: #f4e4e9;
+  --fundo: #fef8f8;
+  --superficie: #ffffff;
+  --texto: #332d2d;
+  --texto-suave: #6b6464;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--fundo);
+  color: var(--texto);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: var(--primaria-escura); overflow-wrap: anywhere; }
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px max(16px, calc((100% - 880px) / 2));
+  background: var(--primaria);
+  border-radius: 0 0 24px 24px;
+}
+
+header a { color: #fff; text-decoration: none; }
+header nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+header nav a:hover { text-decoration: underline; }
+.marca { font-size: 22px; font-weight: 700; }
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 912px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+h1, h2 { line-height: 1.25; text-wrap: balance; }
+h1 { color: var(--primaria-escura); font-size: 28px; margin: 0 0 8px; }
+h2 { font-size: 18px; margin: 28px 0 8px; }
+
+.cartao {
+  background: var(--superficie);
+  border: 1px solid var(--primaria-suave);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.versao { color: var(--texto-suave); margin-top: 0; }
+
+.destaque { text-align: center; margin-bottom: 32px; }
+.destaque img { max-width: 60%; height: auto; }
+.destaque p { color: var(--texto-suave); font-size: 18px; margin: 0; }
+
+.grade {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+}
+
+.grade h2 { margin-top: 0; color: var(--primaria); }
+.grade p { margin: 0; }
+
+footer {
+  padding: 24px 16px;
+  text-align: center;
+  background: var(--primaria-suave);
+}
