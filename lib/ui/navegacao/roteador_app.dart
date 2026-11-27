@@ -1,0 +1,423 @@
+// ignore_for_file: deprecated_member_use
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sou_consultora/core/model/filtro_recebimentos.dart';
+import 'package:sou_consultora/ui/modules/a_pagar/detalhes/a_pagar_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/a_pagar/formulario/a_pagar_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/a_pagar/lista/a_pagar_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/a_receber/comprovante/a_receber_comprovante_screen.dart';
+import 'package:sou_consultora/ui/modules/a_receber/lista/a_receber_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/a_receber/parcela/a_receber_parcela_screen.dart';
+import 'package:sou_consultora/ui/modules/atualizacao/atualizacao_screen.dart';
+import 'package:sou_consultora/ui/modules/cadastro/cadastro_screen.dart';
+import 'package:sou_consultora/ui/modules/clientes/compras/clientes_compras_screen.dart';
+import 'package:sou_consultora/ui/modules/clientes/dados/clientes_dados_screen.dart';
+import 'package:sou_consultora/ui/modules/clientes/detalhes/clientes_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/clientes/formulario/clientes_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/clientes/lista/clientes_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/financeiro/financeiro_screen.dart';
+import 'package:sou_consultora/ui/modules/fornecedores/detalhes/fornecedores_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/fornecedores/formulario/fornecedores_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/fornecedores/lista/fornecedores_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/inicio/inicio_screen.dart';
+import 'package:sou_consultora/ui/modules/login/acesso_login_screen.dart';
+import 'package:sou_consultora/ui/modules/produtos/detalhes/produtos_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/produtos/formulario/produtos_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/produtos/importar/produtos_importar_screen.dart';
+import 'package:sou_consultora/ui/modules/produtos/lancar_estoque/lancar_estoque_screen.dart';
+import 'package:sou_consultora/ui/modules/produtos/lista/produtos_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/servicos/detalhes/servicos_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/servicos/formulario/servicos_formulario_screen.dart';
+import 'package:sou_consultora/ui/modules/servicos/lista/servicos_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/termos/termos_screen.dart';
+import 'package:sou_consultora/ui/modules/perfil/editar/editar_perfil_screen.dart';
+import 'package:sou_consultora/ui/modules/perfil/meu_perfil/meu_perfil_screen.dart';
+import 'package:sou_consultora/ui/modules/vendas/detalhes/vendas_detalhes_screen.dart';
+import 'package:sou_consultora/ui/modules/vendas/lista/vendas_lista_screen.dart';
+import 'package:sou_consultora/ui/modules/vendas/nova/nova_venda_screen.dart';
+import 'package:sou_consultora/ui/navegacao/carregando_screen.dart';
+import 'package:sou_consultora/ui/navegacao/casca/casca_principal_screen.dart';
+import 'package:sou_consultora/ui/navegacao/em_construcao_screen.dart';
+import 'package:sou_consultora/ui/navegacao/notificador_acesso.dart';
+import 'package:sou_consultora/ui/navegacao/regras_de_acesso.dart';
+import 'package:sou_consultora/ui/navegacao/rotas_app.dart';
+
+/// Roteador único do app.
+///
+/// - Telas principais ficam dentro do [ShellRoute] (com barra e menu).
+/// - Telas de detalhe/formulário devem usar `parentNavigatorKey: chaveRaiz`
+///   para abrir por cima, sem a barra.
+/// - O redirecionamento reage a cada mudança de acesso ([NotificadorAcesso]).
+abstract final class RoteadorApp {
+  static final chaveRaiz = GlobalKey<NavigatorState>(debugLabel: 'raiz');
+
+  static GoRouter criar({required NotificadorAcesso acesso}) {
+    return GoRouter(
+      navigatorKey: chaveRaiz,
+      initialLocation: RotasApp.inicio,
+      refreshListenable: acesso,
+      redirect: (_, estado) => destinoPermitido(
+        estado: acesso.estado,
+        destino: estado.matchedLocation,
+      ),
+      routes: [
+        GoRoute(path: '/', redirect: (_, _) => RotasApp.inicio),
+        GoRoute(
+          path: RotasApp.login,
+          builder: (_, _) => const AcessoLoginScreen(),
+        ),
+        GoRoute(
+          path: RotasApp.carregando,
+          builder: (_, _) => CarregandoScreen(acesso: acesso),
+        ),
+        GoRoute(
+          path: RotasApp.atualizacao,
+          builder: (_, _) => const AtualizacaoScreen(),
+        ),
+        GoRoute(
+          path: RotasApp.cadastro,
+          builder: (_, _) => const CadastroScreen(),
+        ),
+        GoRoute(
+          path: RotasApp.termos,
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const TermosScreen(),
+        ),
+        GoRoute(
+          path: RotasApp.perfil,
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const MeuPerfilScreen(),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, _) => const EditarPerfilScreen(),
+            ),
+          ],
+        ),
+        ShellRoute(
+          builder: (_, estado, filho) => CascaPrincipalScreen(
+            // `uri` acompanha também o push (matchedLocation fica na aba de baixo).
+            caminhoAtual: estado.uri.path,
+            filho: filho,
+          ),
+          routes: [
+            for (final modulo in RotasApp.modulos)
+              switch (modulo.rota) {
+                RotasApp.clientes => _rotaClientes(),
+                RotasApp.fornecedores => _rotaFornecedores(),
+                RotasApp.produtos => _rotaProdutos(),
+                RotasApp.servicos => _rotaServicos(),
+                RotasApp.vendas => _rotaVendas(),
+                RotasApp.aReceber => _rotaAReceber(),
+                RotasApp.aPagar => _rotaAPagar(),
+                RotasApp.financeiro => _rotaFinanceiro(),
+                RotasApp.inicio => _rotaInicio(),
+                _ => _rotaEmConstrucao(modulo),
+              },
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca; novo, detalhes, dados e edição abrem por cima (sem a barra).
+  static GoRoute _rotaClientes() {
+    return GoRoute(
+      path: RotasApp.clientes,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const ClientesListaScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'novo',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const ClientesFormularioScreen(),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              ClientesDetalhesScreen(idCliente: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'dados',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) =>
+                  ClientesDadosScreen(idCliente: estado.pathParameters['id']!),
+            ),
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => ClientesFormularioScreen(
+                idCliente: estado.pathParameters['id'],
+              ),
+            ),
+            GoRoute(
+              path: 'compras',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => ClientesComprasScreen(
+                idCliente: estado.pathParameters['id']!,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca; novo, detalhes e edição abrem por cima (sem a barra).
+  static GoRoute _rotaFornecedores() {
+    return GoRoute(
+      path: RotasApp.fornecedores,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const FornecedoresListaScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'novo',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const FornecedoresFormularioScreen(),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) => FornecedoresDetalhesScreen(
+            idFornecedor: estado.pathParameters['id']!,
+          ),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => FornecedoresFormularioScreen(
+                idFornecedor: estado.pathParameters['id'],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca; novo, detalhes e edição abrem por cima (sem a barra).
+  static GoRoute _rotaProdutos() {
+    return GoRoute(
+      path: RotasApp.produtos,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const ProdutosListaScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'novo',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const ProdutosFormularioScreen(),
+        ),
+        // Antes de ':id', para não ser lida como o id de um produto.
+        GoRoute(
+          path: 'importar',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const ProdutosImportarScreen(),
+        ),
+        GoRoute(
+          path: 'lancar-estoque',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) => LancarEstoqueScreen(
+            produtoInicialId: estado.uri.queryParameters['produto'],
+          ),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              ProdutosDetalhesScreen(idProduto: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => ProdutosFormularioScreen(
+                idProduto: estado.pathParameters['id'],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca; novo, detalhes e edição abrem por cima (sem a barra).
+  static GoRoute _rotaServicos() {
+    return GoRoute(
+      path: RotasApp.servicos,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const ServicosListaScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'novo',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, _) => const ServicosFormularioScreen(),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              ServicosDetalhesScreen(idServico: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => ServicosFormularioScreen(
+                idServico: estado.pathParameters['id'],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca; nova, detalhes e edição abrem por cima (sem a barra).
+  static GoRoute _rotaVendas() {
+    return GoRoute(
+      path: RotasApp.vendas,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const VendasListaScreen(),
+      ),
+      routes: [
+        // Antes de ':id', para não ser lida como o id de uma venda.
+        GoRoute(
+          path: 'nova',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) => NovaVendaScreen(
+            clienteInicialId: estado.uri.queryParameters['cliente'],
+          ),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              VendasDetalhesScreen(idVenda: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) =>
+                  NovaVendaScreen(idVenda: estado.pathParameters['id']),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca (pelo menu); parcela e comprovante abrem por cima.
+  static GoRoute _rotaAReceber() {
+    return GoRoute(
+      path: RotasApp.aReceber,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        // A chave inclui o `?status=`: trocar de filtro recria a lista.
+        key: ValueKey(estado.uri.toString()),
+        child: AReceberListaScreen(
+          statusInicial: StatusFiltroRecebimento.doParametro(
+            estado.uri.queryParameters['status'],
+          ),
+        ),
+      ),
+      routes: [
+        GoRoute(
+          path: 'parcelas/:id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              AReceberParcelaScreen(idParcela: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'comprovante',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) => AReceberComprovanteScreen(
+                idParcela: estado.pathParameters['id']!,
+                idPagamento: estado.uri.queryParameters['pagamento'],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Lista na casca (pelo menu); novo, a lista de uma marca, detalhes e
+  /// edição abrem por cima.
+  static GoRoute _rotaAPagar() {
+    return GoRoute(
+      path: RotasApp.aPagar,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const APagarListaScreen(),
+      ),
+      routes: [
+        // 'novo' e 'fornecedor/:id' antes de ':id', para não virarem um id.
+        GoRoute(
+          path: 'novo',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) => APagarFormularioScreen(
+            fornecedorInicialId: estado.uri.queryParameters['fornecedor'],
+          ),
+        ),
+        GoRoute(
+          path: 'fornecedor/:id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              APagarListaScreen(fornecedorId: estado.pathParameters['id']),
+        ),
+        GoRoute(
+          path: ':id',
+          parentNavigatorKey: chaveRaiz,
+          builder: (_, estado) =>
+              APagarDetalhesScreen(idBoleto: estado.pathParameters['id']!),
+          routes: [
+            GoRoute(
+              path: 'editar',
+              parentNavigatorKey: chaveRaiz,
+              builder: (_, estado) =>
+                  APagarFormularioScreen(idBoleto: estado.pathParameters['id']),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Tela única na casca (item central da barra; abre depois do login).
+  static GoRoute _rotaInicio() {
+    return GoRoute(
+      path: RotasApp.inicio,
+      pageBuilder: (_, estado) =>
+          NoTransitionPage(key: estado.pageKey, child: const InicioScreen()),
+    );
+  }
+
+  /// Tela única na casca (item da barra).
+  static GoRoute _rotaFinanceiro() {
+    return GoRoute(
+      path: RotasApp.financeiro,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: const FinanceiroScreen(),
+      ),
+    );
+  }
+
+  static GoRoute _rotaEmConstrucao(ModuloApp modulo) {
+    return GoRoute(
+      path: modulo.rota,
+      pageBuilder: (_, estado) => NoTransitionPage(
+        key: estado.pageKey,
+        child: EmConstrucaoScreen(titulo: modulo.titulo),
+      ),
+    );
+  }
+}

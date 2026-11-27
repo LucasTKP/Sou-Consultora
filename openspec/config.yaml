@@ -1,0 +1,48 @@
+schema: spec-driven
+
+context: |
+  App: Sou Consultora — sou_consultora (Flutter).
+  Stack: somente Flutter/Dart. Dados e auth via Supabase.
+  Sem backend próprio (sem Dart Frog, sem Node). Sem monorepo multi-linguagem.
+
+  Arquitetura obrigatória (ver também .claude/rules/architecture.md):
+  - lib/core/api — abstração do client Supabase (logs, controle de requests)
+  - lib/core/dto — espelho do banco + mapper → Model (nullability = schema; não revalidar obrigatório)
+  - lib/core/model — objeto enriquecido + lógica reutilizável do conceito
+  - lib/core/service — consome api
+  - lib/core/repository — consome service; API limpa para Cubits; DTO→Model
+  - lib/core/di — get_it
+  - lib/core/env — ambiente
+  - lib/ui/modules/<feature>/<tela>/{state,cubit,page,widgets?}
+  - lib/ui/temas — temas Material + Shadcn (CoresApp / TemaApp)
+  - lib/ui/widgets/<categoria> — wrappers shadcn_ui em português (BotaoApp, CampoTextoApp, …)
+
+  Fluxo: Screen → Cubit → Repository → Service → Api → Supabase
+  Lógica reutilizável → Model; lógica específica da tela → Cubit.
+  Erros: Result + AppFailure na borda Service/Repository; Cubit traduz para state.
+  UI não importa dto/service/api/supabase_flutter diretamente.
+  Produto: fluxos.md, banco-de-dados.md e telas/ na raiz do workspace Sou Consultora.
+  Idioma: código nosso e artefatos OpenSpec em pt-BR (arquivos, variáveis, classes, comentários).
+  Exceção de entrada: lib/main.dart / main(); APIs Flutter/pacotes não se traduzem.
+  Telas: *_state.dart, *_cubit.dart, *_screen.dart.
+
+rules:
+  proposal:
+    - "Descreva o problema e o valor para a consultora (venda, cliente, estoque, financeiro)."
+    - "Não proponha backend em outra linguagem nem APIs Dart Frog."
+    - "Capabilities devem mapear a features/telas do app Flutter ou a regras de dados Supabase."
+  specs:
+    - "Requisitos em pt-BR com SHALL/MUST e ao menos um Scenario WHEN/THEN."
+    - "Quando envolver dados, respeite isolamento por consultora_id (RLS)."
+    - "Toda capability com dados MUST ter Scenario provando que outra consultora e o usuário anon não leem nem alteram os dados (.claude/rules/seguranca.md)."
+  design:
+    - "O design MUST seguir lib/core + lib/ui conforme architecture.md."
+    - "Indique pastas concretas (ex.: core/dto, ui/modules/clientes/lista)."
+    - "Supabase somente via core/api; DI com get_it; erros com Result/AppFailure."
+    - "Migrações MUST seguir .claude/rules/seguranca.md: RLS forçado, 4 policies por auth.uid(), FKs compostas com consultora_id, views security_invoker, RPC sem consultora_id como parâmetro, Storage privado."
+    - "Não introduza Modular multi-repo, Cortex, Dio obrigatório ou camadas UseCase/Controller de monorepo antigo."
+  tasks:
+    - "Tasks MUST ser implementáveis na ordem Page/Cubit ou core (dto→model→service→repository) sem pular a arquitetura."
+    - "Cada task de código aponta arquivos sob lib/core ou lib/ui."
+    - "Toda task de migração inclui task de teste de isolamento (consultora A × B × anon)."
+    - "Não crie task de worktree multi-repo, tool/repos.py ou pacotes front-core/back-core."
