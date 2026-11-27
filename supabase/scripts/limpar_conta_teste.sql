@@ -5,7 +5,7 @@
 
 do $limpar$
 declare
-  v_id uuid := 'a9e1f1b3-4b5d-4189-96a5-5f50ba472d57';
+  v_id uuid := '0f76794d-cebd-458b-9166-15f8f407d45f';
 begin
   -- Vendas levam itens, parcelas, pagamentos e saídas junto (cascade).
   delete from public.vendas   where consultora_id = v_id and observacoes like '[seed]%';

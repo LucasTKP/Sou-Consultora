@@ -1,4 +1,4 @@
--- Popula UMA conta com muitos dados para teste (clientes, produtos, estoque,
+-- Popula UMA conta com dados para teste (faturamento de R$ 20 a 30 mil por mês) (clientes, produtos, estoque,
 -- vendas, parcelas, pagamentos e boletos). NÃO é migração: rode à mão no
 -- SQL Editor do Supabase (papel postgres, que ignora o RLS — por isso o
 -- consultora_id vai explícito) ou com psql no banco local.
@@ -13,13 +13,13 @@
 do $seed$
 declare
   -- ===== Parâmetros ==================================================
-  v_id         uuid := 'a9e1f1b3-4b5d-4189-96a5-5f50ba472d57';
+  v_id         uuid := '0f76794d-cebd-458b-9166-15f8f407d45f';
   n_fornec     int  := 12;
-  n_clientes   int  := 300;
-  n_produtos   int  := 150;
-  n_servicos   int  := 25;
-  n_vendas     int  := 1500;
-  n_boletos    int  := 80;
+  n_clientes   int  := 120;
+  n_produtos   int  := 80;
+  n_servicos   int  := 12;
+  n_vendas     int  := 1200;
+  n_boletos    int  := 60;
   -- ====================================================================
   v_hoje       date := (now() at time zone 'America/Sao_Paulo')::date;
   v_base_cod   int;
@@ -130,8 +130,8 @@ begin
          v_cat_prod[1 + floor(random() * cardinality(v_cat_prod))::int] as categoria_id,
          case g
            when 1 then 0.01::numeric
-           when 2 then 49999.90::numeric
-           else round((10 + random() * 390)::numeric, 2)
+           when 2 then 299.90::numeric
+           else round((15 + random() * 165)::numeric, 2)
          end as preco_venda
     from generate_series(1, n_produtos) g;
 
@@ -170,7 +170,7 @@ begin
   -- ------------------------------------------------------------------
   create temp table t_serv on commit drop as
   select gen_random_uuid() as id, g as n,
-         round((20 + random() * 580)::numeric, 2) as preco_cobrado
+         round((20 + random() * 130)::numeric, 2) as preco_cobrado
     from generate_series(1, n_servicos) g;
 
   insert into public.servicos (id, consultora_id, categoria_id, nome, preco_cobrado, custo_materiais,
@@ -235,13 +235,13 @@ begin
   with base as (
     select gen_random_uuid() as id, g as n,
            v_cli[1 + floor(power(random(), 2) * n_clientes)::int] as cliente_id,
-           floor(power(random(), 1.4) * 340)::int as dias
+           -- Espalha por igual nos últimos 12 meses (100 vendas por mês).
+           ((g - 1) * 365 / n_vendas) as dias
       from generate_series(1, n_vendas) g
   )
   select id, n, cliente_id,
-         -- Um mês inteiro sem venda (dias 150 a 180) para o gráfico ter buraco.
-         case when dias between 150 and 180 then dias + 31 else dias end as dias_atras,
-         1 + floor(random() * 5)::int as n_itens
+         dias as dias_atras,
+         1 + floor(random() * 3)::int as n_itens
     from base;
 
   insert into public.vendas (id, consultora_id, cliente_id, codigo, data_venda,
@@ -266,8 +266,8 @@ begin
            (random() < 0.85) as eh_produto,
            v_prod[1 + floor(random() * n_produtos)::int] as pid,
            v_serv[1 + floor(random() * n_servicos)::int] as sid,
-           case when random() < 0.05 then 5 + floor(random() * 8)::int
-                else 1 + floor(random() * 3)::int end as qtd,
+           case when random() < 0.03 then 3 + floor(random() * 3)::int
+                else 1 + floor(random() * 1.6)::int end as qtd,
            random() as r_desc, random() as r_pct, random() as r_baixa
       from t_venda v
       cross join lateral generate_series(1, v.n_itens) k
@@ -336,7 +336,7 @@ begin
     select v.id as venda_id, ve.total, ve.data_venda::date as data_v,
            case
              when ve.total < 12 then 1
-             else (array[1,1,1,1,1,2,2,3,3,4,6,10,12])[1 + floor(random() * 13)::int]
+             else (array[1,1,1,1,1,1,2,2,3,3,4])[1 + floor(random() * 11)::int]
            end as np,
            (random() < 0.3) as entrada
       from t_venda v join public.vendas ve on ve.id = v.id
@@ -394,7 +394,7 @@ begin
          case when b.pago then least(b.vencimento + (floor(b.r_dia * 4) - 3)::int, v_hoje) end
     from (
       select g as n, v_forn[1 + floor(random() * n_fornec)::int] as fornecedor_id,
-             round((20 + power(random(), 3) * 7980)::numeric, 2) as valor,
+             round((20 + power(random(), 3) * 3980)::numeric, 2) as valor,
              v_hoje + (floor(random() * 210) - 120)::int as vencimento,
              random() as r_forma, random() as r_dia, random() as r_pago
         from generate_series(1, n_boletos) g
