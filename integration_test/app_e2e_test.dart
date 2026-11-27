@@ -701,6 +701,9 @@ void main() {
         await esperarAte(tester, find.text('Adicionar Produto ao Estoque'));
 
         await tocar(tester, find.byTooltip('Aumentar'));
+        if (Platform.isAndroid) await binding.convertFlutterSurfaceToImage();
+        await tester.pumpAndSettle();
+        await binding.takeScreenshot('e2e07-item-estoque');
         await tester.enterText(
           find.descendant(
             of: find.byType(CampoMoedaApp),
@@ -1520,6 +1523,18 @@ void main() {
       await tocar(tester, find.text(servico).last);
     }
 
+    // No Android a tela só pode ser convertida uma vez por cenário.
+    var convertida = false;
+
+    Future<void> foto(WidgetTester tester, String nome) async {
+      if (Platform.isAndroid && !convertida) {
+        await binding.convertFlutterSurfaceToImage();
+        convertida = true;
+      }
+      await tester.pumpAndSettle();
+      await binding.takeScreenshot(nome);
+    }
+
     testWidgets(
       'recusa o que falta, grava a porcentagem, mantém ao editar e cancela',
       (tester) async {
@@ -1560,8 +1575,16 @@ void main() {
         await tocar(tester, find.text('Avançar'));
         expect(find.text('Como a cliente vai pagar?'), findsNothing);
 
-        if (find.text('Escolha a cliente').evaluate().isNotEmpty) {
-          await tocar(tester, find.text('Escolha a cliente').first);
+        await foto(tester, 'e2e15-1-sem-itens');
+        // O aviso cobre o campo Cliente até sumir.
+        await esperarSumir(
+          tester,
+          find.text('Adicione pelo menos um produto ou serviço'),
+        );
+
+        // O erro tem o mesmo texto do espaço reservado: toca no campo.
+        if (find.text(cliente).evaluate().isEmpty) {
+          await tocar(tester, campo('Cliente'));
           if (find.text(cliente).evaluate().isEmpty) {
             fail('Rode antes o E2E-04: ele cria a cliente "$cliente".');
           }
@@ -1581,13 +1604,17 @@ void main() {
         await digitar(tester, 'Desconto', '101');
         await tocar(tester, find.text('Salvar'));
         expect(find.text('O desconto não pode passar de 100%'), findsOneWidget);
+        await foto(tester, 'e2e15-2-erro-percentual');
         await digitar(tester, 'Desconto', '10');
         await mostrar(tester, find.text('Desconto aplicado (10%):'));
         expect(find.text('Desconto aplicado (10%):'), findsOneWidget);
+        await foto(tester, 'e2e15-3-folha-item');
         await tocar(tester, find.text('Salvar'));
+        await foto(tester, 'e2e15-4-card-item');
 
         // Reabrir o item mantém o desconto em %.
         await tocar(tester, find.byTooltip(opcoes));
+        await foto(tester, 'e2e15-5-opcoes');
         await tocar(tester, find.text('Editar'));
         await mostrar(tester, find.text('Desconto aplicado (10%):'));
         expect(find.text('Desconto aplicado (10%):'), findsOneWidget);
